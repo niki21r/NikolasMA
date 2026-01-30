@@ -1,0 +1,256 @@
+[ {
+  "model" : "ewolff-kafka",
+  "constraints" : 4,
+  "violationsBefore" : 4,
+  "violationsAfter" : 0
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 5,
+  "violationsBefore" : 4,
+  "violationsAfter" : 0
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 7,
+  "violationsBefore" : 8,
+  "violationsAfter" : 0
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 8,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "anilallewar",
+  "constraints" : 7,
+  "violationsBefore" : 45,
+  "violationsAfter" : 0
+}, {
+  "model" : "anilallewar",
+  "constraints" : 8,
+  "violationsBefore" : 35,
+  "violationsAfter" : 0
+}, {
+  "model" : "anilallewar",
+  "constraints" : 11,
+  "violationsBefore" : 35,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 2,
+  "violationsBefore" : 31,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 4,
+  "violationsBefore" : 8,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 5,
+  "violationsBefore" : 8,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 7,
+  "violationsBefore" : 11,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 8,
+  "violationsBefore" : 31,
+  "violationsAfter" : 0
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 11,
+  "violationsBefore" : 33,
+  "violationsAfter" : 0
+}, {
+  "model" : "yidongnan",
+  "constraints" : 2,
+  "violationsBefore" : 27,
+  "violationsAfter" : 0
+}, {
+  "model" : "yidongnan",
+  "constraints" : 4,
+  "violationsBefore" : 6,
+  "violationsAfter" : 0
+}, {
+  "model" : "yidongnan",
+  "constraints" : 5,
+  "violationsBefore" : 6,
+  "violationsAfter" : 0
+}, {
+  "model" : "yidongnan",
+  "constraints" : 7,
+  "violationsBefore" : 28,
+  "violationsAfter" : 0
+}, {
+  "model" : "yidongnan",
+  "constraints" : 8,
+  "violationsBefore" : 27,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 1,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 2,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 4,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 5,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 7,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 8,
+  "violationsBefore" : 4,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 10,
+  "violationsBefore" : 4,
+  "violationsAfter" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 11,
+  "violationsBefore" : 4,
+  "violationsAfter" : 0
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 2,
+  "violationsBefore" : 24,
+  "violationsAfter" : 0
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 5,
+  "violationsBefore" : 21,
+  "violationsAfter" : 0
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 7,
+  "violationsBefore" : 24,
+  "violationsAfter" : 0
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 8,
+  "violationsBefore" : 24,
+  "violationsAfter" : 0
+}, {
+  "model" : "callistaenterprise",
+  "constraints" : 2,
+  "violationsBefore" : 34,
+  "violationsAfter" : 0
+}, {
+  "model" : "callistaenterprise",
+  "constraints" : 11,
+  "violationsBefore" : 49,
+  "violationsAfter" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 2,
+  "violationsBefore" : 7,
+  "violationsAfter" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 5,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 7,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 8,
+  "violationsBefore" : 7,
+  "violationsAfter" : 0
+}, {
+  "model" : "apssouza22",
+  "constraints" : 2,
+  "violationsBefore" : 28,
+  "violationsAfter" : 0
+}, {
+  "model" : "apssouza22",
+  "constraints" : 4,
+  "violationsBefore" : 13,
+  "violationsAfter" : 0
+}, {
+  "model" : "apssouza22",
+  "constraints" : 7,
+  "violationsBefore" : 27,
+  "violationsAfter" : 0
+}, {
+  "model" : "apssouza22",
+  "constraints" : 8,
+  "violationsBefore" : 29,
+  "violationsAfter" : 0
+}, {
+  "model" : "sqshq",
+  "constraints" : 7,
+  "violationsBefore" : 44,
+  "violationsAfter" : 0
+}, {
+  "model" : "sqshq",
+  "constraints" : 8,
+  "violationsBefore" : 54,
+  "violationsAfter" : 0
+}, {
+  "model" : "sqshq",
+  "constraints" : 10,
+  "violationsBefore" : 0,
+  "violationsAfter" : 0
+}, {
+  "model" : "sqshq",
+  "constraints" : 11,
+  "violationsBefore" : 54,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 2,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 4,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 5,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 7,
+  "violationsBefore" : 6,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 8,
+  "violationsBefore" : 1,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 10,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 11,
+  "violationsBefore" : 3,
+  "violationsAfter" : 0
+} ]

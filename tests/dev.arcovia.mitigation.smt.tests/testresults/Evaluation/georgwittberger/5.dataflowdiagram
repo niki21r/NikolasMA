@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ASCII"?>
+<dataflowdiagram:DataFlowDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dataflowdiagram="http://dataflowanalysis.org/dfd/dataflowdiagram" id="0">
+  <flows id="31" entityName="user" sourceNode="2" destinationNode="3">
+    <destinationPin href="5.datadictionary#29"/>
+    <sourcePin href="5.datadictionary#30"/>
+  </flows>
+  <flows id="35" entityName="cart_service" sourceNode="6" destinationNode="5">
+    <destinationPin href="5.datadictionary#33"/>
+    <sourcePin href="5.datadictionary#34"/>
+  </flows>
+  <flows id="38" entityName="apache_server" sourceNode="3" destinationNode="6">
+    <destinationPin href="5.datadictionary#36"/>
+    <sourcePin href="5.datadictionary#37"/>
+  </flows>
+  <flows id="40" entityName="apache_server" sourceNode="3" destinationNode="5">
+    <destinationPin href="5.datadictionary#33"/>
+    <sourcePin href="5.datadictionary#39"/>
+  </flows>
+  <flows id="43" entityName="apache_server" sourceNode="3" destinationNode="4">
+    <destinationPin href="5.datadictionary#41"/>
+    <sourcePin href="5.datadictionary#42"/>
+  </flows>
+  <nodes xsi:type="dataflowdiagram:External" id="2" entityName="user">
+    <behavior href="5.datadictionary#23"/>
+    <properties href="5.datadictionary#25"/>
+  </nodes>
+  <nodes xsi:type="dataflowdiagram:Process" id="3" entityName="apache_server">
+    <behavior href="5.datadictionary#16"/>
+    <properties href="5.datadictionary#18"/>
+    <properties href="5.datadictionary#19"/>
+    <properties href="5.datadictionary#20"/>
+    <properties href="5.datadictionary#22"/>
+  </nodes>
+  <nodes xsi:type="dataflowdiagram:Process" id="4" entityName="content_service">
+    <behavior href="5.datadictionary#8"/>
+    <properties href="5.datadictionary#10"/>
+    <properties href="5.datadictionary#12"/>
+  </nodes>
+  <nodes xsi:type="dataflowdiagram:Process" id="5" entityName="product_service">
+    <behavior href="5.datadictionary#26"/>
+    <properties href="5.datadictionary#28"/>
+  </nodes>
+  <nodes xsi:type="dataflowdiagram:Process" id="6" entityName="cart_service">
+    <behavior href="5.datadictionary#13"/>
+    <properties href="5.datadictionary#15"/>
+  </nodes>
+</dataflowdiagram:DataFlowDiagram>

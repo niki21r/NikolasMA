@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<datadictionary:DataDictionary xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:datadictionary="http://dataflowanalysis.org/dfd/datadictionary" id="_vJiAodaJEfCNXesOy8xFfA">
+  <labelTypes id="4h3wzk" entityName="DataLabel">
+    <label id="zzvphn" entityName="B"/>
+    <label id="veaan9" entityName="A"/>
+  </labelTypes>
+  <labelTypes id="frzuj6" entityName="NodeLabel">
+    <label id="n7c8p" entityName="C"/>
+  </labelTypes>
+  <behavior id="_vJiAqNaJEfCNXesOy8xFfA" entityName="Node2">
+    <inPin id="ti4ri7" entityName="Node2_in_foobar"/>
+    <outPin id="bsqjm" entityName="Node2_out_foobar"/>
+    <assignment xsi:type="datadictionary:ForwardingAssignment" id="_vJinvNaJEfCNXesOy8xFfA" outputPin="bsqjm" inputPins="ti4ri7"/>
+  </behavior>
+  <behavior id="_vJinsdaJEfCNXesOy8xFfA" entityName="Node3">
+    <inPin id="scljwi" entityName="Node3_in_foobar"/>
+  </behavior>
+  <behavior id="_vJintNaJEfCNXesOy8xFfA" entityName="Node1">
+    <outPin id="wksxi8" entityName="Node1_out_foo"/>
+    <outPin id="6qro6o" entityName="Node1_out_bar"/>
+    <assignment xsi:type="datadictionary:SetAssignment" id="_vJinutaJEfCNXesOy8xFfA" outputPin="6qro6o" outputLabels="zzvphn"/>
+    <assignment xsi:type="datadictionary:SetAssignment" id="_vJinu9aJEfCNXesOy8xFfA" outputPin="wksxi8" outputLabels="veaan9"/>
+  </behavior>
+</datadictionary:DataDictionary>
