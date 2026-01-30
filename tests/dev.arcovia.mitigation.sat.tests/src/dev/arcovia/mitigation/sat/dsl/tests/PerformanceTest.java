@@ -67,8 +67,8 @@ public class PerformanceTest {
     private static final int repeat = 10;
 
     private static final int count = 1 + (maxInputLiterals - start) / step;
-    private static final int[] outputLiterals = new int[count*repeat];
-    private static final int[] outputTime = new int[count*repeat];
+    private static final int[] outputLiterals = new int[count * repeat];
+    private static final int[] outputTime = new int[count * repeat];
 
     private static IntStream inputLiterals() {
         int[] inputs = new int[count];
@@ -89,7 +89,7 @@ public class PerformanceTest {
         for (int i = 0; i < literals; i++) {
             longList.add(Integer.toString(i));
         }
-        //Runtime maximizes at |withLabel|=|withoutCharacteristic|=|withCharacteristic|
+        // Runtime maximizes at |withLabel|=|withoutCharacteristic|=|withCharacteristic|
         AnalysisConstraint constraint = new ConstraintDSL().ofData()
                 .withLabel("DataPos", longList)
                 .neverFlows()
@@ -97,17 +97,17 @@ public class PerformanceTest {
                 .withCharacteristic("NodePos", longList)
                 .withoutCharacteristic("NodeNeg", longList)
                 .create();
-        
-        for (int i = 0 ; i < repeat; i++) {
+
+        for (int i = 0; i < repeat; i++) {
             var timeStart = System.currentTimeMillis();
             var translation = new CNFTranslation(constraint);
             translation.constructCNF();
             var timeEnd = System.currentTimeMillis();
             var time = timeEnd - timeStart;
             logger.info("\n " + literals + " Literals | " + time + " ms");
-            outputLiterals[input*repeat+i] = literals * 3;
-            outputTime[input*repeat+i] = Math.toIntExact(time);  
-        }        
+            outputLiterals[input * repeat + i] = literals * 3;
+            outputTime[input * repeat + i] = Math.toIntExact(time);
+        }
     }
 
     @AfterEach

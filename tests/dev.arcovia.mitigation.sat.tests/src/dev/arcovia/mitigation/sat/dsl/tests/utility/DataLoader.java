@@ -81,7 +81,7 @@ public abstract class DataLoader {
         byte[] strToBytes = jsonString.getBytes();
         printToFile(strToBytes, fileName);
     }
-    
+
     public static void outputStructureResults(List<StructureResult> results, String fileName) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(results);

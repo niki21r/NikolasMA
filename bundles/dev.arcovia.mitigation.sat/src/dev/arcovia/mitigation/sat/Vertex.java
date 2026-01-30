@@ -128,8 +128,8 @@ public class Vertex {
         }
         return forwardingPins;
     }
-    
-    public List<AbstractAssignment> getAssignments(){
+
+    public List<AbstractAssignment> getAssignments() {
         return assignments;
     }
 

@@ -72,6 +72,7 @@ public class ModelCostCalculator {
 
         return cost;
     }
+
     public int calculateCostWithoutForwarding() {
         determineRelevantLabels();
         for (var label : allRelevantLabels.keySet()) {
@@ -79,31 +80,32 @@ public class ModelCostCalculator {
                 if (vertex.hasVertexLabel(label))
                     allRelevantLabels.get(label)
                             .add("Vertex: " + vertex.name);
-                
+
                 var assignments = vertex.getAssignments();
-                
+
                 for (var assignment : assignments) {
-                    
+
                     List<org.dataflowanalysis.dfd.datadictionary.Label> assignmentLabel = null;
-                    
+
                     if (assignment instanceof Assignment cast) {
                         assignmentLabel = cast.getOutputLabels();
-                                
-                    }
-                    else if (assignment instanceof SetAssignment cast) {
+
+                    } else if (assignment instanceof SetAssignment cast) {
                         assignmentLabel = cast.getOutputLabels();
                     }
-                    if (assignmentLabel == null) continue;
-                    
+                    if (assignmentLabel == null)
+                        continue;
+
                     for (var l : assignmentLabel) {
                         LabelTypeImpl labelType = (LabelTypeImpl) l.eContainer();
-                        
-                        var tempLabel = new Label(labelType.getEntityName(),l.getEntityName());
-                        
-                        if (tempLabel.toString().equals(label.toString())) {
+
+                        var tempLabel = new Label(labelType.getEntityName(), l.getEntityName());
+
+                        if (tempLabel.toString()
+                                .equals(label.toString())) {
                             Pin outpin = assignment.getOutputPin();
                             allRelevantLabels.get(label)
-                            .add("Outgoing: " + outpin.getId() + " from: " + vertex.name);
+                                    .add("Outgoing: " + outpin.getId() + " from: " + vertex.name);
                         }
                     }
                 }

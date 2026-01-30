@@ -146,16 +146,16 @@ public class ScalerTest {
         dfdConverter.convert(scaledDfd)
                 .save("testresults/", "scaledALL.json");
     }
-    
+
     @Test
     public void scaleConstraints() {
         var scaler = new Scaler();
         var constraints = scaler.scaleConstraint(500, 50, 50, 50, 50, 5000);
-        
-        //To reduce build time, only the first constraint is translated into CNF
+
+        // To reduce build time, only the first constraint is translated into CNF
         var translation = new CNFTranslation(constraints.get(0));
         translation.constructCNF();
-        
+
         assertTrue(constraints.size() == 500);
     }
 

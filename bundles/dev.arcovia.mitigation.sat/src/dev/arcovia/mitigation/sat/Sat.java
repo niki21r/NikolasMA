@@ -1,18 +1,17 @@
 package dev.arcovia.mitigation.sat;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.stream.IntStream;
-
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.IntStream;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
@@ -127,9 +126,12 @@ public class Sat {
             if (!negated.isEmpty() && !deactivateSubsumption)
                 addClause(negated);
 
-            if (solutions.size() > 10000) {
-                if (deactivateSubsumption)
+            boolean SCALINGTEST = true;
+            if (solutions.size() > 100000) {
+                if (deactivateSubsumption || SCALINGTEST) {
+                    System.out.println("Over 100k solutions");
                     return solutions;
+                }
 
                 throw new TimeoutException("Solving needed to be terminated after finding 10.000 solutions");
             }
@@ -252,7 +254,8 @@ public class Sat {
                         var outgoingDataTerm = term(sourcePin.id(), new OutgoingDataLabel(label));
 
                         // (Source.outData AND Flow(Source,Sink)) <=> Sink.incomingData
-                        // --> ((¬Source.outData ∨ ¬Flow(Source,Sink) ∨ Sink.incomingData) ∧ (¬To.incomingData ∨ Source.outData) ∧
+                        // --> ((¬Source.outData ∨ ¬Flow(Source,Sink) ∨ Sink.incomingData) ∧
+                        // (¬To.incomingData ∨ Source.outData) ∧
                         // (¬Sink.incomingData ∨ Flow(Source,Sink))
                         // <--> (A ∧ B ↔ C --> (¬C ∨ A) ∧ (¬C ∨ B) ∧ (¬A ∨ ¬B ∨ C))
                         addClause(clause(-outgoingDataTerm, -flow(sourcePin, sinkPin), incomingFlowData));
@@ -265,7 +268,8 @@ public class Sat {
             }
         }
 
-        // Node has repairing incoming data labels only if received via all violating incoming flows
+        // Node has repairing incoming data labels only if received via all violating
+        // incoming flows
         for (Label label : extractRepairingConstrainLabels()) {
             for (Node sinkNode : nodes) {
                 for (InPin sinkPin : sinkNode.inPins()
@@ -282,7 +286,8 @@ public class Sat {
                 }
             }
         }
-        // Node has incoming data if received via at least one flow (Above needs not be excluded since above clauses need to be
+        // Node has incoming data if received via at least one flow (Above needs not be
+        // excluded since above clauses need to be
         // fulfilled)
         var labelsToUse = allLabels != null ? allLabels : labels;
 

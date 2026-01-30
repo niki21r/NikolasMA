@@ -74,3 +74,10 @@ xtend-gen/
 tests/dev.arcovia.mitigation.sat.tests/testresults/*.json
 tests/dev.arcovia.mitigation.sat.tests/efficencyTest/*.json
 !*literalMapping.json
+
+# Test result artifacts
+/tests/dev.arcovia.mitigation.smt.tests/testresults/**/*.cnf
+
+
+# Python virtual environments
+/tests/dev.arcovia.mitigation.smt.tests/testresults/results/**/.venv/

@@ -30,11 +30,11 @@ import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
 public class Scaler {
     DataFlowDiagramAndDictionary dfd;
-    
+
     public Scaler() {
         this.dfd = null;
     }
-    
+
     public Scaler(DataFlowDiagramAndDictionary dfd) {
         this.dfd = dfd;
     }
@@ -335,12 +335,10 @@ public class Scaler {
 
         return dfd;
     }
-    
+
     /***
-     * Constraints in Usage:
-     * - numberWithLabel + numberWithCharacteristic <= numberDummyLabels
-     * - use constraints only on DFD scaled using the scaleLabels function
-     * Scales constraints in 5 dimesnions
+     * Constraints in Usage: - numberWithLabel + numberWithCharacteristic <= numberDummyLabels - use constraints only on DFD
+     * scaled using the scaleLabels function Scales constraints in 5 dimesnions
      * @param numberConstraints that get returned
      * @param numberWithLabel: Labels that are positve before neverflows
      * @param numberWithoutLabel: Labels that are negative before neverflows
@@ -349,65 +347,61 @@ public class Scaler {
      * @param numberDummyLabels: The number of dummy Labels in the scaled DFD (number you previous scaled DFDLabels by)
      * @return
      */
-    public List<AnalysisConstraint> scaleConstraint(int numberConstraints, int numberWithLabel, int numberWithoutLabel, int numberWithCharacteristic, int numberWithoutCharacteristic, int numberDummyLabels){
+    public List<AnalysisConstraint> scaleConstraint(int numberConstraints, int numberWithLabel, int numberWithoutLabel, int numberWithCharacteristic,
+            int numberWithoutCharacteristic, int numberDummyLabels) {
         List<AnalysisConstraint> constraints = new ArrayList<>();
-        
-        for (int i = 0; i< numberConstraints; i++) {
+
+        for (int i = 0; i < numberConstraints; i++) {
             Set<String> withLabel = new HashSet<>();
             Set<String> withoutLabel = new HashSet<>();
             Set<String> withCharacteristic = new HashSet<>();
             Set<String> withoutCharacteristic = new HashSet<>();
-            
+
             ThreadLocalRandom rnd = ThreadLocalRandom.current();
-            
-            while(withLabel.size() < numberWithLabel) {
-                withLabel.add("dummy_" + String.valueOf(rnd.nextInt(0, numberDummyLabels/2 - 1)));
+
+            while (withLabel.size() < numberWithLabel) {
+                withLabel.add("dummy_" + String.valueOf(rnd.nextInt(0, numberDummyLabels / 2 - 1)));
             }
-            while(withCharacteristic.size() < numberWithCharacteristic) {
-                withCharacteristic.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels/2, numberDummyLabels)));
+            while (withCharacteristic.size() < numberWithCharacteristic) {
+                withCharacteristic.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels / 2, numberDummyLabels)));
             }
-            while(withoutLabel.size() < numberWithoutLabel) {
-                withoutLabel.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels+1, numberDummyLabels*3)));
+            while (withoutLabel.size() < numberWithoutLabel) {
+                withoutLabel.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels + 1, numberDummyLabels * 3)));
             }
-            while(withoutCharacteristic.size() < numberWithoutCharacteristic) {
-                withoutCharacteristic.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels*3 + 1, numberDummyLabels*6)));
+            while (withoutCharacteristic.size() < numberWithoutCharacteristic) {
+                withoutCharacteristic.add("dummy_" + String.valueOf(rnd.nextInt(numberDummyLabels * 3 + 1, numberDummyLabels * 6)));
             }
-            
+
             var dataSelector = new ConstraintDSL().ofData();
-            
+
             if (!withLabel.isEmpty()) {
-                dataSelector = dataSelector.withLabel("dummyCategory",
-                        new ArrayList<>(withLabel));
+                dataSelector = dataSelector.withLabel("dummyCategory", new ArrayList<>(withLabel));
             }
-            
+
             if (!withoutLabel.isEmpty()) {
-                dataSelector = dataSelector.withoutLabel("dummyCategory",
-                        new ArrayList<>(withoutLabel));
+                dataSelector = dataSelector.withoutLabel("dummyCategory", new ArrayList<>(withoutLabel));
             }
-            
-            var nodeSelector = dataSelector.neverFlows().toVertex();
-            
+
+            var nodeSelector = dataSelector.neverFlows()
+                    .toVertex();
+
             if (!withCharacteristic.isEmpty()) {
-                nodeSelector = nodeSelector.withCharacteristic("dummyCategory",
-                        new ArrayList<>(withCharacteristic));
+                nodeSelector = nodeSelector.withCharacteristic("dummyCategory", new ArrayList<>(withCharacteristic));
             }
-            
+
             if (!withoutCharacteristic.isEmpty()) {
-                nodeSelector = nodeSelector.withoutCharacteristic("dummyCategory",
-                        new ArrayList<>(withoutCharacteristic));
+                nodeSelector = nodeSelector.withoutCharacteristic("dummyCategory", new ArrayList<>(withoutCharacteristic));
             }
-            
+
             AnalysisConstraint constraint = nodeSelector.create();
-            
+
             constraints.add(constraint);
- 
+
         }
-        
-        
+
         return constraints;
     }
-    
-    
+
     /***
      * Copying the entire DFD to achieve the scalingAmount of Nodes
      * @param dataFlowDiagram

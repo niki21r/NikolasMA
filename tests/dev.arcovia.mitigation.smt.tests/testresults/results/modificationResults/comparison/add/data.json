@@ -1,0 +1,256 @@
+[ {
+  "model" : "ewolff-kafka",
+  "constraints" : 4,
+  "satCost" : 5,
+  "smtCost" : 1
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 5,
+  "satCost" : 5,
+  "smtCost" : 1
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 7,
+  "satCost" : 11,
+  "smtCost" : 2
+}, {
+  "model" : "ewolff-kafka",
+  "constraints" : 8,
+  "satCost" : 3,
+  "smtCost" : 1
+}, {
+  "model" : "anilallewar",
+  "constraints" : 7,
+  "satCost" : 21,
+  "smtCost" : 6
+}, {
+  "model" : "anilallewar",
+  "constraints" : 8,
+  "satCost" : 11,
+  "smtCost" : 4
+}, {
+  "model" : "anilallewar",
+  "constraints" : 11,
+  "satCost" : 4,
+  "smtCost" : 4
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 2,
+  "satCost" : 8,
+  "smtCost" : 5
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 4,
+  "satCost" : 3,
+  "smtCost" : 2
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 5,
+  "satCost" : 3,
+  "smtCost" : 2
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 7,
+  "satCost" : 13,
+  "smtCost" : 2
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 8,
+  "satCost" : 14,
+  "smtCost" : 5
+}, {
+  "model" : "mudigal-technologies",
+  "constraints" : 11,
+  "satCost" : 3,
+  "smtCost" : 3
+}, {
+  "model" : "yidongnan",
+  "constraints" : 2,
+  "satCost" : 6,
+  "smtCost" : 4
+}, {
+  "model" : "yidongnan",
+  "constraints" : 4,
+  "satCost" : 2,
+  "smtCost" : 1
+}, {
+  "model" : "yidongnan",
+  "constraints" : 5,
+  "satCost" : 2,
+  "smtCost" : 1
+}, {
+  "model" : "yidongnan",
+  "constraints" : 7,
+  "satCost" : 15,
+  "smtCost" : 3
+}, {
+  "model" : "yidongnan",
+  "constraints" : 8,
+  "satCost" : 14,
+  "smtCost" : 4
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 1,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 2,
+  "satCost" : 3,
+  "smtCost" : 3
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 4,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 5,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 7,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 8,
+  "satCost" : 5,
+  "smtCost" : 4
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 10,
+  "satCost" : 3,
+  "smtCost" : 3
+}, {
+  "model" : "koushikkothagal",
+  "constraints" : 11,
+  "satCost" : 6,
+  "smtCost" : 6
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 2,
+  "satCost" : 6,
+  "smtCost" : 2
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 5,
+  "satCost" : 3,
+  "smtCost" : 2
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 7,
+  "satCost" : 17,
+  "smtCost" : 2
+}, {
+  "model" : "spring-petclinic",
+  "constraints" : 8,
+  "satCost" : 13,
+  "smtCost" : 2
+}, {
+  "model" : "callistaenterprise",
+  "constraints" : 2,
+  "satCost" : 9,
+  "smtCost" : 3
+}, {
+  "model" : "callistaenterprise",
+  "constraints" : 11,
+  "satCost" : 9,
+  "smtCost" : 9
+}, {
+  "model" : "jferrater",
+  "constraints" : 2,
+  "satCost" : 7,
+  "smtCost" : 1
+}, {
+  "model" : "jferrater",
+  "constraints" : 5,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 7,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "jferrater",
+  "constraints" : 8,
+  "satCost" : 5,
+  "smtCost" : 1
+}, {
+  "model" : "apssouza22",
+  "constraints" : 2,
+  "satCost" : 9,
+  "smtCost" : 6
+}, {
+  "model" : "apssouza22",
+  "constraints" : 4,
+  "satCost" : 3,
+  "smtCost" : 3
+}, {
+  "model" : "apssouza22",
+  "constraints" : 7,
+  "satCost" : 13,
+  "smtCost" : 7
+}, {
+  "model" : "apssouza22",
+  "constraints" : 8,
+  "satCost" : 12,
+  "smtCost" : 5
+}, {
+  "model" : "sqshq",
+  "constraints" : 7,
+  "satCost" : 21,
+  "smtCost" : 3
+}, {
+  "model" : "sqshq",
+  "constraints" : 8,
+  "satCost" : 17,
+  "smtCost" : 10
+}, {
+  "model" : "sqshq",
+  "constraints" : 10,
+  "satCost" : 0,
+  "smtCost" : 0
+}, {
+  "model" : "sqshq",
+  "constraints" : 11,
+  "satCost" : 6,
+  "smtCost" : 4
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 2,
+  "satCost" : 4,
+  "smtCost" : 1
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 4,
+  "satCost" : 4,
+  "smtCost" : 1
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 5,
+  "satCost" : 4,
+  "smtCost" : 1
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 7,
+  "satCost" : 8,
+  "smtCost" : 2
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 8,
+  "satCost" : 1,
+  "smtCost" : 1
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 10,
+  "satCost" : 3,
+  "smtCost" : 3
+}, {
+  "model" : "georgwittberger",
+  "constraints" : 11,
+  "satCost" : 6,
+  "smtCost" : 6
+} ]
