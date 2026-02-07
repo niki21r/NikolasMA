@@ -29,23 +29,26 @@ public class Main {
 	 * @throws StandaloneInitializationException If input DFD is incorrect
 	 */
 	public static SolvingResult run(DataFlowDiagramAndDictionary dfd,
-			List<AnalysisConstraint> constraints, Map<String, Integer> labelCosts, Config config) throws StandaloneInitializationException {
+			List<AnalysisConstraint> constraints, Config config) throws StandaloneInitializationException {
 		Preprocess preprocces = new Preprocess();
 		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints);
 		SMTMappings mappings = new SMTMappings(preprocessingResult);
 		if (config == null) {
 			config = new Config();
 		}
-		SMT smt = new SMT(preprocessingResult, constraints, mappings, labelCosts, config);
+		SMT smt = new SMT(preprocessingResult, constraints, mappings, config);
 		return smt.repair();
 	}
 
-	public static long findDagSize(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints)
+	public static long findDagSize(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints, Config config)
 			throws StandaloneInitializationException {
 		Preprocess preprocces = new Preprocess();
 		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints);
 		SMTMappings mappings = new SMTMappings(preprocessingResult);
-		SMT smt = new SMT(preprocessingResult, constraints, mappings, null, null);
+		if (config == null) {
+			config = new Config();
+		}
+		SMT smt = new SMT(preprocessingResult, constraints, mappings, config);
 		return smt.getDagSizeAfterSolving();
 	}
 

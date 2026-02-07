@@ -45,7 +45,7 @@ public class ViolationsTest {
 					int violationsBefore = Util.countViolations(dfd, constraint);
 					totalViolations += violationsBefore;
 					System.out.println("Running " + model + " with constraints " + i);
-					DataFlowDiagramAndDictionary repairedDFD = Main.run(dfd, constraint, null, null).repairedDFD();
+					DataFlowDiagramAndDictionary repairedDFD = Main.run(dfd, constraint, null).repairedDFD();
 					int violationsAfter = Util.countViolations(repairedDFD, constraint);
 					if (violationsAfter > 0) {
 						System.out.println("Violations after repair still present. Fatal");

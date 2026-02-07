@@ -72,8 +72,7 @@ public class SMT {
 	public Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows;
 	public Map<Pin, List<AbstractAssignment>> outPinToAss;
 
-	public SMT(PreprocessingResult pre, List<AnalysisConstraint> constraints, SMTMappings mappings,
-			Map<String, Integer> labelCosts, Config config) {
+	public SMT(PreprocessingResult pre, List<AnalysisConstraint> constraints, SMTMappings mappings, Config config) {
 		this.config = config;
 		this.constraints = constraints;
 		this.ctx = new Context();

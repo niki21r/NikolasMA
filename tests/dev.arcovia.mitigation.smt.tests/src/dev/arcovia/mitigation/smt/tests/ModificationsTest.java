@@ -43,7 +43,7 @@ public class ModificationsTest {
 					}
 					DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
 					System.out.println("Running " + model + " with constraints " + i);
-					List<Action> suggestedActions = Main.run(dfd, constraint, null, null).repairActions();
+					List<Action> suggestedActions = Main.run(dfd, constraint, null).repairActions();
 					int removeableActions = 0;
 					for (int j = 0; j < suggestedActions.size(); j++) {
 						Action action = suggestedActions.get(j);

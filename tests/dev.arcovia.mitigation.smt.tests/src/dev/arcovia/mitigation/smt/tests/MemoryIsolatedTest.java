@@ -61,7 +61,7 @@ public class MemoryIsolatedTest {
                     }
 
                     int dagSizeAfter = (int)
-                            Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint);
+                            Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint, null);
 
                     System.out.println("Measuring peak RSS in fresh JVM (parallel=" + PARALLELISM + ") for "
                             + model + " constraint " + i);

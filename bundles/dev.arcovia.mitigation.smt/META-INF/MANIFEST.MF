@@ -15,7 +15,6 @@ Require-Bundle:
  org.dataflowanalysis.dfd.datadictionary,
  org.dataflowanalysis.dfd.dataflowdiagram,
  org.dataflowanalysis.converter,
- dev.arcovia.mitigation.smtmodel;visibility:=reexport,
  org.apache.log4j,
  org.dataflowanalysis.analysis.dfd,
  org.dataflowanalysis.analysis,

@@ -25,7 +25,7 @@ public class NewTest {
 			HashMap<String, Integer> labelCost = new HashMap<>();
 			labelCost.put("Stereotype.internal", 5);
 			countViolations(dfd, constraints);
-			System.out.println(Main.run(dfd, constraints, labelCost, null));
+			System.out.println(Main.run(dfd, constraints, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());

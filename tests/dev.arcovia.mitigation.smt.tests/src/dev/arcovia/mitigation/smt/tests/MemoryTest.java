@@ -49,7 +49,7 @@ public class MemoryTest {
                     }
 
                     int dagSizeAfter = (int)
-                            Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint);
+                            Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint, null);
 
                     System.out.println("Measuring memory for " + model +
                             " with constraints " + i);
@@ -63,7 +63,7 @@ public class MemoryTest {
                         long rssPeak;
                         try (RssSampler sampler = new RssSampler(1)) { // 1 ms sampling
                             sampler.start();
-                            Main.run(dfd, constraint, null, null);
+                            Main.run(dfd, constraint, null);
                             rssPeak = sampler.getPeakRssBytes();
                         }
 

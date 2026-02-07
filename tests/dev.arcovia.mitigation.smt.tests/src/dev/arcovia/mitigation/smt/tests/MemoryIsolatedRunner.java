@@ -28,6 +28,6 @@ public class MemoryIsolatedRunner {
 
         // The work we measure in the parent by sampling this process's RSS
         DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
-        Main.run(dfd, constraint, null, null);
+        Main.run(dfd, constraint, null);
     }
 }

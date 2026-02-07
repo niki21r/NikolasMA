@@ -57,7 +57,7 @@ public class RuntimeComparisonTest {
 						continue;
 					}
 
-					int dagSizeAfter = (int) Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint);
+					int dagSizeAfter = (int) Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint, null);
 
 					List<Long> smtRuntimes = new ArrayList<>();
 					List<Long> satRuntimes = new ArrayList<>();
@@ -66,7 +66,7 @@ public class RuntimeComparisonTest {
 						//System.out.println("Running " + model + " with constraints " + i);
 						long before = System.currentTimeMillis();
 						DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
-						Main.run(dfd, constraint, null, null);
+						Main.run(dfd, constraint, null);
 						long after = System.currentTimeMillis();
 						long totalRuntime = (after - before);
 						smtRuntimes.add(totalRuntime);
