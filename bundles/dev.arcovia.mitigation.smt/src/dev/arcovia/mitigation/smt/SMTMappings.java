@@ -53,7 +53,7 @@ public final class SMTMappings {
 		Map<K, Integer> map = new HashMap<>();
 		int count = 0;
 		for (T item : items) {
-			if (map.containsKey(item)) continue;
+			if (map.containsKey(keyExtractor.apply(item))) continue;
 			map.putIfAbsent(keyExtractor.apply(item), count++);
 		}
 		return map;

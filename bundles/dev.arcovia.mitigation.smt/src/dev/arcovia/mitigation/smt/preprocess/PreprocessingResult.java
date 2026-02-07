@@ -1,6 +1,8 @@
 package dev.arcovia.mitigation.smt.preprocess;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.dataflowanalysis.analysis.dfd.core.DFDVertex;
 import org.dataflowanalysis.analysis.dfd.dsl.DFDVertexType;
@@ -17,9 +19,10 @@ public record PreprocessingResult(
 		DataFlowDiagramAndDictionary dfd,
 		List<TFGFlow> flows,
 		List<DFDVertex> vertices,
-		List<Label> relevantNodeLabelsAdd,
-		List<Label> relevantNodeLabelsRemove,
-		List<Label> relevantDataLabelsAdd,
-		List<Label> relevantDataLabelsRemove,
-		List<DFDVertexType> relevantNodeTypes
+		Set<Label> relevantNodeLabelsAdd,
+		Set<Label> relevantNodeLabelsRemove,
+		Set<Label> relevantDataLabelsAdd,
+		Set<Label> relevantDataLabelsRemove,
+		List<DFDVertexType> relevantNodeTypes,
+		Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows
 		) {}

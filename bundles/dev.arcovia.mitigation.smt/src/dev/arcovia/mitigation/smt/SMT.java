@@ -43,6 +43,7 @@ import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveAction;
 import dev.arcovia.mitigation.smt.actions.SetAssignmentAction;
 import dev.arcovia.mitigation.smt.actions.UnsetAssignmentAction;
 import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.CostConfig;
 import dev.arcovia.mitigation.smt.constraints.DefaultSelectorTranslator;
 import dev.arcovia.mitigation.smt.constraints.SelectorRole;
 import dev.arcovia.mitigation.smt.constraints.SelectorTranslator;
@@ -79,12 +80,7 @@ public class SMT {
 		this.opt = ctx.mkOptimize();
 		this.pre = pre;
 		this.mappings = mappings;
-		vertexIncomingFlows = new HashMap<>();
-		for (TFGFlow flow : pre.flows()) {
-			List<TFGFlow> flows = vertexIncomingFlows.getOrDefault(flow.dstVertex, new ArrayList<>());
-			flows.add(flow);
-			vertexIncomingFlows.put(flow.dstVertex, flows);
-		}
+		vertexIncomingFlows = pre.vertexIncomingFlows();
 		flowNames = new HashMap<TFGFlow, IntNum>();
 		nodeNames = new HashMap<Node, IntNum>();
 		nodeTypes = new EnumMap<DFDVertexType, IntNum>(DFDVertexType.class);
@@ -97,44 +93,59 @@ public class SMT {
 
 		initializeStructure();
 		CostFunction costFunctionBuilder = CostFunction.create(ctx);
-		Map<Label, Integer> labelWeights = (labelCosts == null) ? Map.of()
-				: Util.transformLabelCosts(pre.dfd().dataDictionary(), labelCosts);
-		for (Entry<Node, Map<Label, BoolExpr>> map : nodeLabelRef.entrySet()) {
-			// Get node cost here			
-			int nodeCost = 1;
-			/*
-			int nodeCost = 0;
-			for (DFDVertex vertex: pre.vertices()) {
-				if (vertex.getReferencedElement().equals(map.getKey())) {
-					nodeCost++;
+		CostConfig costConfig = config.costConfig();
+		
+		if (costConfig.weighTFGs) {
+			HashMap<Node, Integer> nodeWeights = new HashMap<>();
+			HashMap<Pin, Integer> pinWeights = new HashMap<>();
+			for (DFDVertex vertex : pre.vertices()) {
+				nodeWeights.put(vertex.getReferencedElement(),
+						nodeWeights.getOrDefault(vertex.getReferencedElement(), 0) + 1);
+				for (Pin pin : vertex.getPinFlowMap().keySet()) {
+					pinWeights.put(pin, pinWeights.getOrDefault(pin, 0) + 1);
 				}
-			}*/
+			}
+			costConfig.nodeFactor = nodeWeights;
+			costConfig.pinFactor = pinWeights;
+		}		
+		
+		Map<Label, Integer> addLabelCost = Util.transformLabelCosts(pre.dfd().dataDictionary(),
+				costConfig.addLabelCost);
+		Map<Label, Integer> removeLabelCost = Util.transformLabelCosts(pre.dfd().dataDictionary(),
+				costConfig.removeLabelCost);
+
+		for (Entry<Node, Map<Label, BoolExpr>> map : nodeLabelRef.entrySet()) {
+			int nodeCost = costConfig.nodeFactor.getOrDefault(map.getKey(), 1);
 			for (Entry<Label, BoolExpr> ref : map.getValue().entrySet()) {
-				costFunctionBuilder.add(nodeLabels.get(map.getKey()).get(ref.getKey()), ref.getValue(),
-						labelWeights.getOrDefault(ref.getKey(), 1) * nodeCost);
+				if (!map.getKey().getProperties().contains(ref.getKey())) {
+					costFunctionBuilder.add(nodeLabels.get(map.getKey()).get(ref.getKey()), ref.getValue(),
+							addLabelCost.getOrDefault(ref.getKey(), 1) * nodeCost);
+				} else {
+					costFunctionBuilder.add(nodeLabels.get(map.getKey()).get(ref.getKey()), ref.getValue(),
+							removeLabelCost.getOrDefault(ref.getKey(), 1) * nodeCost);
+				}
 			}
 		}
 		for (Entry<Pin, Map<Label, BoolExpr>> map : pinSet.entrySet()) {
-			// Get pincost here
-			int pinCost = 1;
+			int pinCost = costConfig.pinFactor.getOrDefault(map.getKey(), 1);
 			for (Entry<Label, BoolExpr> set : map.getValue().entrySet()) {
 				costFunctionBuilder.add(set.getValue(), ctx.mkFalse(),
-						labelWeights.getOrDefault(set.getKey(), 1) * pinCost);
+						addLabelCost.getOrDefault(set.getKey(), 1) * pinCost);
 			}
 		}
 		for (Entry<Pin, Map<Label, BoolExpr>> map : pinUnset.entrySet()) {
-			int pinCost = 1;
+			int pinCost = costConfig.pinFactor.getOrDefault(map.getKey(), 1);
 			for (Entry<Label, BoolExpr> unset : map.getValue().entrySet()) {
 				costFunctionBuilder.add(unset.getValue(), ctx.mkFalse(),
-						labelWeights.getOrDefault(unset.getKey(), 1) * pinCost);
+						removeLabelCost.getOrDefault(unset.getKey(), 1) * pinCost);
 			}
 		}
 
 		costFunction = costFunctionBuilder.build();
 		/*
-		System.out.println(costFunction.toString());
-		*/
-		createDataFlowConstraints();
+		 * System.out.println(costFunction.toString());
+		 */
+		createDataFlowExpressions();
 		createUserConstraints(constraints);
 		opt.MkMinimize(costFunction);
 	}
@@ -155,7 +166,9 @@ public class SMT {
 			for (int i = 0; i < parseActions.size(); i++) {
 				dfd = parseActions.get(i).doAction(dfd);
 			}
-			return new SolvingResult(true, dfd, parseActions, Integer.parseInt(costValExpr.toString()));
+			int cost = Integer.parseInt(costValExpr.toString());
+			ctx.close();
+			return new SolvingResult(true, dfd, parseActions, cost);
 		}
 	}
 
@@ -227,16 +240,16 @@ public class SMT {
 		}
 	}
 
-	private void createDataFlowConstraint(TFGFlow flow) {
+	private void createDataFlowExpression(TFGFlow flow) {
 		if (flowLabels.get(flow) != null) {
 			return;
 		} else {
-			flow.thisFlowForwards.values().forEach(x -> x.forEach(y -> createDataFlowConstraint(y)));
-			flow.thisFlowEvaluatesOn.values().forEach(x -> x.forEach(y -> createDataFlowConstraint(y)));
+			flow.thisFlowForwards.values().forEach(x -> x.forEach(y -> createDataFlowExpression(y)));
+			flow.thisFlowEvaluatesOn.values().forEach(x -> x.forEach(y -> createDataFlowExpression(y)));
 			flowLabels.put(flow, new HashMap<>());
 			Pin pin = flow.srcPin;
 			List<AbstractAssignment> assignments = outPinToAss.get(pin);
-			List<Label> allDataLabels = new ArrayList<>();
+			Set<Label> allDataLabels = new HashSet<>();
 			allDataLabels.addAll(pre.relevantDataLabelsAdd());
 			allDataLabels.addAll(pre.relevantDataLabelsRemove());
 			for (Label label : allDataLabels) {
@@ -271,11 +284,11 @@ public class SMT {
 		}
 	}
 
-	private void createDataFlowConstraints() {
+	private void createDataFlowExpressions() {
 		List<TFGFlow> allFlows = pre.flows();
 		if ((!pre.relevantDataLabelsAdd().isEmpty() || !pre.relevantDataLabelsRemove().isEmpty())) {
 			for (TFGFlow flow : allFlows) {
-				createDataFlowConstraint(flow);
+				createDataFlowExpression(flow);
 			}
 		}
 	}
@@ -316,8 +329,8 @@ public class SMT {
 		List<Pin> allOutPins = pre.dfd().dataDictionary().getBehavior().stream().flatMap(x -> x.getOutPin().stream())
 				.toList();
 
-		List<Label> dataLabelsAdd = config.addDataLabels() ? pre.relevantDataLabelsAdd() : new ArrayList<>();
-		List<Label> dataLabelsRemove = config.removeDataLabels() ? pre.relevantDataLabelsRemove() : new ArrayList<>();
+		Set<Label> dataLabelsAdd = config.addDataLabels() ? pre.relevantDataLabelsAdd() : new HashSet<>();
+		Set<Label> dataLabelsRemove = config.removeDataLabels() ? pre.relevantDataLabelsRemove() : new HashSet<>();
 
 		if (config.onlyRelevantLabels()) {
 			for (Pin pin : allOutPins) {
@@ -381,8 +394,8 @@ public class SMT {
 				nodeTypes.put(entry.getKey(), type);
 			}
 		}
-		List<Label> nodeLabelsAdd = config.addNodeLabels() ? pre.relevantNodeLabelsAdd() : new ArrayList<>();
-		List<Label> nodeLabelsRemove = config.removeNodeLabels() ? pre.relevantNodeLabelsRemove() : new ArrayList<>();
+		Set<Label> nodeLabelsAdd = config.addNodeLabels() ? pre.relevantNodeLabelsAdd() : new HashSet<>();
+		Set<Label> nodeLabelsRemove = config.removeNodeLabels() ? pre.relevantNodeLabelsRemove() : new HashSet<>();
 		Set<Label> allNodeLabels = new HashSet<>();
 		allNodeLabels.addAll(pre.relevantNodeLabelsAdd());
 		allNodeLabels.addAll(pre.relevantNodeLabelsRemove());
@@ -481,7 +494,6 @@ public class SMT {
 					changes.add(new UnsetAssignmentAction(p, label));
 				}
 			}
-
 		}
 
 		return changes;

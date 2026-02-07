@@ -1,0 +1,74 @@
+Assignments are unordered: First forwards, then assigns, then sets, then unsets
+
+Nodes: 0 .. Nmax-1
+NodeLabels :: 0.. Nmax-1 -> LabelVec
+NodeName :: 0.. Nmax -1 -> int (fixed)
+NodeType :: 0.. Nmax -1 -> int (fixed)
+InPins: 0 .. InPinMax-1
+InPinOwner : InPinIndex -> Node
+OutPins: 0 .. OutPinMax-1
+OutPinOwner : OutPinIndex -> Node
+Set : OutPinIndex -> LabelVec
+Unset : OutPinUnset -> LabelVec
+
+Modifiable: Set assignments, unset assignments, node labels
+
+Take all existing tfgs:
+TFGIndex [0..TFGMax]
+TfgLength : TfgIndex -> Int
+
+tfgHop: TfgIndex -> TfgLength -1 -> FlowIndex
+
+Total number of flows FlowMax: sum 0..TfgIndex : tfgLenght(tfgIndex) - 1
+
+flowSrc :: sourcePin of flow i 
+flowDst :: dstPin of flow i
+
+flowLabels :: flowIndex -> LabelVector
+flowNodeLabels :: flowIndex -> LabelVec
+flowNodeTypes :: flowIndex -> TypeVector
+flowName :: flowIndex -> Name
+forwardExists: flowIndex -> flowIndex -> Bool FIXED
+assignStatemnets : flowIndex -> formula
+
+# Initialize labels along tfgs
+for all tfgs: 
+	firstFlow = tfgHop[0]
+	flowLabels[firstFlow] <-> !Unset(flowSrc(firstFlow)) & Set(flowSrc(firstFlow)) & AssignStatement
+	&& flowNodeLabels <-> nodeLabels(outPinOwner(flowSrc(firstFlow)))
+	&& flowNodeTypes <-> nodeType(outPinOwner(flowSrc(firstFlow)))
+	&& flowName(firstFlow) == flowName(firstFlow)
+		
+for all tfgs:
+	for all tfgHops except first:
+		currFlow = tfgHop[i]
+		prevFlow = tfgHop[i-1]
+		flowLabels[currFlow] <-> !Unset(flowSrc(currFlow)) & Set (flowSrc(currFlow)) & assignLabels(if assign evalautes to true) & (flowLabels(prevFlow) if forwardExists)
+		flowNodeLabels[currFlow] <-> flowNodeLabels(prevFlow) & nodeLabels(owner(flowSrc(currFlow)))
+		flowNodeTypes[currFlow] <-> flowNodeTypes(prevFlow) & nodeType(owner(flwoSrc(currFlow)))
+		flowName(currFlow) <-> flowName(currFlow)
+
+constraints :: 	
+forall Nodes ::
+	!SatisfiesAllDstSelectors(node, dstselectors)
+	&& forall flows with owner(flowDst(flow)) !flowSatisfiesAllSourceSelector
+
+SatisfiesAllDs	tSelectors(node, dstSelectors)
+	AND satisfiesDstSelector(node, dstSelector)
+
+satisfiesDstSelector(node, dstSelector)
+	if dstSelector is vertexSelector: nodeLabel(node) & vertexSelectorLabel(vertexSelector) != 0
+	if dstSelector is vertexTypeSleector: nodeType(node) == vertexTypeSelectorType
+	if dstSelector is vertexNameSelector: nodeName(node) == vertexNameSelectorName
+
+satisfiesAllSrcSelecotrs(flow, srcSelectors)
+	AND satisfiesSrcSelector(node, srcSelecotr)
+satisfiesSrcSelector(flow, srcSelector)
+		if srcSelector is DataSelector: flowLabels(flow) & dataSelectorLabels != 0
+		if srcSelector is vertexTypeSelector: flowNodeTypes(flow) == vertexTypeSelectorType
+		if srcSelecotr if DataNameSelector: flowName(flow) == DataNameSelector
+		
+1. CostFunction: punish changing constraint relevant information that is transported along flows. 
+	Calculate values for all flows in preprocessing, then assert minimal change in "information transported along flows"
+2. Cost Function: Punish Changing of Set, Unset, NodeLabels to minimize actual changes to the Diagram
+

@@ -29,11 +29,93 @@ import dev.arcovia.mitigation.sat.ModelCostCalculator2;
 import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.smt.Main;
 import dev.arcovia.mitigation.smt.SolvingResult;
+import dev.arcovia.mitigation.smt.actions.Action;
+import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveAction;
+import dev.arcovia.mitigation.smt.actions.UnsetAssignmentAction;
 import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 import dev.arcovia.mitigation.smt.util.Util;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
 
 public class ModificationCountComparison {
+	@Test
+	void efficiencyTestOnlyAdd()
+			throws ContradictionException, TimeoutException, IOException, StandaloneInitializationException {
+		var tuhhModels = TuhhModels.getTuhhModels();
+
+		Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
+
+		List<ComparisonResult> comparisonResults = new ArrayList<ComparisonResult>();
+
+		for (var model : tuhhModels.keySet()) {
+			if (!tuhhModels.get(model).contains(0))
+				continue;
+
+			System.out.println("Checking " + model);
+
+			for (int variant : tuhhModels.get(model)) {
+				List<Constraint> constraint = switch (variant) {
+				case 1 -> List.of(entryViaGatewayOnly, nonInternalGateway);
+				case 2 -> List.of(authenticatedRequest);
+				case 4 -> List.of(transformedEntry);
+				case 5 -> List.of(tokenValidation);
+				case 7 -> List.of(encryptedEntry, entryViaGatewayOnly, nonInternalGateway);
+				case 8 -> List.of(encryptedInternals);
+				case 10 -> List.of(localLogging);
+				case 11 -> List.of(localLogging, logSanitization);
+				default -> null;
+				};
+				if (constraint == null)
+					continue;
+				System.out.println("Comparing " + model + "_" + variant);
+				var repairResult = runRepair(model, model + "_0", false, constraint, minCosts);
+				var repairedDfd = repairResult.repairedDfd();
+				boolean useNewModelCost = true;
+				int satCost;
+				int baseCost;
+				if (useNewModelCost) {
+					baseCost = new ModelCostCalculator2(Main.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
+					satCost = new ModelCostCalculator2(repairedDfd, constraint, minCosts)
+							.calculateCostWithoutForwarding();
+				} else {
+					baseCost = new ModelCostCalculator(Main.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
+					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
+				}
+				satCost = satCost-baseCost;
+				Config config = new Config(true, true, false, true, false, new CostConfigBuilder().build());
+				SolvingResult solvingResult = Main.run(Main.loadDFD(model, model + "_0"), constraintMap.get(variant), null, config);
+				int smtCost = solvingResult.repairCost();
+				System.out.println("Comparing " + model + "_" + variant);
+				System.out.println("MCC Base Cost "+baseCost);
+				System.out.println("MCC SAT Cost "+satCost);
+				System.out.println("SMT Cost "+solvingResult.repairCost());
+				for (Action action : solvingResult.repairActions()) {
+					if (action instanceof UnsetAssignmentAction || action instanceof NodeLabelRemoveAction) {
+						System.out.println("Found interesting action");
+						System.out.println("action");
+						System.exit(1);
+					}
+				}
+				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0){
+					System.out.println("Violatiosn present");
+					System.exit(1);
+				}
+				ComparisonResult comparisonResult = new ComparisonResult(model, variant, satCost, smtCost);
+				comparisonResults.add(comparisonResult);
+			}
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+		Path out = Path.of("testresults/results/modificationResults/comparison/add/data.json");
+
+		Files.createDirectories(out.getParent());
+
+		mapper.writeValue(out.toFile(), comparisonResults);
+
+		System.out.println(comparisonResults);
+	}
+	
 	@Test
 	void efficiencyTest()
 			throws ContradictionException, TimeoutException, IOException, StandaloneInitializationException {
@@ -78,20 +160,15 @@ public class ModificationCountComparison {
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
 				satCost = satCost-baseCost;
-				Config config = new Config(true, true, false, true, false);
-				SolvingResult solvingResult = Main.run(Main.loadDFD(model, model + "_0"), constraintMap.get(variant), null, config);
+				SolvingResult solvingResult = Main.run(Main.loadDFD(model, model + "_0"), constraintMap.get(variant), null, null);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);
 				System.out.println("MCC Base Cost "+baseCost);
 				System.out.println("MCC SAT Cost "+satCost);
 				System.out.println("SMT Cost "+solvingResult.repairCost());
-				solvingResult.repairActions().forEach(x -> System.out.println(x));
 				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0){
 					System.out.println("Violatiosn present");
 					System.exit(1);
-				}
-				if (model.equals("sqshq") && variant == 11) {
-					System.exit(0);
 				}
 				ComparisonResult comparisonResult = new ComparisonResult(model, variant, satCost, smtCost);
 				comparisonResults.add(comparisonResult);
@@ -100,7 +177,7 @@ public class ModificationCountComparison {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-		Path out = Path.of("testresults/results/modificationResults/comparison/data.json");
+		Path out = Path.of("testresults/results/modificationResults/comparison/all/data.json");
 
 		Files.createDirectories(out.getParent());
 
@@ -108,6 +185,8 @@ public class ModificationCountComparison {
 
 		System.out.println(comparisonResults);
 	}
+	
+	
 
 	private record ComparisonResult(String model, int constraints, int satCost, int smtCost) {
 	}

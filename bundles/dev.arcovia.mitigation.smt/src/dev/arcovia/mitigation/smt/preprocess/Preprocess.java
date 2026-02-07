@@ -1,10 +1,12 @@
 package dev.arcovia.mitigation.smt.preprocess;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.dataflowanalysis.analysis.dfd.DFDConfidentialityAnalysis;
@@ -22,6 +24,7 @@ import org.dataflowanalysis.dfd.datadictionary.Assignment;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.ForwardingAssignment;
 import org.dataflowanalysis.dfd.datadictionary.Label;
+import org.dataflowanalysis.dfd.datadictionary.LabelReference;
 import org.dataflowanalysis.dfd.datadictionary.LabelType;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
@@ -103,6 +106,7 @@ public class Preprocess {
 
 		List<DFDVertex> allVertices = new ArrayList<>();
 		List<TFGFlow> allFlows = new ArrayList<TFGFlow>();
+		Map<DFDVertex, List<TFGFlow>> allTFGFlowsToVertex = new HashMap<>();
 		// Create flows for each tfg
 		for (int i = 0; i < tfgs.size(); i++) {
 			DFDTransposeFlowGraph tfg = tfgs.get(i);
@@ -111,7 +115,6 @@ public class Preprocess {
 			Map<Pin, TFGFlow> outPinToTFGFlowMap = new HashMap<>();
 			Map<TFGFlow, Pin> tfgFlowToInPinMap = new HashMap<>();
 			List<TFGFlow> allTFGFlows = new ArrayList<>();
-			Map<DFDVertex, List<TFGFlow>> allTFGFlowsToVertex = new HashMap<>();
 			// Create flows for each dfdvertex
 			for (int j = vertices.size() - 1; j >= 0; j--) {
 				DFDVertex vertex = vertices.get(j);
@@ -157,14 +160,49 @@ public class Preprocess {
 			allFlows.addAll(allTFGFlows);
 		}
 
-		List<Label> relevantNodeLabelsAdd = Util.getRelevantNodeLabelsAdd(dd, analysisConstraints);
-		List<Label> relevantNodeLabelsRemove = Util.getRelevantNodeLabelsRemove(dd, analysisConstraints);
-		List<Label> relevantDataLabelsAdd = Util.getRelevantDataLabelsAdd(dd, analysisConstraints);
-		List<Label> relevantDataLabelsRemove = Util.getRelevantDataLabelsRemove(dd, analysisConstraints);
+		Set<Label> relevantNodeLabelsAdd = Util.getRelevantNodeLabelsAdd(dd, analysisConstraints);
+		Set<Label> relevantNodeLabelsRemove = Util.getRelevantNodeLabelsRemove(dd, analysisConstraints);
+		Set<Label> relevantDataLabelsAdd = Util.getRelevantDataLabelsAdd(dd, analysisConstraints);
+		Set<Label> relevantDataLabelsRemove = Util.getRelevantDataLabelsRemove(dd, analysisConstraints);
 		List<DFDVertexType> relevantNodeTypes = List.copyOf(Util.getRelevantVertexTypes(analysisConstraints));
 
+		// Labels that are not constraint-relevant also need to be considered if they
+		// can modify relevant labels
+		// by being referenced in assign statements that modify these labels
+		// Transitively, any labels that could modify such non-constraint-relevant
+		// labels, which could in turn
+		// influence constraint-relevant labels also need to be considered.
+		// Therefore we repeat this process until now new labels get added
+		List<Assignment> assignStatements = outPinToAss.values().stream().flatMap(x -> x.stream())
+				.filter(Assignment.class::isInstance).map(Assignment.class::cast).toList();
+		boolean changed;
+		do {
+			changed = false;
+			for (int i = 0; i < assignStatements.size(); i++) {
+				Assignment assign = assignStatements.get(i);
+				/// only consider assignments that could add or remove relevant labels
+				if (Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsAdd)
+						&& Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsRemove)) {
+					continue;
+				}
+				List<LabelReference> labelReferences = Util.reduceToLabelReferences(assign, assign.getTerm());
+				for (int j = 0; j < labelReferences.size(); j++) {
+					Label label = labelReferences.get(j).getLabel();
+					if (!relevantDataLabelsAdd.contains(label)) {
+						relevantDataLabelsAdd.add(label);
+						changed = true;
+					}
+					if (!relevantDataLabelsRemove.contains(label)) {
+						relevantDataLabelsRemove.add(label);
+						changed = true;
+					}
+				}
+			}
+		} while (changed);
+
 		PreprocessingResult result = new PreprocessingResult(dfdIn, allFlows, allVertices, relevantNodeLabelsAdd,
-				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, relevantNodeTypes);
+				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, relevantNodeTypes,
+				allTFGFlowsToVertex);
 
 		return result;
 	}

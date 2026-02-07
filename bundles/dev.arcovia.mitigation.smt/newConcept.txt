@@ -1,0 +1,21 @@
+Each pin has fixed amount of assignments + 2 
+Input assignments + Set + Unset at the end
+
+Beobachtung: 
+Jeder Vertex eines TFG (DFDVertex) hat pro Output Pin nur eine Outgoing Data Characteristic.
+Jeder Vertex eines TFG (DFVertex) hat pro Incoming Pin nur mehrere Data Characteristics, wenn diese gemeinsam evaluiert werden. Dann werden sie vereint
+(z.B. forward a,b oder Assign mit multiple input pins)
+
+for each tfg
+	for each dfdvertex
+
+SetOutPin(outPin, labels)
+UnsetOutPin(outPin, labels)
+
+for each tfg
+	for each dfdvertex
+		for each outgoing Pin with outgoing Data Characteristic:
+				createFlow(output, input, tfg)
+				forwardLabels(flow) <-> UNION flowLabel(flowLabels into relevant pins on this input node)
+				flowLabels(outFlow) <-> Set(outPin) & !Unset(Pin) (forward UNION flowLabel that points to input pins in same tfg)
+				

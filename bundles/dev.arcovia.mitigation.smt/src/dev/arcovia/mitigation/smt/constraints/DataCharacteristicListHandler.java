@@ -3,6 +3,7 @@ package dev.arcovia.mitigation.smt.constraints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.dataflowanalysis.analysis.dfd.core.DFDVertex;
 import org.dataflowanalysis.analysis.dsl.selectors.DataCharacteristicListSelector;
@@ -27,7 +28,7 @@ final class DataCharacteristicListHandler implements SelectorHandler<DataCharact
 
 	    var ctx = env.ctx();
 
-	    List<Label> selectorLabels = Util.getLabelsForCharacteristics(
+	    Set<Label> selectorLabels = Util.getLabelsForCharacteristics(
 	            env.pre().dfd().dataDictionary(),
 	            s.getDataCharacteristics()
 	    );

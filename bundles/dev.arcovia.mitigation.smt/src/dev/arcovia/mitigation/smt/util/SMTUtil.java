@@ -1,20 +1,12 @@
 package dev.arcovia.mitigation.smt.util;
 
-import java.math.BigInteger;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.dataflowanalysis.dfd.datadictionary.Label;
-
-import com.microsoft.z3.BitVecNum;
 import com.microsoft.z3.BoolExpr;
-import com.microsoft.z3.Context;
 import com.microsoft.z3.Expr;
 
 /**
@@ -97,59 +89,4 @@ public class SMTUtil {
         }
         return count;
     }
-	
-
-	
-	/**
-	 * Given a BitVector, returns the List of Labels it encodes
-	 * 
-	 * @param mask          BigInteger, encoding a bitvector
-	 * @param labelToIntMap maps labels to their respective bit position
-	 * @return Labels contained in this BitVector
-	 */
-	public static List<Label> labelsFromMask(BigInteger mask, Map<Label, Integer> labelToIntMap) {
-
-		List<Label> result = new ArrayList<>();
-
-		for (Map.Entry<Label, Integer> entry : labelToIntMap.entrySet()) {
-			int bitIndex = entry.getValue();
-
-			if (mask.testBit(bitIndex)) {
-				result.add(entry.getKey());
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Creates a Z3 Bitvector, given a list of labels
-	 * 
-	 * @param ctx      Z3 context that the BV will be created in
-	 * @param indexMap Maps Labels to their indices in the bitvector
-	 * @param labels   List of labels to encode
-	 * @param size     Size of the bitvector
-	 * @return Z3 BitVecNum that encodes the input labels
-	 */
-	public static BitVecNum makeBVMask(Context ctx, Map<Label, Integer> indexMap, List<Label> labels, int size) {
-		int mask = 0;
-		boolean[] hasIndex = new boolean[size];
-
-		for (Label label : labels) {
-			if (indexMap.containsKey(label)) {
-				int idx = indexMap.get(label);
-				if (idx >= 0 && idx < size) {
-					hasIndex[idx] = true;
-				}
-			}
-		}
-
-		for (int bit = 0; bit < size; bit++) {
-			if (hasIndex[bit]) {
-				mask |= (1 << bit);
-			}
-		}
-
-		return ctx.mkBV(mask, size);
-	}
 }

@@ -28,12 +28,19 @@ import org.dataflowanalysis.analysis.dsl.selectors.VertexCharacteristicsSelector
 import org.dataflowanalysis.analysis.dsl.selectors.VertexNameSelector;
 import org.dataflowanalysis.analysis.dsl.selectors.VertexTypeSelector;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
+import org.dataflowanalysis.dfd.datadictionary.AND;
 import org.dataflowanalysis.dfd.datadictionary.AbstractAssignment;
+import org.dataflowanalysis.dfd.datadictionary.Assignment;
 import org.dataflowanalysis.dfd.datadictionary.Behavior;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
+import org.dataflowanalysis.dfd.datadictionary.LabelReference;
 import org.dataflowanalysis.dfd.datadictionary.LabelType;
+import org.dataflowanalysis.dfd.datadictionary.NOT;
+import org.dataflowanalysis.dfd.datadictionary.OR;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
+import org.dataflowanalysis.dfd.datadictionary.TRUE;
+import org.dataflowanalysis.dfd.datadictionary.Term;
 import org.dataflowanalysis.dfd.dataflowdiagram.External;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
@@ -51,8 +58,8 @@ public class Util {
 	 * @param chars Incoming Characteristics
 	 * @return List of labels encoded in characteristics
 	 */
-	public static List<Label> getLabelsForCharacteristics(DataDictionary dd, List<CharacteristicsSelectorData> chars) {
-		List<Label> result = new ArrayList<>();
+	public static Set<Label> getLabelsForCharacteristics(DataDictionary dd, List<CharacteristicsSelectorData> chars) {
+		Set<Label> result = new HashSet<>();
 		for (CharacteristicsSelectorData data : chars) {
 			LabelType labelType = getLabelTypeByName(dd, data.characteristicType().toString());
 			Label label = getLabelByName(labelType, data.characteristicValue().toString());
@@ -101,7 +108,7 @@ public class Util {
 	 * @param constraints constraints
 	 * @return List of relevant node labels
 	 */
-	public static List<Label> getRelevantNodeLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
+	public static Set<Label> getRelevantNodeLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantNodeCharacteristics = getAnalysisNodeCharacteristics(constraints,
 				true);
 		return getLabelsForCharacteristics(dd, relevantNodeCharacteristics);
@@ -115,7 +122,7 @@ public class Util {
 	 * @param constraints constraints
 	 * @return List of relevant node labels
 	 */
-	public static List<Label> getRelevantNodeLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
+	public static Set<Label> getRelevantNodeLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantNodeCharacteristics = getAnalysisNodeCharacteristics(constraints,
 				false);
 		return getLabelsForCharacteristics(dd, relevantNodeCharacteristics);
@@ -129,7 +136,7 @@ public class Util {
 	 * @param constraints constraints
 	 * @return List of relevant Data labels
 	 */
-	public static List<Label> getRelevantDataLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
+	public static Set<Label> getRelevantDataLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantDataCharacteristics = getAnalysisDataCharacteristics(constraints,
 				true);
 		return getLabelsForCharacteristics(dd, relevantDataCharacteristics);
@@ -143,7 +150,7 @@ public class Util {
 	 * @param constraints constraints
 	 * @return List of relevant Data labels
 	 */
-	public static List<Label> getRelevantDataLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
+	public static Set<Label> getRelevantDataLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantDataCharacteristics = getAnalysisDataCharacteristics(constraints,
 				false);
 		return getLabelsForCharacteristics(dd, relevantDataCharacteristics);
@@ -349,6 +356,24 @@ public class Util {
 			return 0;
 		}
 
+	}
+	
+	public static List<LabelReference> reduceToLabelReferences(Assignment assign, Term term) {
+		if (term instanceof TRUE){
+			return new ArrayList<>();
+		} else if(term instanceof NOT cast) {
+			return reduceToLabelReferences(assign, cast.getNegatedTerm());
+		} else if (term instanceof OR cast) {
+			return cast.getTerms().stream().flatMap(x -> reduceToLabelReferences(assign, x).stream()).toList();
+		} else if (term instanceof AND cast) {
+			return cast.getTerms().stream().flatMap(x -> reduceToLabelReferences(assign, x).stream()).toList();
+		} else if(term instanceof LabelReference cast) {
+			ArrayList<LabelReference> list = new ArrayList<>();
+			list.add(cast);
+			return list;
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
 }
