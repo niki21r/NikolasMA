@@ -43,7 +43,7 @@ final class VertexTypeHandler implements SelectorHandler<VertexTypeSelector> {
 		matches.add(matchesDestinationVertexType(s, vertex, env));
 		for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
 			DFDVertex prev = (DFDVertex) prevAbstract;
-			matches.add(matchesSourceVertexType(s, prev, env));
+			matches.add(matchesDestinationVertexType(s, prev, env));
 		}
 		BoolExpr anyMatch = env.ctx().mkOr(matches.toArray(new BoolExpr[0]));
 		return s.isInverted() ? env.ctx().mkNot(anyMatch) : anyMatch;

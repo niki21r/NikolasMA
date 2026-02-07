@@ -8,6 +8,8 @@ Installation and setup steps are described in detail, with exemplary commands fo
 Prerequisites:
 Java 17
 
+C++ 20 or higher
+
 Git
 
 Python
@@ -96,7 +98,7 @@ Select NikolasMA -> Open -> Deselect all -> Manually select
 
     NikolasMA/bundles/dev.arcovia.mitigation.sat
     NikolasMA/bundles/dev/arcovia.mitigation.smt
-    NikolasMA/tests/dev.arcovia.mitigation.sat.stest
+    NikolasMA/tests/dev.arcovia.mitigation.sat.tests
     NikolasMA/tests/dev.arcovia.mitigation.smt.tests
 
 Then click finish

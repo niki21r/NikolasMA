@@ -209,12 +209,12 @@ public class Util {
 	}
 
 	public static boolean containsFlowNameSelector(List<AnalysisConstraint> constraints) {
-		return constraints.stream().map(x -> x.getDataSourceSelectors().getSelectors())
+		return constraints.stream().flatMap(x -> x.getDataSourceSelectors().getSelectors().stream())
 				.anyMatch(VariableNameSelector.class::isInstance);
 	}
 
 	public static boolean containsVertexNameSelector(List<AnalysisConstraint> constraints) {
-		return constraints.stream().map(x -> x.getVertexDestinationSelectors().getSelectors())
+		return constraints.stream().flatMap(x -> x.getVertexDestinationSelectors().getSelectors().stream())
 				.anyMatch(VertexNameSelector.class::isInstance);
 	}
 

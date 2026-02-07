@@ -66,7 +66,7 @@ final class VertexCharacteristicsHandler implements SelectorHandler<VertexCharac
 
 	    for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
 	        DFDVertex prev = (DFDVertex) prevAbstract;
-	        matches.add(matchesSourceVertexCharacteristics(s, prev, env)); // keeps your original recursion
+	        matches.add(matchesDestinationVertexCharacteristics(s, prev, env)); // keeps your original recursion
 	    }
 
 	    BoolExpr anyMatch = env.ctx().mkOr(matches.toArray(new BoolExpr[0]));

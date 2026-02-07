@@ -109,12 +109,7 @@ public class RuntimeComparisonTest {
 		var dfd = Main.loadDFD(model, name);
 		if (!store)
 			name = "aName";
-		ArrayList<Boolean> complexityReductions = new ArrayList<>();
-		complexityReductions.add(true);
-		complexityReductions.add(false);
-		complexityReductions.add(false);
-		complexityReductions.add(false);
-		Mechanic mechanic = new Mechanic(dfd, name, constraints, costMap, complexityReductions);
+		Mechanic mechanic = new Mechanic(dfd, name, constraints, costMap);
 		var repairedDfd = mechanic.repair();
 		//int violationsAfter = new Mechanic(repairedDfd, null, null).amountOfViolations(repairedDfd, constraints);
 		//return new RepairResult(repairedDfd, mechanic.getViolations(), violationsAfter, endTime - startTime);
@@ -128,39 +123,6 @@ public class RuntimeComparisonTest {
 	private record RuntimeResult(int dagSize, int clauseCount, List<Long> runtimesSMT, List<Long> runtimesSAT) {
 	}
 
-	final Constraint entryViaGatewayOnly = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "internal"))),
-					new Literal(false, new IncomingDataLabel(new Label("Stereotype", "entrypoint"))),
-					new Literal(true, new IncomingDataLabel(new Label("Stereotype", "gateway")))));
-	final Constraint nonInternalGateway = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "gateway"))),
-					new Literal(false, new NodeLabel(new Label("Stereotype", "internal")))));
-	final Constraint authenticatedRequest = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "internal"))),
-					new Literal(true, new IncomingDataLabel(new Label("Stereotype", "authenticated_request")))));
-	final Constraint transformedEntry = new Constraint(List.of(
-			new Literal(false, new NodeLabel(new Label("Stereotype", "internal"))),
-			new Literal(false, new IncomingDataLabel(new Label("Stereotype", "entrypoint"))),
-			new Literal(true, new IncomingDataLabel(new Label("Stereotype", "transform_identity_representation")))));
-	final Constraint tokenValidation = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "internal"))),
-					new Literal(false, new IncomingDataLabel(new Label("Stereotype", "entrypoint"))),
-					new Literal(true, new IncomingDataLabel(new Label("Stereotype", "token_validation")))));
-	final Constraint loginAttempts = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "authorization_server"))),
-					new Literal(true, new NodeLabel(new Label("Stereotype", "login_attempts_regulation")))));
-	final Constraint encryptedEntry = new Constraint(
-			List.of(new Literal(false, new IncomingDataLabel(new Label("Stereotype", "entrypoint"))),
-					new Literal(true, new IncomingDataLabel(new Label("Stereotype", "encrypted_connection")))));
-	final Constraint encryptedInternals = new Constraint(
-			List.of(new Literal(false, new IncomingDataLabel(new Label("Stereotype", "internal"))),
-					new Literal(true, new IncomingDataLabel(new Label("Stereotype", "encrypted_connection")))));
-	final Constraint localLogging = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "internal"))),
-					new Literal(true, new NodeLabel(new Label("Stereotype", "local_logging")))));
-	final Constraint logSanitization = new Constraint(
-			List.of(new Literal(false, new NodeLabel(new Label("Stereotype", "local_logging"))),
-					new Literal(true, new NodeLabel(new Label("Stereotype", "log_sanitization")))));
 	final Map<Label, Integer> minCosts = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),
 			entry(new Label("Stereotype", "authenticated_request"), 1),
 			entry(new Label("Stereotype", "transform_identity_representation"), 1),
