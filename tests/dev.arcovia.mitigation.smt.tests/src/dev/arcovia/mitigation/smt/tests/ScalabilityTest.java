@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.SolvingResult;
+import dev.arcovia.mitigation.smt.util.Util;
 
 public class ScalabilityTest {
 
@@ -23,7 +25,7 @@ public class ScalabilityTest {
 		try {
 			var tuhhModels = TuhhModels.getTuhhModels();
 
-			List<RuntimeResult> runtimeResults = new ArrayList<RuntimeResult>();
+			List<ScalabilityResult> scalabilityResults = new ArrayList<ScalabilityResult>();
 			Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
 			for (var model : tuhhModels.keySet()) {
 				if (!tuhhModels.get(model).contains(0))
@@ -39,30 +41,32 @@ public class ScalabilityTest {
 								+ " because no model for this constraint is defined");
 						continue;
 					}
-					int dagSizeAfter = (int) Main.findDagSize(Main.loadDFD(model, model+"_0"), constraint, null);
-					RuntimeResult runtimeResult = new RuntimeResult(dagSizeAfter, new ArrayList<>());
+					ScalabilityResult runtimeResult = new ScalabilityResult(new ArrayList<>(), new ArrayList<>());
 					int totalRuns = 100;
 					for (int j = 0; j < totalRuns; j++) {
-						System.out.println("Running " + model + " with constraints " + i);
 						long before = System.currentTimeMillis();
 						DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
-						Main.run(dfd, constraint, null);
+						SolvingResult solvingResult = Main.run(dfd, constraint, null);
 						long after = System.currentTimeMillis();
-						runtimeResult.averageRuntime.add(after-before);
+						runtimeResult.runtimesSMT.add(after-before);
 						System.out.println("Total Runtime: "+(after-before));
+						if (!solvingResult.satisfiable() || Util.countViolations(solvingResult.repairedDFD(), constraint) > 0) {
+							System.out.println("Found error");
+							System.exit(1);
+						};
 					}
-					runtimeResults.add(runtimeResult);
+					scalabilityResults.add(runtimeResult);
 				}
 			}
 
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-			Path out = Path.of("testresults/results/runtimeResults/100runs/data.json");
+			Path out = Path.of("testresults/results/scalabilityResults/100runs/data.json");
 
 			Files.createDirectories(out.getParent());
 
-			mapper.writeValue(out.toFile(), runtimeResults);
+			mapper.writeValue(out.toFile(), scalabilityResults);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -70,7 +74,7 @@ public class ScalabilityTest {
 		}
 	}
 
-	private record RuntimeResult(int dagSize, List<Long> averageRuntime) {
+	private record ScalabilityResult(List<Long> runtimesSMT, List<Long> runtimesSAT) {
 	}
 
 }
