@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -37,51 +39,77 @@ import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
 
 public class ScalabilityTest {
 
-	private static final int RUNS_PER_CONFIGURATION = 5;
 	
-	@Test
-	public void testAllForScalability() throws Exception {
+	private static final int RUNS_PER_CONFIGURATION = 100;
+	private static final long MAX_TIME_MILLIS = TimeUnit.HOURS.toMillis(1);
+	
+	// SCALERS
+	private static final Function<ScaleInput, ScaleOutput> scaleNodesAndFlows = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		return new ScaleOutput(scaler.scaleDFD(scaleInput.scaleFactor, scaleInput.scaleFactor),
+				scaleInput.inputConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleTFGLength = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		return new ScaleOutput(scaler.scaleTFGLength(scaleInput.scaleFactor), scaleInput.inputConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleTFGAmount = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		return new ScaleOutput(scaler.scaleTFGLength(scaleInput.scaleFactor), scaleInput.inputConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleLabelsAndTypes = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		scaler.scaleLabelTypes(scaleInput.scaleFactor);
+		return new ScaleOutput(scaler.scaleLabels(scaleInput.scaleFactor), scaleInput.inputConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor);
+		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
+		allConstraints.addAll(scaler.scaleConstraint(1, scaleInput.scaleFactor, scaleInput.scaleFactor, 1, 1, scaleInput.scaleFactor));
+		return new ScaleOutput(dfdWithLabels, allConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintAfterNeverFlows = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor);
+		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
+		allConstraints.addAll(scaler.scaleConstraint(1, 1, 1, scaleInput.scaleFactor, scaleInput.scaleFactor, scaleInput.scaleFactor));
+		return new ScaleOutput(dfdWithLabels, allConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(1);
+		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
+		allConstraints.addAll(scaler.scaleConstraint(scaleInput.scaleFactor, 1, 1, 1, 1, 1));
+		return new ScaleOutput(dfdWithLabels, allConstraints);
+	};
+
+	private record ScaleInput(DataFlowDiagramAndDictionary inputDfd, List<AnalysisConstraint> inputConstraints,
+			int scaleFactor) {
+	};
+
+	private record ScaleOutput(DataFlowDiagramAndDictionary outputDfd, List<AnalysisConstraint> outputConstraints) {
+	};
+	
+	//Measure runtime of all TUHH Models with defined scaler and increasing scale Factor until either tool exceeds runtime of 1h.
+	public void scalabilityTest(Function<ScaleInput, ScaleOutput> scaleFunc, String name) throws Exception {
 		try {
-			
+
 			var tuhhModels = TuhhModels.getTuhhModels();
 
 			List<ScalabilityResult> scalabilityResults = new ArrayList<ScalabilityResult>();
 			Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
 
-			long totalRuntimeSMT = Long.MIN_VALUE;
-			long totalRuntimeSAT = Long.MIN_VALUE;
+			long runtimeSmtCurrRun = Long.MIN_VALUE;
+			long runtimeSatCurrRun = Long.MIN_VALUE;
 			int scale = 0;
-			
-			BiFunction<DataFlowDiagramAndDictionary, Integer, DataFlowDiagramAndDictionary> scaleNodesAndFlows = (dfd, scaleFactor) -> {
-				Scaler scaler = new Scaler(dfd);
-				return scaler.scaleDFD(scaleFactor, scaleFactor);
-			};
-			
-			BiFunction<DataFlowDiagramAndDictionary, Integer, DataFlowDiagramAndDictionary> scaleTFGLength = (dfd, scaleFactor) -> {
-				Scaler scaler = new Scaler(dfd);
-				return scaler.scaleTFGLength(scaleFactor);
-			};
-			
-			BiFunction<DataFlowDiagramAndDictionary, Integer, DataFlowDiagramAndDictionary> scaleTFGAmount = (dfd, scaleFactor) -> {
-				Scaler scaler = new Scaler(dfd);
-				return scaler.scaleTFGAmount(scaleFactor);
-			};
-			
-			BiFunction<DataFlowDiagramAndDictionary, Integer, DataFlowDiagramAndDictionary> scaleLabels = (dfd, scaleFactor) -> {
-				Scaler scaler = new Scaler(dfd);
-				return scaler.scaleLabels(scaleFactor);
-			};
-			
-			BiFunction<DataFlowDiagramAndDictionary, Integer, DataFlowDiagramAndDictionary> scaleLabelsInConstraintsBeforeNeverFlow = (dfd, scaleFactor) -> {
-				Scaler scaler = new Scaler(dfd);
-				scaler.scaleLabels(scaleFactor);
-				scaler.scaleConstraint(1, scaleFactor, scaleFactor, 1, 1, scaleFactor);
-				return scaler.scaleTFGAmount(scaleFactor);
-			};
 
-
-
-			
 			do {
 				List<Long> smtRuntimes = new ArrayList<>();
 				List<Long> satRuntimes = new ArrayList<>();
@@ -89,8 +117,7 @@ public class ScalabilityTest {
 					if (!tuhhModels.get(model).contains(0))
 						continue;
 					for (int i : List.of(1, 2, 4, 5, 7, 8, 10, 11)) {
-						List<AnalysisConstraint> constraint = constraintMap.get(i);
-						if (constraint == null) {
+						if (constraintMap.get(i) == null) {
 							System.out.println(
 									"Skipping " + model + " with constraint " + i + " because Constraint is undefined");
 							continue;
@@ -101,58 +128,59 @@ public class ScalabilityTest {
 						}
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
+							List<AnalysisConstraint> constraint = constraintMap.get(i);
 							DataFlowDiagramAndDictionary smtDfd = Main.loadDFD(model, model + "_0");
-							Scaler smtScaler = new Scaler(smtDfd);
-							smtDfd = smtScaler.scaleDFD(scale, scale);
+							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
+							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
 							long before = System.currentTimeMillis();
-							SolvingResult solvingResult = Main.run(smtDfd, constraint, null);
+							SolvingResult solvingResult = Main.run(scaleOutput.outputDfd, scaleOutput.outputConstraints,
+									null);
 							long after = System.currentTimeMillis();
 							/**
-							if (!solvingResult.satisfiable()
-									|| Util.countViolations(solvingResult.repairedDFD(), constraint) > 0) {
-								System.out.println("Found error in SMT");
-								System.exit(1);
-							};
-							*/
+							 * if (!solvingResult.satisfiable() ||
+							 * Util.countViolations(solvingResult.repairedDFD(), constraint) > 0) {
+							 * System.out.println("Found error in SMT"); System.exit(1); };
+							 */
 							long smtRuntime = after - before;
 							smtRuntimes.add(smtRuntime);
 						}
-						
+
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
-							DataFlowDiagramAndDictionary satDfd = Main.loadDFD(model, model + "_0");
-							Scaler scaler = new Scaler(satDfd);
-							satDfd = scaler.scaleDFD(scale, scale);
-							RepairResult repairResult = runRepair(satDfd, false, constraint, minCosts);
+							List<AnalysisConstraint> constraint = constraintMap.get(i);
+							DataFlowDiagramAndDictionary smtDfd = Main.loadDFD(model, model + "_0");
+							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
+							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
+							RepairResult repairResult = runRepair(scaleOutput.outputDfd, false,
+									scaleOutput.outputConstraints, minCosts);
 							/**
-							if (repairResult.violationsAfter() > 0
-									|| Util.countViolations(repairResult.repairedDfd, constraint) > 0) {
-								System.out.println("Found error in SAT");
-								System.exit(1);
-							}*/
+							 * if (repairResult.violationsAfter() > 0 ||
+							 * Util.countViolations(repairResult.repairedDfd, constraint) > 0) {
+							 * System.out.println("Found error in SAT"); System.exit(1); }
+							 */
 							long satRuntime = repairResult.runtimeInMilliseconds;
 							satRuntimes.add(satRuntime);
 						}
 					}
 				}
-				totalRuntimeSMT = smtRuntimes.stream()
-						.mapToLong(Long::longValue).sum();
-				totalRuntimeSAT = satRuntimes.stream()
-						.mapToLong(Long::longValue).sum();
-				ScalabilityResult runtimeResult = new ScalabilityResult(scale, totalRuntimeSMT, totalRuntimeSAT, smtRuntimes, satRuntimes);
+				runtimeSmtCurrRun = smtRuntimes.stream().mapToLong(Long::longValue).sum();
+				runtimeSatCurrRun = satRuntimes.stream().mapToLong(Long::longValue).sum();
+				ScalabilityResult runtimeResult = new ScalabilityResult(scale, runtimeSmtCurrRun, runtimeSatCurrRun,
+						smtRuntimes, satRuntimes);
 				scalabilityResults.add(runtimeResult);
-				System.out.println("Scale "+scale);
-				System.out.println("Total Runtime SMT "+totalRuntimeSMT);
-				System.out.println("Total Runtime SAT "+totalRuntimeSAT);
+				System.out.println("Scale " + scale);
+				System.out.println("Total Runtime SMT " + runtimeSmtCurrRun);
+				System.out.println("Total Runtime SAT " + runtimeSatCurrRun);
 				scale++;
 				Thread.sleep(2500);
-			} while (totalRuntimeSMT < 60000 && totalRuntimeSAT < 60000);
+			} while (runtimeSmtCurrRun < MAX_TIME_MILLIS && runtimeSatCurrRun < MAX_TIME_MILLIS);
 
 			System.out.println("Done");
-			
+
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-			Path out = Path.of("testresults/results/scalabilityResults/" + RUNS_PER_CONFIGURATION + "/scaleTFGs/data.json");
+			Path out = Path
+					.of("testresults/results/scalabilityResults/" + name + "/" + RUNS_PER_CONFIGURATION + "/data.json");
 
 			Files.createDirectories(out.getParent());
 
@@ -164,19 +192,19 @@ public class ScalabilityTest {
 			System.out.println(e.getMessage());
 			System.exit(1);
 		}
+
 	}
-	/*
-	 *
-	 * DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0"); Scaler
-	 * scaler = new Scaler(dfd); //TFG length scaler.scaleTFGLength(1); //Tfg amount
-	 * scaler.scaleTFGAmount(1); //Labels scaler.scaleLabelTypes(1);
-	 * scaler.scaleLabels(1); //Labels und Label typen vor neverflows
-	 * scaler.scaleLabelTypes(i); scaler.scaleLabels(i); scaler.scaleConstraint(1,
-	 * i, i, 1, 1, i); //Labels und Label Typen nach Neverflows
-	 * scaler.scaleLabelTypes(i); scaler.scaleLabels(i); scaler.scaleConstraint(1,
-	 * 1, 1, i, i, i); // scaler.scaleLabelTypes(1); scaler.scaleLabels(1);
-	 * scaler.scaleConstraint(i, 1, 1, 1, 1, 1);
-	 */
+
+	@Test
+	public void testAllForScalability() throws Exception {
+		scalabilityTest(scaleNodesAndFlows, "nodesAndFlows");
+		scalabilityTest(scaleTFGLength, "tfgLength");
+		scalabilityTest(scaleTFGAmount, "tfgAmount");
+		scalabilityTest(scaleLabelsAndTypes, "labelsAndTypes");
+		scalabilityTest(scaleLabelsInConstraintBeforeNeverFlows, "labelsBeforeNeverFlows");
+		scalabilityTest(scaleLabelsInConstraintAfterNeverFlows, "labelsAfterNeverFlows");
+		scalabilityTest(scaleNumConstraints, "numConstraints");
+	}
 
 	private RepairResult runRepair(DataFlowDiagramAndDictionary dfd, Boolean store,
 			List<AnalysisConstraint> analysisConstraints, Map<Label, Integer> costMap)
@@ -198,7 +226,8 @@ public class ScalabilityTest {
 			long runtimeInMilliseconds) {
 	}
 
-	private record ScalabilityResult(int scale, long totalRuntimeSMT, long totalRuntimeSAT, List<Long> runtimesSMT, List<Long> runtimesSAT) {
+	private record ScalabilityResult(int scale, long totalRuntimeSMT, long totalRuntimeSAT, List<Long> runtimesSMT,
+			List<Long> runtimesSAT) {
 	}
 
 	final Map<Label, Integer> minCosts = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),
