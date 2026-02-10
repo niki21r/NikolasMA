@@ -43,6 +43,15 @@ public class ScalabilityTest {
 	private static final int RUNS_PER_CONFIGURATION = 100;
 	private static final long MAX_TIME_MILLIS = TimeUnit.HOURS.toMillis(1);
 	
+	
+	private record ScaleInput(DataFlowDiagramAndDictionary inputDfd, List<AnalysisConstraint> inputConstraints,
+			int scaleFactor) {
+	};
+
+	private record ScaleOutput(DataFlowDiagramAndDictionary outputDfd, List<AnalysisConstraint> outputConstraints) {
+	};
+
+	
 	// SCALERS
 	private static final Function<ScaleInput, ScaleOutput> scaleNodesAndFlows = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
@@ -90,12 +99,6 @@ public class ScalabilityTest {
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
-	private record ScaleInput(DataFlowDiagramAndDictionary inputDfd, List<AnalysisConstraint> inputConstraints,
-			int scaleFactor) {
-	};
-
-	private record ScaleOutput(DataFlowDiagramAndDictionary outputDfd, List<AnalysisConstraint> outputConstraints) {
-	};
 	
 	//Measure runtime of all TUHH Models with defined scaler and increasing scale Factor until either tool exceeds runtime of 1h.
 	public void scalabilityTest(Function<ScaleInput, ScaleOutput> scaleFunc, String name) throws Exception {
