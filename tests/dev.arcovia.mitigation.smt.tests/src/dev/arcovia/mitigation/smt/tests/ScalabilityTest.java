@@ -69,37 +69,44 @@ public class ScalabilityTest {
 		return new ScaleOutput(scaler.scaleTFGAmount(scaleInput.scaleFactor), scaleInput.inputConstraints);
 	};
 
-	private static final Function<ScaleInput, ScaleOutput> scaleLabelsAndTypes = (scaleInput) -> {
+	private static final Function<ScaleInput, ScaleOutput> scaleLabelTypes = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
 		int scaleFactor = powerOfTwo(scaleInput.scaleFactor);
-		scaler.scaleLabelTypes(scaleFactor);
+		return new ScaleOutput(scaler.scaleLabelTypes(scaleFactor), scaleInput.inputConstraints);
+	};
+
+	private static final Function<ScaleInput, ScaleOutput> scaleLabels = (scaleInput) -> {
+		Scaler scaler = new Scaler(scaleInput.inputDfd);
+		int scaleFactor = powerOfTwo(scaleInput.scaleFactor);
 		return new ScaleOutput(scaler.scaleLabels(scaleFactor), scaleInput.inputConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor * 4);
 		List<AnalysisConstraint> allConstraints = new ArrayList<>();
 		allConstraints.addAll(scaleInput.inputConstraints);
 		allConstraints.addAll(scaler.scaleConstraint(1, scaleInput.scaleFactor, scaleInput.scaleFactor, 1, 1,
-				scaleInput.scaleFactor*4));
+				scaleInput.scaleFactor * 4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintAfterNeverFlows = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
-		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor * 4);
+		List<AnalysisConstraint> allConstraints = new ArrayList<>();
+		allConstraints.addAll(scaleInput.inputConstraints);
 		allConstraints.addAll(scaler.scaleConstraint(1, 1, 1, scaleInput.scaleFactor, scaleInput.scaleFactor,
-				scaleInput.scaleFactor*4));
+				scaleInput.scaleFactor * 4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
-		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
-		allConstraints.addAll(scaler.scaleConstraint(scaleInput.scaleFactor, 1, 1, 1, 1, scaleInput.scaleFactor*4));
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor * 4);
+		List<AnalysisConstraint> allConstraints = new ArrayList<>();
+		allConstraints.addAll(scaleInput.inputConstraints);
+		allConstraints.addAll(scaler.scaleConstraint(scaleInput.scaleFactor, 1, 1, 1, 1, scaleInput.scaleFactor * 4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
@@ -273,7 +280,8 @@ public class ScalabilityTest {
 	public void testAllForScalability() throws Exception {
 		scalabilityTest(scaleTFGAmount, "tfgAmount");
 		scalabilityTest(scaleTFGLength, "tfgLength");
-		scalabilityTest(scaleLabelsAndTypes, "labelsAndTypes");
+		scalabilityTest(scaleLabelTypes, "labelsTypes");
+		scalabilityTest(scaleLabels, "labels");
 		scalabilityTest(scaleLabelsInConstraintBeforeNeverFlows, "labelsBeforeNeverFlows");
 		scalabilityTest(scaleLabelsInConstraintAfterNeverFlows, "labelsAfterNeverFlows");
 		scalabilityTest(scaleNumConstraints, "numConstraints");
