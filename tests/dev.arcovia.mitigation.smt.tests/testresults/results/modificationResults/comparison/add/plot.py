@@ -86,7 +86,7 @@ def make_cost_png(input_json: Path, output_png: Path):
     renderer = fig.canvas.get_renderer()
     table_bbox_px = tbl.get_window_extent(renderer=renderer)
 
-    title_str = "Cost comparison to existing tool with uniform cost only label addition"
+    title_str = ""
     gap_px = 1
     top_pad_px = 4
 

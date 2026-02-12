@@ -26,9 +26,9 @@ def plot_sat_vs_smt(data, out_png: Path):
     mx = max(max(x), max(y))
     ax.plot([mn, mx], [mn, mx])
 
-    ax.set_xlabel("Average runtime of existing approach (ms)")
-    ax.set_ylabel("Average runtime (ms)")
-    ax.set_title("Runtime compared to existing approach")
+    ax.set_xlabel("Average runtime of Niehues et al. approach (ms)")
+    ax.set_ylabel("Average runtime of our approach (ms)")
+    ax.set_title("")
     ax.grid(True)
 
     out_png.parent.mkdir(parents=True, exist_ok=True)

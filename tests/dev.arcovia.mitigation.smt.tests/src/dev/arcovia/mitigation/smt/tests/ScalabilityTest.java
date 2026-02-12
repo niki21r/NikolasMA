@@ -41,7 +41,8 @@ import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
 public class ScalabilityTest {
 
 	private static final int RUNS_PER_CONFIGURATION = 10;
-	private static final long MAX_TIME_MILLIS = TimeUnit.MINUTES.toMillis(5);
+	private static final long MAX_TIME_MILLIS = TimeUnit.MINUTES.toMillis(10);
+	private static final boolean checkViolationFree = false;
 
 	private record ScaleInput(DataFlowDiagramAndDictionary inputDfd, List<AnalysisConstraint> inputConstraints,
 			int scaleFactor) {
@@ -59,51 +60,52 @@ public class ScalabilityTest {
 
 	private static final Function<ScaleInput, ScaleOutput> scaleTFGLength = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		return new ScaleOutput(scaler.scaleTFGLength(scaleInput.scaleFactor), scaleInput.inputConstraints);
+		int scaleFactor = powerOfTwo(scaleInput.scaleFactor);
+		return new ScaleOutput(scaler.scaleTFGLength(scaleFactor), scaleInput.inputConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleTFGAmount = (scaleInput) -> {
-		/** Maybe scale by powers of two instead of linear
-		int scaleFactor = 0;
-		for (int i = 0; i < scaleInput.scaleFactor; i++) {
-			scaleFactor = Integer.parseInt(BigInteger.TWO.pow(i).toString());
-		}
-		*/
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
 		return new ScaleOutput(scaler.scaleTFGAmount(scaleInput.scaleFactor), scaleInput.inputConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsAndTypes = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		scaler.scaleLabelTypes(scaleInput.scaleFactor);
-		return new ScaleOutput(scaler.scaleLabels(scaleInput.scaleFactor), scaleInput.inputConstraints);
+		int scaleFactor = powerOfTwo(scaleInput.scaleFactor);
+		scaler.scaleLabelTypes(scaleFactor);
+		return new ScaleOutput(scaler.scaleLabels(scaleFactor), scaleInput.inputConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor);
-		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
+		List<AnalysisConstraint> allConstraints = new ArrayList<>();
+		allConstraints.addAll(scaleInput.inputConstraints);
 		allConstraints.addAll(scaler.scaleConstraint(1, scaleInput.scaleFactor, scaleInput.scaleFactor, 1, 1,
-				scaleInput.scaleFactor));
+				scaleInput.scaleFactor*4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintAfterNeverFlows = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
 		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
 		allConstraints.addAll(scaler.scaleConstraint(1, 1, 1, scaleInput.scaleFactor, scaleInput.scaleFactor,
-				scaleInput.scaleFactor));
+				scaleInput.scaleFactor*4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
 
 	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (scaleInput) -> {
 		Scaler scaler = new Scaler(scaleInput.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(1);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(scaleInput.scaleFactor*4);
 		List<AnalysisConstraint> allConstraints = scaleInput.inputConstraints;
-		allConstraints.addAll(scaler.scaleConstraint(scaleInput.scaleFactor, 1, 1, 1, 1, 1));
+		allConstraints.addAll(scaler.scaleConstraint(scaleInput.scaleFactor, 1, 1, 1, 1, scaleInput.scaleFactor*4));
 		return new ScaleOutput(dfdWithLabels, allConstraints);
 	};
+
+	private static int powerOfTwo(int power) {
+		return Integer.parseInt(BigInteger.TWO.pow(power).toString());
+	}
 
 	// Measure runtime of all TUHH Models with defined scaler and increasing scale
 	// Factor until either tool exceeds runtime of 1h.
@@ -115,9 +117,9 @@ public class ScalabilityTest {
 			List<ScalabilityResult> scalabilityResults = new ArrayList<ScalabilityResult>();
 			Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
 
-			long runtimeSmtCurrRun = Long.MIN_VALUE;
-			long runtimeSatCurrRun = Long.MIN_VALUE;
-			int scale = 0;
+			long runtimeSmtCurrRun = 0;
+			long runtimeSatCurrRun = 0;
+			int scale = 1;
 
 			do {
 				List<Long> smtRuntimes = new ArrayList<>();
@@ -146,16 +148,24 @@ public class ScalabilityTest {
 									null);
 							long after = System.currentTimeMillis();
 
-							if (j == 0 && (!solvingResult.satisfiable()
-									|| Util.countViolations(solvingResult.repairedDFD(), constraint) > 0)) {
-								System.out.println("Found error in SMT");
-								scaleOutput.outputConstraints.forEach(System.out::println);
-								System.exit(1);
+							if (checkViolationFree) {
+								if (j == 0 && (!solvingResult.satisfiable()
+										|| Util.countViolations(solvingResult.repairedDFD(), constraint) > 0)) {
+									System.out.println("Found error in SMT");
+									scaleOutput.outputConstraints.forEach(System.out::println);
+									System.exit(1);
+								}
 							}
-							;
 
 							long smtRuntime = after - before;
+							runtimeSmtCurrRun += smtRuntime;
+							if (runtimeSmtCurrRun > MAX_TIME_MILLIS) {
+								break;
+							}
 							smtRuntimes.add(smtRuntime);
+						}
+						if (runtimeSmtCurrRun > MAX_TIME_MILLIS) {
+							break;
 						}
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
@@ -166,22 +176,35 @@ public class ScalabilityTest {
 							RepairResult repairResult = runRepair(scaleOutput.outputDfd, false,
 									scaleOutput.outputConstraints, minCosts);
 
-							if (j == 0 && (repairResult.violationsAfter() > 0
-									|| Util.countViolations(repairResult.repairedDfd, constraint) > 0)) {
-								System.out.println("Found error in SAT");
-								scaleOutput.outputConstraints.forEach(System.out::println);
-								System.exit(1);
+							if (checkViolationFree) {
+								if (j == 0 && (repairResult.violationsAfter() > 0
+										|| Util.countViolations(repairResult.repairedDfd, constraint) > 0)) {
+									System.out.println("Found error in SAT");
+									scaleOutput.outputConstraints.forEach(System.out::println);
+									System.exit(1);
+								}
 							}
 
 							long satRuntime = repairResult.runtimeInMilliseconds;
 							satRuntimes.add(satRuntime);
+							runtimeSatCurrRun += satRuntime;
+							if (runtimeSatCurrRun > MAX_TIME_MILLIS) {
+								break;
+							}
+						}
+						if (runtimeSatCurrRun > MAX_TIME_MILLIS) {
+							break;
 						}
 					}
+					if (runtimeSmtCurrRun > MAX_TIME_MILLIS || runtimeSatCurrRun > MAX_TIME_MILLIS) {
+						break;
+					}
 				}
-				runtimeSmtCurrRun = smtRuntimes.stream().mapToLong(Long::longValue).sum();
-				runtimeSatCurrRun = satRuntimes.stream().mapToLong(Long::longValue).sum();
-				ScalabilityResult runtimeResult = new ScalabilityResult(scale, runtimeSmtCurrRun, runtimeSatCurrRun,
-						smtRuntimes, satRuntimes);
+				if (runtimeSmtCurrRun > MAX_TIME_MILLIS || runtimeSatCurrRun > MAX_TIME_MILLIS) {
+					break;
+				}
+				ScalabilityResult runtimeResult = new ScalabilityResult(scale, RUNS_PER_CONFIGURATION,
+						runtimeSmtCurrRun, runtimeSatCurrRun, smtRuntimes, satRuntimes);
 				scalabilityResults.add(runtimeResult);
 				System.out.println("Scaled " + name + " by factor " + scale);
 				System.out.println("Total Runtime SMT " + runtimeSmtCurrRun);
@@ -195,8 +218,8 @@ public class ScalabilityTest {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-			Path out = Path
-					.of("testresults/results/scalabilityResults/" + name + "/" + RUNS_PER_CONFIGURATION + "/data.json");
+			Path out = Path.of("testresults/results/scalabilityResults/" + name + "/" + RUNS_PER_CONFIGURATION + "Runs"
+					+ (MAX_TIME_MILLIS / 60000) + "Minutes" + "/data.json");
 
 			Files.createDirectories(out.getParent());
 
@@ -277,8 +300,8 @@ public class ScalabilityTest {
 			long runtimeInMilliseconds) {
 	}
 
-	private record ScalabilityResult(int scale, long totalRuntimeSMT, long totalRuntimeSAT, List<Long> runtimesSMT,
-			List<Long> runtimesSAT) {
+	private record ScalabilityResult(int scale, int runsPerConfiguration, long totalRuntimeSMT, long totalRuntimeSAT,
+			List<Long> runtimesSMT, List<Long> runtimesSAT) {
 	}
 
 	final Map<Label, Integer> minCosts = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),

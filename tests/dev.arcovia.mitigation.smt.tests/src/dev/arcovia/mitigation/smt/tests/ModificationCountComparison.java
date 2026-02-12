@@ -82,7 +82,7 @@ public class ModificationCountComparison {
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
 				satCost = satCost-baseCost;
-				Config config = new Config(true, true, false, true, false, new CostConfigBuilder().build());
+				Config config = new Config(true, true, false, true, false, new CostConfigBuilder().build(), false, false);
 				SolvingResult solvingResult = Main.run(Main.loadDFD(model, model + "_0"), constraintMap.get(variant), config);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);

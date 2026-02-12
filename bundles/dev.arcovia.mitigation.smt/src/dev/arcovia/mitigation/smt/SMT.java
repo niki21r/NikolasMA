@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -156,9 +157,17 @@ public class SMT {
 		long solveTime = after - before;
 		if (st != Status.SATISFIABLE) {
 			ctx.close();
-			return new SolvingResult(false, null, null, Integer.MAX_VALUE);
+			return new SolvingResult(false, null, null, Integer.MAX_VALUE, Optional.empty(), Optional.empty());
 		} else {
 			Model m = opt.getModel();
+			Optional<Long> expressionTreeSize;
+			if (config.findExpressionTreeSize()) {
+				BoolExpr[] assertions = opt.getAssertions();
+				long astNodes = SMTUtil.countAstNodes(assertions);
+				expressionTreeSize = Optional.of(astNodes);
+			} else {
+				expressionTreeSize = Optional.empty();
+			}
 			IntExpr costValExpr = (IntExpr) m.eval(costFunction, true);
 			List<Action> parseActions = parseActions(m);
 			DataFlowDiagramAndDictionary dfd = pre.dfd();
@@ -166,39 +175,15 @@ public class SMT {
 				dfd = parseActions.get(i).doAction(dfd);
 			}
 			int cost = Integer.parseInt(costValExpr.toString());
+			Optional<Integer> violationsAfter;
+			if (config.checkForViolationsAfter()) {
+				violationsAfter = Optional.of(Util.countViolations(dfd, constraints));
+			} else {
+				violationsAfter = Optional.empty();
+			}
 			ctx.close();
-			return new SolvingResult(true, dfd, parseActions, cost);
+			return new SolvingResult(true, dfd, parseActions, cost, expressionTreeSize, violationsAfter);
 		}
-	}
-
-	public List<Action> suggestActions() {
-		Status st = opt.Check();
-		Model m = opt.getModel();
-		IntExpr costVal = (IntExpr) m.eval(costFunction, true);
-		List<Action> parseActions = parseActions(m);
-		System.out.println("Cost " + costVal.toString());
-		System.out.println("Actions " + parseActions);
-		/*
-		 * if (Integer.parseInt(costVal.toString()) != parseActions.size()) {
-		 * System.out.println("Mismatch found"); System.exit(1); }
-		 */
-		ctx.close();
-		return parseActions;
-	}
-
-	public long getDagSizeAfterSolving() {
-		Status st = opt.Check();
-		Model m = opt.getModel();
-		IntExpr costVal = (IntExpr) m.eval(costFunction, true);
-		List<Action> parseActions = parseActions(m);
-		DataFlowDiagramAndDictionary dfd = pre.dfd();
-		for (int i = 0; i < parseActions.size(); i++) {
-			dfd = parseActions.get(i).doAction(dfd);
-		}
-		BoolExpr[] assertions = opt.getAssertions();
-		long astNodes = SMTUtil.countAstNodes(assertions);
-		ctx.close();
-		return astNodes;
 	}
 
 	private void createUserConstraints(List<AnalysisConstraint> constraints) {

@@ -29,6 +29,8 @@ import dev.arcovia.mitigation.sat.Mechanic;
 import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
 import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
 
 public class RuntimeComparisonTest {
@@ -57,7 +59,9 @@ public class RuntimeComparisonTest {
 						continue;
 					}
 
-					int dagSizeAfter = (int) Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint, null);
+					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
+
+					long dagSizeAfter = Main.run(Main.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
 
 					List<Long> smtRuntimes = new ArrayList<>();
 					List<Long> satRuntimes = new ArrayList<>();
@@ -120,7 +124,7 @@ public class RuntimeComparisonTest {
 			long runtimeInMilliseconds) {
 	}
 
-	private record RuntimeResult(int dagSize, int clauseCount, List<Long> runtimesSMT, List<Long> runtimesSAT) {
+	private record RuntimeResult(long dagSize, int clauseCount, List<Long> runtimesSMT, List<Long> runtimesSAT) {
 	}
 
 	final Map<Label, Integer> minCosts = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),

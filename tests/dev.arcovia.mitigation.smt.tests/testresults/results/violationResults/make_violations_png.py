@@ -43,7 +43,7 @@ def make_violations_png(input_json: Path, output_png: Path):
     table_bbox_px = tbl.get_window_extent(renderer=renderer)
 
     # --- Place title relative to the TABLE bbox (pixel-perfect) ---
-    title_str = "Confidentiality violations before and after the repair"
+    title_str = ""
     gap_px = 1  # set to 0 if you want it touching; 1-3 usually looks best
 
     # Convert table bbox x-center and y-top from pixels -> figure fraction

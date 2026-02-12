@@ -40,18 +40,6 @@ public class Main {
 		return smt.repair();
 	}
 
-	public static long findDagSize(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints, Config config)
-			throws StandaloneInitializationException {
-		Preprocess preprocces = new Preprocess();
-		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints);
-		SMTMappings mappings = new SMTMappings(preprocessingResult);
-		if (config == null) {
-			config = new Config();
-		}
-		SMT smt = new SMT(preprocessingResult, constraints, mappings, config);
-		return smt.getDagSizeAfterSolving();
-	}
-
 	/**
 	 * Loads a dfd. Currently only static from the hardcoded folder
 	 * 

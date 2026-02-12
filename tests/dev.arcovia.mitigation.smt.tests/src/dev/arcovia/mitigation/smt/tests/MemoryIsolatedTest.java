@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 
 public class MemoryIsolatedTest {
 
@@ -59,9 +61,10 @@ public class MemoryIsolatedTest {
                                 + " because no model for this constraint is defined");
                         continue;
                     }
+                    
+					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
 
-                    int dagSizeAfter = (int)
-                            Main.findDagSize(Main.loadDFD(model, model + "_0"), constraint, null);
+                    long dagSizeAfter = Main.run(Main.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
 
                     System.out.println("Measuring peak RSS in fresh JVM (parallel=" + PARALLELISM + ") for "
                             + model + " constraint " + i);
@@ -109,7 +112,7 @@ public class MemoryIsolatedTest {
         }
     }
 
-    private record MemoryResult(int dagSize, List<Long> peakRssBytes) {}
+    private record MemoryResult(long dagSize, List<Long> peakRssBytes) {}
 
     private static long runInFreshJvmAndMeasurePeakRss(
             String model, int constraintId, long pageSizeBytes) throws Exception {

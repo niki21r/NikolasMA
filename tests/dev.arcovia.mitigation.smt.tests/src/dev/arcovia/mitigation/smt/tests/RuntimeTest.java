@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 
 public class RuntimeTest {
 
@@ -39,7 +41,8 @@ public class RuntimeTest {
 								+ " because no model for this constraint is defined");
 						continue;
 					}
-					int dagSizeAfter = (int) Main.findDagSize(Main.loadDFD(model, model+"_0"), constraint, null);
+					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
+					long dagSizeAfter = Main.run(Main.loadDFD(model, model+"_0"), constraint, config).expressionTreeSize().get();
 					RuntimeResult runtimeResult = new RuntimeResult(dagSizeAfter, new ArrayList<>());
 					int totalRuns = 100;
 					for (int j = 0; j < totalRuns; j++) {
@@ -70,7 +73,7 @@ public class RuntimeTest {
 		}
 	}
 
-	private record RuntimeResult(int dagSize, List<Long> averageRuntime) {
+	private record RuntimeResult(long dagSize, List<Long> averageRuntime) {
 	}
 
 }
