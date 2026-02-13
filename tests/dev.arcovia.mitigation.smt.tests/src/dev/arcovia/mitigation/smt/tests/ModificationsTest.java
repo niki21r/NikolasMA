@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.operations.Operation;
 import dev.arcovia.mitigation.smt.util.Util;
 
@@ -41,9 +41,9 @@ public class ModificationsTest {
 								+ " because no model for this constraint is defined");
 						continue;
 					}
-					DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
+					DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
 					System.out.println("Running " + model + " with constraints " + i);
-					List<Operation> suggestedActions = Main.run(dfd, constraint, null).repairOperations();
+					List<Operation> suggestedActions = Mitigation.run(dfd, constraint, null).repairOperations();
 					int removeableActions = 0;
 					for (int j = 0; j < suggestedActions.size(); j++) {
 						Operation action = suggestedActions.get(j);

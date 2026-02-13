@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.util.Util;
 
 public class ViolationsTest {
@@ -41,11 +41,11 @@ public class ViolationsTest {
 						System.out.println("Skipping "+model+" with constraint "+i+" because no model for this constraint is defined");
 						continue;
 					}
-					DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
+					DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
 					int violationsBefore = Util.countViolations(dfd, constraint);
 					totalViolations += violationsBefore;
 					System.out.println("Running " + model + " with constraints " + i);
-					DataFlowDiagramAndDictionary repairedDFD = Main.run(dfd, constraint, null).repairedDFD();
+					DataFlowDiagramAndDictionary repairedDFD = Mitigation.run(dfd, constraint, null).repairedDFD();
 					int violationsAfter = Util.countViolations(repairedDFD, constraint);
 					if (violationsAfter > 0) {
 						System.out.println("Violations after repair still present. Fatal");

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 
@@ -42,14 +42,14 @@ public class RuntimeTest {
 						continue;
 					}
 					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
-					long dagSizeAfter = Main.run(Main.loadDFD(model, model+"_0"), constraint, config).expressionTreeSize().get();
+					long dagSizeAfter = Mitigation.run(Mitigation.loadDFD(model, model+"_0"), constraint, config).expressionTreeSize().get();
 					RuntimeResult runtimeResult = new RuntimeResult(dagSizeAfter, new ArrayList<>());
 					int totalRuns = 100;
 					for (int j = 0; j < totalRuns; j++) {
 						System.out.println("Running " + model + " with constraints " + i);
 						long before = System.currentTimeMillis();
-						DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
-						Main.run(dfd, constraint, null);
+						DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
+						Mitigation.run(dfd, constraint, null);
 						long after = System.currentTimeMillis();
 						runtimeResult.averageRuntime.add(after-before);
 						System.out.println("Total Runtime: "+(after-before));

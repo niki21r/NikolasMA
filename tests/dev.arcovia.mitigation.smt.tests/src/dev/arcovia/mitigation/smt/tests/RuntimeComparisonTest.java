@@ -28,7 +28,7 @@ import dev.arcovia.mitigation.sat.Literal;
 import dev.arcovia.mitigation.sat.Mechanic;
 import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
@@ -61,7 +61,7 @@ public class RuntimeComparisonTest {
 
 					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
 
-					long dagSizeAfter = Main.run(Main.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
+					long dagSizeAfter = Mitigation.run(Mitigation.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
 
 					List<Long> smtRuntimes = new ArrayList<>();
 					List<Long> satRuntimes = new ArrayList<>();
@@ -69,8 +69,8 @@ public class RuntimeComparisonTest {
 					for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
 						//System.out.println("Running " + model + " with constraints " + i);
 						long before = System.currentTimeMillis();
-						DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
-						Main.run(dfd, constraint, null);
+						DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
+						Mitigation.run(dfd, constraint, null);
 						long after = System.currentTimeMillis();
 						long totalRuntime = (after - before);
 						smtRuntimes.add(totalRuntime);
@@ -110,7 +110,7 @@ public class RuntimeComparisonTest {
 	private void runRepair(String model, String name, Boolean store, List<Constraint> constraints,
 			Map<Label, Integer> costMap)
 			throws StandaloneInitializationException, ContradictionException, IOException, TimeoutException {
-		var dfd = Main.loadDFD(model, name);
+		var dfd = Mitigation.loadDFD(model, name);
 		if (!store)
 			name = "aName";
 		Mechanic mechanic = new Mechanic(dfd, name, constraints, costMap);

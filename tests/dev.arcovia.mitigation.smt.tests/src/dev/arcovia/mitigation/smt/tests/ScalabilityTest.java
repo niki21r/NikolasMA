@@ -28,7 +28,7 @@ import org.sat4j.specs.TimeoutException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.SolvingResult;
 import dev.arcovia.mitigation.smt.util.Util;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
@@ -148,11 +148,11 @@ public class ScalabilityTest {
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
 							List<AnalysisConstraint> constraint = constraintMap.get(i);
-							DataFlowDiagramAndDictionary smtDfd = Main.loadDFD(model, model + "_0");
+							DataFlowDiagramAndDictionary smtDfd = Mitigation.loadDFD(model, model + "_0");
 							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
 							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
 							long before = System.currentTimeMillis();
-							SolvingResult solvingResult = Main.run(scaleOutput.outputDfd, scaleOutput.outputConstraints,
+							SolvingResult solvingResult = Mitigation.run(scaleOutput.outputDfd, scaleOutput.outputConstraints,
 									null);
 							long after = System.currentTimeMillis();
 
@@ -175,7 +175,7 @@ public class ScalabilityTest {
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
 							List<AnalysisConstraint> constraint = constraintMap.get(i);
-							DataFlowDiagramAndDictionary smtDfd = Main.loadDFD(model, model + "_0");
+							DataFlowDiagramAndDictionary smtDfd = Mitigation.loadDFD(model, model + "_0");
 							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
 							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
 							RepairResult repairResult = runRepair(scaleOutput.outputDfd, false,

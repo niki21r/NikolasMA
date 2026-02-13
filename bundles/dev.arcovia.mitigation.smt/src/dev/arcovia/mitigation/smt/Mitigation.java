@@ -18,7 +18,7 @@ import tools.mdsd.library.standalone.initialization.StandaloneInitializationExce
  *         Given a DFD, and a list of constraints it returns a repaired DFD.
  *
  */
-public class Main {
+public class Mitigation {
 
 	/**
 	 * Repairs DFD. First it preprocesses, using existing DFA tooling, creates

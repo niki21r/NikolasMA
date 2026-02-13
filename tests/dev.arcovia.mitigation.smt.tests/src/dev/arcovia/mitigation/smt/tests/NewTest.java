@@ -14,18 +14,18 @@ import org.dataflowanalysis.analysis.dsl.result.DSLResult;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.junit.jupiter.api.Test;
 
-import dev.arcovia.mitigation.smt.Main;
+import dev.arcovia.mitigation.smt.Mitigation;
 public class NewTest {
 
 	@Test
 	public void newTest() throws Exception {
 		try {
-			DataFlowDiagramAndDictionary dfd = Main.loadDFD("koushikkothagal", "koushikkothagal_0");
+			DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD("koushikkothagal", "koushikkothagal_0");
 			List<AnalysisConstraint> constraints = ConstraintMapProvider.buildConstraintMap().get(2);
 			HashMap<String, Integer> labelCost = new HashMap<>();
 			labelCost.put("Stereotype.internal", 5);
 			countViolations(dfd, constraints);
-			System.out.println(Main.run(dfd, constraints, null));
+			System.out.println(Mitigation.run(dfd, constraints, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
