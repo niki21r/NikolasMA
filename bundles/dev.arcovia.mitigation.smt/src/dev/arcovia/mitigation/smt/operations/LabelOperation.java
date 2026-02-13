@@ -27,7 +27,7 @@ public class LabelOperation extends DataDictionaryOperation{
 	}
 	
 	@Override
-	public DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
 		Optional<LabelType> opt = dfd.dataDictionary().getLabelTypes().stream().filter(x -> x.getEntityName().equals(type)).findFirst();
 		if (opt.isEmpty()) {
 			logger.debug("Couldn't find label type "+type);
@@ -41,7 +41,7 @@ public class LabelOperation extends DataDictionaryOperation{
 	}
 
 	@Override
-	public DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
 		Optional<LabelType> opt = dfd.dataDictionary().getLabelTypes().stream().filter(x -> x.getEntityName().equals(type)).findFirst();
 		if (opt.isEmpty()) {
 			logger.debug("Couldn't find label type "+type);

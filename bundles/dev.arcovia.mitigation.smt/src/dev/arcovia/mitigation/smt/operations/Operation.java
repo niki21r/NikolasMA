@@ -13,12 +13,12 @@ public interface Operation {
 	 * @param dfd incoming dfd
 	 * @return resulting dfd
 	 */
-	abstract DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd);
+	abstract DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd);
 	
 	/**
 	 * Reverts the changes of this action on the DFD
 	 * @param dfd incoming dfd
 	 * @return resulting dfd
 	 */
-	abstract DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd);
+	abstract DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd);
 }

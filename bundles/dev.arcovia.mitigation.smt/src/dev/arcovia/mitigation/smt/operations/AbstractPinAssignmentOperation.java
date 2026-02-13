@@ -33,7 +33,7 @@ public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAs
     protected abstract String assignmentName();
 
     @Override
-    public DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd) {
+    public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
         T assignment = createAssignment();
         assignment.setOutputPin(pin);
         assignment.setId(String.valueOf(random.nextInt()));
@@ -53,7 +53,7 @@ public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAs
     }
 
     @Override
-    public DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd) {
+    public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
         Optional<Behavior> behavior = dfd.dataDictionary().getBehavior().stream()
                 .filter(b -> b.getOutPin().contains(pin))
                 .findFirst();

@@ -25,7 +25,7 @@ public class LabelTypeOperation extends DataDictionaryOperation {
 	
 	
 	@Override
-	public DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
 		LabelType newType = factory.createLabelType();
 		newType.setEntityName(name);
 		newType.setId(id);
@@ -35,7 +35,7 @@ public class LabelTypeOperation extends DataDictionaryOperation {
 	}
 
 	@Override
-	public DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
 		dfd.dataDictionary().getLabelTypes().removeIf(x -> x.getEntityName().equals(name));
 		logger.debug("Removed label type "+name);
 		return dfd;

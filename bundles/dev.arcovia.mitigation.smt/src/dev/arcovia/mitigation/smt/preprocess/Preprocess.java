@@ -67,13 +67,13 @@ public class Preprocess {
 			String type = data.characteristicType().toString();
 			if (!Util.containsLabelType(dd, type)) {
 				LabelTypeOperation modifyLabelType = new LabelTypeOperation(type);
-				modifyLabelType.doAction(dfd);
+				modifyLabelType.doOperation(dfd);
 			}
 			String value = data.characteristicValue().toString();
 			LabelType parentType = Util.getLabelTypeByName(dd, type);
 			if (!Util.containsLabel(parentType, value)) {
 				LabelOperation modifyLabel = new LabelOperation(type, value);
-				modifyLabel.doAction(dfd);
+				modifyLabel.doOperation(dfd);
 			}
 		}
 		return dfd;

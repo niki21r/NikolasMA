@@ -11,13 +11,13 @@ public class NodeLabelRemoveOperation extends AbstractNodeLabelOperation {
 	}
 	
 	@Override
-	public DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd) {
-		return super.undoAction(dfd);
+	public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
+		return super.undoOperation(dfd);
 	}
 
 	@Override
-	public DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd) {
-		return super.doAction(dfd);
+	public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
+		return super.doOperation(dfd);
 	}
 
 	@Override

@@ -48,13 +48,13 @@ public class ModificationsTest {
 					for (int j = 0; j < suggestedActions.size(); j++) {
 						Operation action = suggestedActions.get(j);
 						System.out.println("Removed "+suggestedActions.get(j));
-						dfd = action.undoAction(dfd);
+						dfd = action.undoOperation(dfd);
 						if (Util.countViolations(dfd, constraint) <= 0) {
 							System.out.println("Found no violation");
 							removeableActions++;
 							System.exit(1);
 						}
-						dfd = action.doAction(dfd);
+						dfd = action.doOperation(dfd);
 						System.out.println("Applied "+suggestedActions.get(j));
 					}
 					ModificationsResult result = new ModificationsResult(model, i, suggestedActions.size(),

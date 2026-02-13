@@ -172,7 +172,7 @@ public class SMT {
 			List<Operation> parseActions = parseActions(m);
 			DataFlowDiagramAndDictionary dfd = pre.dfd();
 			for (int i = 0; i < parseActions.size(); i++) {
-				dfd = parseActions.get(i).doAction(dfd);
+				dfd = parseActions.get(i).doOperation(dfd);
 			}
 			int cost = Integer.parseInt(costValExpr.toString());
 			Optional<Integer> violationsAfter;

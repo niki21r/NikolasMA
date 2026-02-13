@@ -15,13 +15,13 @@ public abstract class AbstractNodeLabelOperation extends DataDictionaryOperation
 	}
 	
 	@Override
-	public DataFlowDiagramAndDictionary doAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
 		dfd.dataFlowDiagram().getNodes().stream().filter(x -> x.equals(node)).forEach(x -> x.getProperties().add(label));
 		return dfd;
 	}
 
 	@Override
-	public DataFlowDiagramAndDictionary undoAction(DataFlowDiagramAndDictionary dfd) {
+	public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
 		dfd.dataFlowDiagram().getNodes().stream().filter(x -> x.equals(node)).forEach(x -> x.getProperties().remove(label));
 		return dfd;
 	}
