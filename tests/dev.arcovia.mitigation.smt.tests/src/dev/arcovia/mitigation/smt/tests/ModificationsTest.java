@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Main;
-import dev.arcovia.mitigation.smt.actions.Operation;
+import dev.arcovia.mitigation.smt.operations.Operation;
 import dev.arcovia.mitigation.smt.util.Util;
 
 public class ModificationsTest {

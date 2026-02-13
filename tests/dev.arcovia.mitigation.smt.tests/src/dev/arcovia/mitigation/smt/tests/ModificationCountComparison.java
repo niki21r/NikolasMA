@@ -29,11 +29,11 @@ import dev.arcovia.mitigation.sat.ModelCostCalculator2;
 import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.smt.Main;
 import dev.arcovia.mitigation.smt.SolvingResult;
-import dev.arcovia.mitigation.smt.actions.Operation;
-import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveOperation;
-import dev.arcovia.mitigation.smt.actions.UnsetAssignmentOperation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
+import dev.arcovia.mitigation.smt.operations.NodeLabelRemoveOperation;
+import dev.arcovia.mitigation.smt.operations.Operation;
+import dev.arcovia.mitigation.smt.operations.UnsetAssignmentOperation;
 import dev.arcovia.mitigation.smt.util.Util;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
 
