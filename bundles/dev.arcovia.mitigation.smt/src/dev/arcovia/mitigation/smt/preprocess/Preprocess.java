@@ -31,8 +31,8 @@ import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
 import org.dataflowanalysis.dfd.dataflowdiagram.Flow;
 
 import dev.arcovia.mitigation.smt.TFGFlow;
-import dev.arcovia.mitigation.smt.actions.LabelOperation;
-import dev.arcovia.mitigation.smt.actions.LabelTypeOperation;
+import dev.arcovia.mitigation.smt.operations.LabelOperation;
+import dev.arcovia.mitigation.smt.operations.LabelTypeOperation;
 import dev.arcovia.mitigation.smt.util.Util;
 
 /**

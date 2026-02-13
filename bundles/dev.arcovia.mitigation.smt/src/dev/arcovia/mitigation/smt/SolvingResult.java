@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 
-import dev.arcovia.mitigation.smt.actions.Operation;
+import dev.arcovia.mitigation.smt.operations.Operation;
 
 public record SolvingResult(boolean satisfiable, DataFlowDiagramAndDictionary repairedDFD, List<Operation> repairOperations,
 		int repairCost, Optional<Long> expressionTreeSize, Optional<Integer> violationsAfter) {

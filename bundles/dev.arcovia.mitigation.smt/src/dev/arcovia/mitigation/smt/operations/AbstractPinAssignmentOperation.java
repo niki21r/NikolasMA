@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.actions;
+package dev.arcovia.mitigation.smt.operations;
 
 import java.util.List;
 import java.util.Optional;

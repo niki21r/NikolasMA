@@ -3,10 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Smt
 Bundle-SymbolicName: dev.arcovia.mitigation.smt
 Bundle-Version: 1.0.0.qualifier
-Export-Package: dev.arcovia.mitigation.smt, 
- dev.arcovia.mitigation.smt.util,
- dev.arcovia.mitigation.smt.actions,
- dev.arcovia.mitigation.smt.config
+Export-Package: dev.arcovia.mitigation.smt,
+ dev.arcovia.mitigation.smt.config,
+ dev.arcovia.mitigation.smt.operations,
+ dev.arcovia.mitigation.smt.util
 Automatic-Module-Name: dev.arcovia.mitigation.smt
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: ., lib/com.microsoft.z3.jar

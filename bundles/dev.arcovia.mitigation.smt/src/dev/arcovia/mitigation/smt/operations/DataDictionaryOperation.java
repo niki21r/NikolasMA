@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.actions;
+package dev.arcovia.mitigation.smt.operations;
 
 import org.apache.log4j.Logger;
 import org.dataflowanalysis.dfd.datadictionary.datadictionaryFactory;
