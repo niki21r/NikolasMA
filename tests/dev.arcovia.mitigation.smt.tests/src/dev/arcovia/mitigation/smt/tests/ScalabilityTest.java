@@ -148,7 +148,7 @@ public class ScalabilityTest {
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
 							List<AnalysisConstraint> constraint = constraintMap.get(i);
-							DataFlowDiagramAndDictionary smtDfd = Mitigation.loadDFD(model, model + "_0");
+							DataFlowDiagramAndDictionary smtDfd = Util.loadDFD(model, model + "_0");
 							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
 							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
 							long before = System.currentTimeMillis();
@@ -175,7 +175,7 @@ public class ScalabilityTest {
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
 							List<AnalysisConstraint> constraint = constraintMap.get(i);
-							DataFlowDiagramAndDictionary smtDfd = Mitigation.loadDFD(model, model + "_0");
+							DataFlowDiagramAndDictionary smtDfd = Util.loadDFD(model, model + "_0");
 							ScaleInput scaleInput = new ScaleInput(smtDfd, constraint, scale);
 							ScaleOutput scaleOutput = scaleFunc.apply(scaleInput);
 							RepairResult repairResult = runRepair(scaleOutput.outputDfd, false,

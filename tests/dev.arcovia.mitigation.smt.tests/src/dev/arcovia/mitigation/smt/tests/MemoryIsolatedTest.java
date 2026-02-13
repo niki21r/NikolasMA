@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
+import dev.arcovia.mitigation.smt.util.Util;
 
 public class MemoryIsolatedTest {
 
@@ -64,7 +65,7 @@ public class MemoryIsolatedTest {
                     
 					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
 
-                    long dagSizeAfter = Mitigation.run(Mitigation.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
+                    long dagSizeAfter = Mitigation.run(Util.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
 
                     System.out.println("Measuring peak RSS in fresh JVM (parallel=" + PARALLELISM + ") for "
                             + model + " constraint " + i);

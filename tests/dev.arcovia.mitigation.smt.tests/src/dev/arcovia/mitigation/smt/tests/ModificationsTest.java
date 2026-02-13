@@ -41,7 +41,7 @@ public class ModificationsTest {
 								+ " because no model for this constraint is defined");
 						continue;
 					}
-					DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
+					DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
 					System.out.println("Running " + model + " with constraints " + i);
 					List<Operation> suggestedActions = Mitigation.run(dfd, constraint, null).repairOperations();
 					int removeableActions = 0;

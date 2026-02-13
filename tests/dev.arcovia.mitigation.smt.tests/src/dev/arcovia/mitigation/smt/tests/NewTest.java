@@ -15,12 +15,13 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.junit.jupiter.api.Test;
 
 import dev.arcovia.mitigation.smt.Mitigation;
+import dev.arcovia.mitigation.smt.util.Util;
 public class NewTest {
 
 	@Test
 	public void newTest() throws Exception {
 		try {
-			DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD("koushikkothagal", "koushikkothagal_0");
+			DataFlowDiagramAndDictionary dfd = Util.loadDFD("koushikkothagal", "koushikkothagal_0");
 			List<AnalysisConstraint> constraints = ConstraintMapProvider.buildConstraintMap().get(2);
 			HashMap<String, Integer> labelCost = new HashMap<>();
 			labelCost.put("Stereotype.internal", 5);

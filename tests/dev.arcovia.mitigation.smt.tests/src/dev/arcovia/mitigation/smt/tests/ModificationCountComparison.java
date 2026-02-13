@@ -74,16 +74,16 @@ public class ModificationCountComparison {
 				int satCost;
 				int baseCost;
 				if (useNewModelCost) {
-					baseCost = new ModelCostCalculator2(Mitigation.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
+					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
 					satCost = new ModelCostCalculator2(repairedDfd, constraint, minCosts)
 							.calculateCostWithoutForwarding();
 				} else {
-					baseCost = new ModelCostCalculator(Mitigation.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
+					baseCost = new ModelCostCalculator(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
 				satCost = satCost-baseCost;
 				Config config = new Config(true, true, false, true, false, new CostConfigBuilder().build(), false, false);
-				SolvingResult solvingResult = Mitigation.run(Mitigation.loadDFD(model, model + "_0"), constraintMap.get(variant), config);
+				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"), constraintMap.get(variant), config);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);
 				System.out.println("MCC Base Cost "+baseCost);

@@ -1,5 +1,6 @@
 package dev.arcovia.mitigation.smt.util;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +44,9 @@ import org.dataflowanalysis.dfd.datadictionary.TRUE;
 import org.dataflowanalysis.dfd.datadictionary.Term;
 import org.dataflowanalysis.dfd.dataflowdiagram.External;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
+import org.dataflowanalysis.examplemodels.Activator;
+
+import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
 
 /**
  * @author Nikolas Rank Contains parsing functions
@@ -68,6 +72,25 @@ public class Util {
 		return result;
 	}
 
+	/**
+	 * Loads a dfd. Currently only static from the hardcoded folder
+	 * 
+	 * @param model Model that the dfd resides in
+	 * @param name  Filename without file endings
+	 * @return Loaded dfd
+	 * @throws StandaloneInitializationException If input DFD at paths is incorrect
+	 *                                           or can not be properly resolved
+	 */
+	public static DataFlowDiagramAndDictionary loadDFD(String model, String name)
+			throws StandaloneInitializationException {
+		final String PROJECT_NAME = "org.dataflowanalysis.examplemodels";
+		final String location = Paths.get("scenarios", "dfd", "TUHH-Models").toString();
+		return new DataFlowDiagramAndDictionary(PROJECT_NAME,
+				Paths.get(location, model, (name + ".dataflowdiagram")).toString(),
+				Paths.get(location, model, (name + ".datadictionary")).toString(), Activator.class);
+	}
+
+	
 	public static DFDVertexType vertexToType(DFDVertex vertex) {
 		Node n = vertex.getReferencedElement();
 		if (n instanceof External) {

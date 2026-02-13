@@ -41,7 +41,7 @@ public class ViolationsTest {
 						System.out.println("Skipping "+model+" with constraint "+i+" because no model for this constraint is defined");
 						continue;
 					}
-					DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
+					DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
 					int violationsBefore = Util.countViolations(dfd, constraint);
 					totalViolations += violationsBefore;
 					System.out.println("Running " + model + " with constraints " + i);

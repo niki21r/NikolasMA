@@ -7,6 +7,7 @@ import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 
 import dev.arcovia.mitigation.smt.Mitigation;
+import dev.arcovia.mitigation.smt.util.Util;
 
 public class MemoryIsolatedRunner {
 
@@ -27,7 +28,7 @@ public class MemoryIsolatedRunner {
         }
 
         // The work we measure in the parent by sampling this process's RSS
-        DataFlowDiagramAndDictionary dfd = Mitigation.loadDFD(model, model + "_0");
+        DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
         Mitigation.run(dfd, constraint, null);
     }
 }
