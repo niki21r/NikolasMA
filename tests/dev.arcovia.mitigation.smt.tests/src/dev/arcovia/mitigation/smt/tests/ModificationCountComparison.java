@@ -152,15 +152,15 @@ public class ModificationCountComparison {
 				int satCost;
 				int baseCost;
 				if (useNewModelCost) {
-					baseCost = new ModelCostCalculator2(Mitigation.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
+					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
 					satCost = new ModelCostCalculator2(repairedDfd, constraint, minCosts)
 							.calculateCostWithoutForwarding();
 				} else {
-					baseCost = new ModelCostCalculator(Mitigation.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
+					baseCost = new ModelCostCalculator(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
 				satCost = satCost-baseCost;
-				SolvingResult solvingResult = Mitigation.run(Mitigation.loadDFD(model, model + "_0"), constraintMap.get(variant), null);
+				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"), constraintMap.get(variant), null);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);
 				System.out.println("MCC Base Cost "+baseCost);
@@ -228,7 +228,7 @@ public class ModificationCountComparison {
 	private RepairResult runRepair(String model, String name, Boolean store, List<Constraint> constraints,
 			Map<Label, Integer> costMap)
 			throws StandaloneInitializationException, ContradictionException, IOException, TimeoutException {
-		var dfd = Mitigation.loadDFD(model, name);
+		var dfd = Util.loadDFD(model, name);
 		if (!store)
 			name = "aName";
 		Mechanic mechanic = new Mechanic(dfd, name, constraints, costMap);
