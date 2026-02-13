@@ -39,23 +39,4 @@ public class Mitigation {
 		SMT smt = new SMT(preprocessingResult, constraints, mappings, config);
 		return smt.repair();
 	}
-
-	/**
-	 * Loads a dfd. Currently only static from the hardcoded folder
-	 * 
-	 * @param model Model that the dfd resides in
-	 * @param name  Filename without file endings
-	 * @return Loaded dfd
-	 * @throws StandaloneInitializationException If input DFD at paths is incorrect
-	 *                                           or can not be properly resolved
-	 */
-	public static DataFlowDiagramAndDictionary loadDFD(String model, String name)
-			throws StandaloneInitializationException {
-		final String PROJECT_NAME = "org.dataflowanalysis.examplemodels";
-		final String location = Paths.get("scenarios", "dfd", "TUHH-Models").toString();
-		return new DataFlowDiagramAndDictionary(PROJECT_NAME,
-				Paths.get(location, model, (name + ".dataflowdiagram")).toString(),
-				Paths.get(location, model, (name + ".datadictionary")).toString(), Activator.class);
-	}
-
 }

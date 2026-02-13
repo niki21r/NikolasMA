@@ -47,6 +47,7 @@ public class SMTUtil {
 	    return count;
 	}
 	
+	/*
     public static long countUniqueAstNodes(BoolExpr[] exprs) {
         Objects.requireNonNull(exprs, "exprs");
 
@@ -61,10 +62,6 @@ public class SMTUtil {
         return total;
     }
 
-    /**
-     * Counts unique nodes reachable from expr, updating visited.
-     * Returns how many *new* nodes were discovered from this root.
-     */
     private static long countUniqueDag(Expr<?> expr, Set<Integer> visited) {
         Deque<Expr<?>> stack = new ArrayDeque<>();
         stack.push(expr);
@@ -88,5 +85,5 @@ public class SMTUtil {
             }
         }
         return count;
-    }
+    }*/
 }
