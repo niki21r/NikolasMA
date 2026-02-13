@@ -4,9 +4,9 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
-public class NodeLabelRemoveAction extends AbstractNodeLabelAction {
+public class NodeLabelRemoveOperation extends AbstractNodeLabelOperation {
 
-	public NodeLabelRemoveAction(Node node, Label label) {
+	public NodeLabelRemoveOperation(Node node, Label label) {
 		super(node, label);
 	}
 	

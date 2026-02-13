@@ -31,8 +31,8 @@ import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
 import org.dataflowanalysis.dfd.dataflowdiagram.Flow;
 
 import dev.arcovia.mitigation.smt.TFGFlow;
-import dev.arcovia.mitigation.smt.actions.LabelAction;
-import dev.arcovia.mitigation.smt.actions.LabelTypeAction;
+import dev.arcovia.mitigation.smt.actions.LabelOperation;
+import dev.arcovia.mitigation.smt.actions.LabelTypeOperation;
 import dev.arcovia.mitigation.smt.util.Util;
 
 /**
@@ -66,13 +66,13 @@ public class Preprocess {
 			}
 			String type = data.characteristicType().toString();
 			if (!Util.containsLabelType(dd, type)) {
-				LabelTypeAction modifyLabelType = new LabelTypeAction(type);
+				LabelTypeOperation modifyLabelType = new LabelTypeOperation(type);
 				modifyLabelType.doAction(dfd);
 			}
 			String value = data.characteristicValue().toString();
 			LabelType parentType = Util.getLabelTypeByName(dd, type);
 			if (!Util.containsLabel(parentType, value)) {
-				LabelAction modifyLabel = new LabelAction(type, value);
+				LabelOperation modifyLabel = new LabelOperation(type, value);
 				modifyLabel.doAction(dfd);
 			}
 		}

@@ -4,9 +4,9 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
-public class NodeLabelAddAction extends AbstractNodeLabelAction {
+public class NodeLabelAddOperation extends AbstractNodeLabelOperation {
 
-	public NodeLabelAddAction(Node node, Label label) {
+	public NodeLabelAddOperation(Node node, Label label) {
 		super(node, label);
 	}
 

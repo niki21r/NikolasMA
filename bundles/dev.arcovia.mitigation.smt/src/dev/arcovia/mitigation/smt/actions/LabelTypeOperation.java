@@ -9,16 +9,16 @@ import org.dataflowanalysis.dfd.datadictionary.*;
  * @author niki
  *
  */
-public class LabelTypeAction extends DataDictionaryAction {
+public class LabelTypeOperation extends DataDictionaryOperation {
 	
 	private String name;
 	private String id;
 	
-	public LabelTypeAction(String name) {
+	public LabelTypeOperation(String name) {
 		this(name, String.valueOf(random.nextInt()));
 	}
 	
-	public LabelTypeAction(String name, String id) {
+	public LabelTypeOperation(String name, String id) {
 		this.name = name;
 		this.id = id;
 	}

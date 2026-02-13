@@ -7,9 +7,9 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.datadictionary.UnsetAssignment;
 
-public final class UnsetAssignmentAction extends AbstractPinAssignmentAction<UnsetAssignment> {
+public final class UnsetAssignmentOperation extends AbstractPinAssignmentOperation<UnsetAssignment> {
 
-    public UnsetAssignmentAction(Pin pin, Label label) { super(pin, label); }
+    public UnsetAssignmentOperation(Pin pin, Label label) { super(pin, label); }
 
     @Override protected UnsetAssignment createAssignment() { return factory.createUnsetAssignment(); }
     @Override protected boolean isInstance(AbstractAssignment a) { return a instanceof UnsetAssignment; }

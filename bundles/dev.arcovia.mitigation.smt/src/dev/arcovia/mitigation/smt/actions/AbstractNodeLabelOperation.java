@@ -4,12 +4,12 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
-public abstract class AbstractNodeLabelAction extends DataDictionaryAction{
+public abstract class AbstractNodeLabelOperation extends DataDictionaryOperation{
 
 	protected Node node;
 	protected Label label;
 	
-	public AbstractNodeLabelAction(Node node, Label label) {
+	public AbstractNodeLabelOperation(Node node, Label label) {
 		this.node = node;
 		this.label = label;
 	}

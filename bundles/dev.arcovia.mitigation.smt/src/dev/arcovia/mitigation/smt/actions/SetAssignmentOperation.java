@@ -8,9 +8,9 @@ import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.datadictionary.SetAssignment;
 
 
-public final class SetAssignmentAction extends AbstractPinAssignmentAction<SetAssignment> {
+public final class SetAssignmentOperation extends AbstractPinAssignmentOperation<SetAssignment> {
 
-    public SetAssignmentAction(Pin pin, Label label) { super(pin, label); }
+    public SetAssignmentOperation(Pin pin, Label label) { super(pin, label); }
 
     @Override protected SetAssignment createAssignment() { return factory.createSetAssignment(); }
     @Override protected boolean isInstance(AbstractAssignment a) { return a instanceof SetAssignment; }

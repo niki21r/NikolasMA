@@ -9,7 +9,7 @@ import java.util.Random;
  * @author Nikolas Rank
  *
  */
-public abstract class DataDictionaryAction implements Action{
+public abstract class DataDictionaryOperation implements Operation{
     protected final Logger logger =
             Logger.getLogger(getClass());
 	protected static final datadictionaryFactory factory = datadictionaryFactory.eINSTANCE;

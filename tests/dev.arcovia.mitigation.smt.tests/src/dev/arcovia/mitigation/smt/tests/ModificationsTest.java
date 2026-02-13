@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Main;
-import dev.arcovia.mitigation.smt.actions.Action;
+import dev.arcovia.mitigation.smt.actions.Operation;
 import dev.arcovia.mitigation.smt.util.Util;
 
 public class ModificationsTest {
@@ -43,10 +43,10 @@ public class ModificationsTest {
 					}
 					DataFlowDiagramAndDictionary dfd = Main.loadDFD(model, model + "_0");
 					System.out.println("Running " + model + " with constraints " + i);
-					List<Action> suggestedActions = Main.run(dfd, constraint, null).repairActions();
+					List<Operation> suggestedActions = Main.run(dfd, constraint, null).repairOperations();
 					int removeableActions = 0;
 					for (int j = 0; j < suggestedActions.size(); j++) {
-						Action action = suggestedActions.get(j);
+						Operation action = suggestedActions.get(j);
 						System.out.println("Removed "+suggestedActions.get(j));
 						dfd = action.undoAction(dfd);
 						if (Util.countViolations(dfd, constraint) <= 0) {

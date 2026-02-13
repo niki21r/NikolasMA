@@ -127,7 +127,8 @@ public class ScalabilityTest {
 			long runtimeSmtCurrRun = 0;
 			long runtimeSatCurrRun = 0;
 			int scale = 1;
-
+			
+			scaleLoop:
 			do {
 				List<Long> smtRuntimes = new ArrayList<>();
 				List<Long> satRuntimes = new ArrayList<>();
@@ -167,12 +168,9 @@ public class ScalabilityTest {
 							long smtRuntime = after - before;
 							runtimeSmtCurrRun += smtRuntime;
 							if (runtimeSmtCurrRun > MAX_TIME_MILLIS) {
-								break;
+								break scaleLoop;
 							}
 							smtRuntimes.add(smtRuntime);
-						}
-						if (runtimeSmtCurrRun > MAX_TIME_MILLIS) {
-							break;
 						}
 
 						for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
@@ -196,19 +194,10 @@ public class ScalabilityTest {
 							satRuntimes.add(satRuntime);
 							runtimeSatCurrRun += satRuntime;
 							if (runtimeSatCurrRun > MAX_TIME_MILLIS) {
-								break;
+								break scaleLoop;
 							}
 						}
-						if (runtimeSatCurrRun > MAX_TIME_MILLIS) {
-							break;
-						}
 					}
-					if (runtimeSmtCurrRun > MAX_TIME_MILLIS || runtimeSatCurrRun > MAX_TIME_MILLIS) {
-						break;
-					}
-				}
-				if (runtimeSmtCurrRun > MAX_TIME_MILLIS || runtimeSatCurrRun > MAX_TIME_MILLIS) {
-					break;
 				}
 				ScalabilityResult runtimeResult = new ScalabilityResult(scale, RUNS_PER_CONFIGURATION,
 						runtimeSmtCurrRun, runtimeSatCurrRun, smtRuntimes, satRuntimes);
@@ -252,8 +241,13 @@ public class ScalabilityTest {
 	}
 
 	@Test
-	public void testLabelsAndTypes() throws Exception {
-		scalabilityTest(scaleLabelsAndTypes, "labelsAndTypes");
+	public void testLabelTypes() throws Exception {
+		scalabilityTest(scaleLabelTypes, "labelTypes");
+	}
+	
+	@Test
+	public void testLabels() throws Exception {
+		scalabilityTest(scaleLabels, "labels");
 	}
 
 	@Test
@@ -280,7 +274,7 @@ public class ScalabilityTest {
 	public void testAllForScalability() throws Exception {
 		scalabilityTest(scaleTFGAmount, "tfgAmount");
 		scalabilityTest(scaleTFGLength, "tfgLength");
-		scalabilityTest(scaleLabelTypes, "labelsTypes");
+		scalabilityTest(scaleLabelTypes, "labelTypes");
 		scalabilityTest(scaleLabels, "labels");
 		scalabilityTest(scaleLabelsInConstraintBeforeNeverFlows, "labelsBeforeNeverFlows");
 		scalabilityTest(scaleLabelsInConstraintAfterNeverFlows, "labelsAfterNeverFlows");

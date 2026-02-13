@@ -10,14 +10,14 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 
 
-public sealed abstract class AbstractPinAssignmentAction<T extends AbstractAssignment>
-        extends DataDictionaryAction
-        permits SetAssignmentAction, UnsetAssignmentAction {
+public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAssignment>
+        extends DataDictionaryOperation
+        permits SetAssignmentOperation, UnsetAssignmentOperation {
 
     protected final Pin pin;
     protected final Label label;
 
-    protected AbstractPinAssignmentAction(Pin pin, Label label) {
+    protected AbstractPinAssignmentOperation(Pin pin, Label label) {
         this.pin = pin;
         this.label = label;
     }

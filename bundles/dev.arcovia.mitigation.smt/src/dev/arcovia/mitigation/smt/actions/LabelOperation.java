@@ -10,19 +10,19 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
  * @author Nikolas Rank
  * Adds a Label to a given LabelType if it exists.
  */
-public class LabelAction extends DataDictionaryAction{
+public class LabelOperation extends DataDictionaryOperation{
 
 	String type;
 	String name;
 	String id;
 
-	public LabelAction(String type, String name, String id) {
+	public LabelOperation(String type, String name, String id) {
 		this.type = type;
 		this.name = name;
 		this.id = id;
 	}
 	
-	public LabelAction(String type, String name) {
+	public LabelOperation(String type, String name) {
 		this(type,name,String.valueOf(random.nextInt()));
 	}
 	

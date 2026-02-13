@@ -38,11 +38,11 @@ import com.microsoft.z3.Model;
 import com.microsoft.z3.Optimize;
 import com.microsoft.z3.Status;
 
-import dev.arcovia.mitigation.smt.actions.Action;
-import dev.arcovia.mitigation.smt.actions.NodeLabelAddAction;
-import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveAction;
-import dev.arcovia.mitigation.smt.actions.SetAssignmentAction;
-import dev.arcovia.mitigation.smt.actions.UnsetAssignmentAction;
+import dev.arcovia.mitigation.smt.actions.Operation;
+import dev.arcovia.mitigation.smt.actions.NodeLabelAddOperation;
+import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveOperation;
+import dev.arcovia.mitigation.smt.actions.SetAssignmentOperation;
+import dev.arcovia.mitigation.smt.actions.UnsetAssignmentOperation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfig;
 import dev.arcovia.mitigation.smt.constraints.DefaultSelectorTranslator;
@@ -169,7 +169,7 @@ public class SMT {
 				expressionTreeSize = Optional.empty();
 			}
 			IntExpr costValExpr = (IntExpr) m.eval(costFunction, true);
-			List<Action> parseActions = parseActions(m);
+			List<Operation> parseActions = parseActions(m);
 			DataFlowDiagramAndDictionary dfd = pre.dfd();
 			for (int i = 0; i < parseActions.size(); i++) {
 				dfd = parseActions.get(i).doAction(dfd);
@@ -438,8 +438,8 @@ public class SMT {
 		}
 	}
 
-	private List<Action> parseActions(Model m) {
-		List<Action> changes = new ArrayList<>();
+	private List<Operation> parseActions(Model m) {
+		List<Operation> changes = new ArrayList<>();
 
 		for (Node n : nodeLabelRef.keySet()) {
 			Map<Label, BoolExpr> beforeMap = nodeLabelRef.get(n);
@@ -453,9 +453,9 @@ public class SMT {
 				boolean afterVal = ((BoolExpr) m.evaluate(afterExpr, true)).isTrue();
 
 				if (!beforeVal && afterVal) {
-					changes.add(new NodeLabelAddAction(n, lbl));
+					changes.add(new NodeLabelAddOperation(n, lbl));
 				} else if (beforeVal && !afterVal) {
-					changes.add(new NodeLabelRemoveAction(n, lbl));
+					changes.add(new NodeLabelRemoveOperation(n, lbl));
 				}
 			}
 		}
@@ -465,7 +465,7 @@ public class SMT {
 			for (Label label : setMap.keySet()) {
 				BoolExpr setExpr = setMap != null ? setMap.get(label) : null;
 				if (setExpr != null && ((BoolExpr) m.evaluate(setExpr, true)).isTrue()) {
-					changes.add(new SetAssignmentAction(p, label));
+					changes.add(new SetAssignmentOperation(p, label));
 				}
 			}
 		}
@@ -475,7 +475,7 @@ public class SMT {
 				BoolExpr unsetExpr = unsetMap != null ? unsetMap.get(label) : null;
 
 				if (unsetExpr != null && ((BoolExpr) m.evaluate(unsetExpr, true)).isTrue()) {
-					changes.add(new UnsetAssignmentAction(p, label));
+					changes.add(new UnsetAssignmentOperation(p, label));
 				}
 			}
 		}

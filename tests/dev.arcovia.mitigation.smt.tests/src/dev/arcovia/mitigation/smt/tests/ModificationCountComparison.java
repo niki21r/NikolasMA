@@ -29,9 +29,9 @@ import dev.arcovia.mitigation.sat.ModelCostCalculator2;
 import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.smt.Main;
 import dev.arcovia.mitigation.smt.SolvingResult;
-import dev.arcovia.mitigation.smt.actions.Action;
-import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveAction;
-import dev.arcovia.mitigation.smt.actions.UnsetAssignmentAction;
+import dev.arcovia.mitigation.smt.actions.Operation;
+import dev.arcovia.mitigation.smt.actions.NodeLabelRemoveOperation;
+import dev.arcovia.mitigation.smt.actions.UnsetAssignmentOperation;
 import dev.arcovia.mitigation.smt.config.Config;
 import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
 import dev.arcovia.mitigation.smt.util.Util;
@@ -89,8 +89,8 @@ public class ModificationCountComparison {
 				System.out.println("MCC Base Cost "+baseCost);
 				System.out.println("MCC SAT Cost "+satCost);
 				System.out.println("SMT Cost "+solvingResult.repairCost());
-				for (Action action : solvingResult.repairActions()) {
-					if (action instanceof UnsetAssignmentAction || action instanceof NodeLabelRemoveAction) {
+				for (Operation action : solvingResult.repairOperations()) {
+					if (action instanceof UnsetAssignmentOperation || action instanceof NodeLabelRemoveOperation) {
 						System.out.println("Found interesting action");
 						System.out.println("action");
 						System.exit(1);

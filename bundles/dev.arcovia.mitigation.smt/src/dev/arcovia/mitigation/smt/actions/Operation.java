@@ -6,7 +6,7 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
  * @author Nikolas Rank
  * Represents an Action that can be executed on a DFD to modify it.
  */
-public interface Action {
+public interface Operation {
 	
 	/**
 	 * Applies this action to the DFD
