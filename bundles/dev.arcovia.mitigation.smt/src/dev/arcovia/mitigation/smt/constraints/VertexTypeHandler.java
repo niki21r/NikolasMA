@@ -9,7 +9,6 @@ import org.dataflowanalysis.analysis.dfd.dsl.DFDVertexType;
 import org.dataflowanalysis.analysis.dsl.selectors.VertexTypeSelector;
 
 import com.microsoft.z3.BoolExpr;
-import com.microsoft.z3.IntNum;
 
 import dev.arcovia.mitigation.smt.util.Util;
 
@@ -25,20 +24,21 @@ final class VertexTypeHandler implements SelectorHandler<VertexTypeSelector> {
 		};
 	}
 
-	private BoolExpr matchesDestinationVertexType(VertexTypeSelector s, DFDVertex vertex,
-			TranslationEnv env) {
+	private BoolExpr matchesDestinationVertexType(VertexTypeSelector s, DFDVertex vertex, TranslationEnv env) {
 		var ctx = env.ctx();
-		
-		DFDVertexType selectorType = (DFDVertexType) s.getVertexType();
-		IntNum selectorInt = ctx.mkInt(env.mappings().vertexTypeToInt.get(selectorType));
-		IntNum nodeInt = ctx.mkInt(env.mappings().vertexTypeToInt.get(Util.vertexToType(vertex)));
 
-		BoolExpr matches = ctx.mkEq(selectorInt, nodeInt);
+		DFDVertexType selectorType = (DFDVertexType) s.getVertexType();
+
+		BoolExpr matches;
+		if (selectorType.equals(Util.vertexToType(vertex))) {
+			matches = ctx.mkTrue();
+		} else {
+			matches = ctx.mkFalse();
+		}
 		return s.isInverted() ? ctx.mkNot(matches) : matches;
 	}
 
-	private BoolExpr matchesSourceVertexType(VertexTypeSelector s, DFDVertex vertex,
-			TranslationEnv env) {
+	private BoolExpr matchesSourceVertexType(VertexTypeSelector s, DFDVertex vertex, TranslationEnv env) {
 		List<BoolExpr> matches = new ArrayList<>();
 		matches.add(matchesDestinationVertexType(s, vertex, env));
 		for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {

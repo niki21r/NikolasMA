@@ -1,14 +1,12 @@
 package dev.arcovia.mitigation.smt;
 
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
-import org.dataflowanalysis.examplemodels.Activator;
 
 import dev.arcovia.mitigation.smt.config.Config;
+import dev.arcovia.mitigation.smt.config.ConfigBuilder;
 import dev.arcovia.mitigation.smt.preprocess.Preprocess;
 import dev.arcovia.mitigation.smt.preprocess.PreprocessingResult;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
@@ -28,15 +26,14 @@ public class Mitigation {
 	 * @param constraints Constraints that the output needs to adhere too
 	 * @throws StandaloneInitializationException If input DFD is incorrect
 	 */
-	public static SolvingResult run(DataFlowDiagramAndDictionary dfd,
-			List<AnalysisConstraint> constraints, Config config) throws StandaloneInitializationException {
+	public static SolvingResult run(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints,
+			Config config) throws StandaloneInitializationException {
 		Preprocess preprocces = new Preprocess();
 		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints);
-		SMTMappings mappings = new SMTMappings(preprocessingResult);
 		if (config == null) {
-			config = new Config();
+			config = new ConfigBuilder().build();
 		}
-		SMT smt = new SMT(preprocessingResult, constraints, mappings, config);
+		SMT smt = new SMT(preprocessingResult, constraints, config);
 		return smt.repair();
 	}
 }

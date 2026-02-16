@@ -12,17 +12,11 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 import dev.arcovia.mitigation.smt.TFGFlow;
 
 /**
- * @author Nikolas Rank
- * Record type that possesses all relevant preprocessing information.
+ * @author Nikolas Rank Record type that possesses all relevant preprocessing
+ *         information.
  */
-public record PreprocessingResult(
-		DataFlowDiagramAndDictionary dfd,
-		List<TFGFlow> flows,
-		List<DFDVertex> vertices,
-		Set<Label> relevantNodeLabelsAdd,
-		Set<Label> relevantNodeLabelsRemove,
-		Set<Label> relevantDataLabelsAdd,
-		Set<Label> relevantDataLabelsRemove,
-		List<DFDVertexType> relevantNodeTypes,
-		Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows
-		) {}
+public record PreprocessingResult(DataFlowDiagramAndDictionary dfd, Set<TFGFlow> flows, Set<DFDVertex> vertices,
+		Set<Label> relevantNodeLabelsAdd, Set<Label> relevantNodeLabelsRemove, Set<Label> relevantDataLabelsAdd,
+		Set<Label> relevantDataLabelsRemove, List<DFDVertexType> relevantNodeTypes,
+		Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows) {
+}

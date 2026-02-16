@@ -25,51 +25,38 @@ final class VertexCharacteristicsHandler implements SelectorHandler<VertexCharac
 		};
 	}
 
-	private BoolExpr matchesDestinationVertexCharacteristics(
-	        VertexCharacteristicsSelector s,
-	        DFDVertex vertex,
-	        TranslationEnv env
-	) {
-	    var ctx = env.ctx();
-	    
-	    Set<Label> selectorLabels = Util.getLabelsForCharacteristics(
-	            env.pre().dfd().dataDictionary(),
-	            List.of(s.getVertexCharacteristics())
-	    );
+	private BoolExpr matchesDestinationVertexCharacteristics(VertexCharacteristicsSelector s, DFDVertex vertex,
+			TranslationEnv env) {
+		var ctx = env.ctx();
 
-	    Map<Label, BoolExpr> present =
-	            env.nodeLabels().get(vertex.getReferencedElement());
+		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(env.dd(), List.of(s.getVertexCharacteristics()));
 
-	    // (present & mask) != 0  <=>  OR_{l in selectorLabels} present[l]
-	    List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
-	    for (Label lbl : selectorLabels) {
-	        BoolExpr has = (present != null) ? present.get(lbl) : null;
-	        labelMatches.add(has != null ? has : ctx.mkFalse());
-	    }
+		Map<Label, BoolExpr> present = env.nodeLabels().get(vertex.getReferencedElement());
 
-	    BoolExpr matches = labelMatches.isEmpty()
-	            ? ctx.mkFalse()
-	            : ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
+		List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
+		for (Label lbl : selectorLabels) {
+			BoolExpr has = (present != null) ? present.get(lbl) : null;
+			labelMatches.add(has != null ? has : ctx.mkFalse());
+		}
 
-	    BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
-	    	    
-	    return result;
+		BoolExpr matches = labelMatches.isEmpty() ? ctx.mkFalse() : ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
+
+		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
+
+		return result;
 	}
 
-	private BoolExpr matchesSourceVertexCharacteristics(
-	        VertexCharacteristicsSelector s,
-	        DFDVertex vertex,
-	        TranslationEnv env
-	) {
-	    List<BoolExpr> matches = new ArrayList<>();
-	    matches.add(matchesDestinationVertexCharacteristics(s, vertex, env));
+	private BoolExpr matchesSourceVertexCharacteristics(VertexCharacteristicsSelector s, DFDVertex vertex,
+			TranslationEnv env) {
+		List<BoolExpr> matches = new ArrayList<>();
+		matches.add(matchesDestinationVertexCharacteristics(s, vertex, env));
 
-	    for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
-	        DFDVertex prev = (DFDVertex) prevAbstract;
-	        matches.add(matchesDestinationVertexCharacteristics(s, prev, env)); // keeps your original recursion
-	    }
+		for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
+			DFDVertex prev = (DFDVertex) prevAbstract;
+			matches.add(matchesDestinationVertexCharacteristics(s, prev, env));
+		}
 
-	    BoolExpr anyMatch = env.ctx().mkOr(matches.toArray(new BoolExpr[0]));
-	    return s.isInverted() ? env.ctx().mkNot(anyMatch) : anyMatch;
+		BoolExpr anyMatch = env.ctx().mkOr(matches.toArray(new BoolExpr[0]));
+		return s.isInverted() ? env.ctx().mkNot(anyMatch) : anyMatch;
 	}
 }

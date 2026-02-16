@@ -3,10 +3,12 @@ package dev.arcovia.mitigation.smt.preprocess;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.dataflowanalysis.analysis.dfd.DFDConfidentialityAnalysis;
@@ -17,6 +19,7 @@ import org.dataflowanalysis.analysis.dfd.core.DFDVertex;
 import org.dataflowanalysis.analysis.dfd.dsl.DFDVertexType;
 import org.dataflowanalysis.analysis.dfd.resource.DFDModelResourceProvider;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
+import org.dataflowanalysis.analysis.dsl.result.DSLResult;
 import org.dataflowanalysis.analysis.dsl.selectors.CharacteristicsSelectorData;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.AbstractAssignment;
@@ -55,7 +58,7 @@ public class Preprocess {
 	 */
 	private DataFlowDiagramAndDictionary addMissingLabels(DataFlowDiagramAndDictionary dfd,
 			List<AnalysisConstraint> constraints) {
-		List<CharacteristicsSelectorData> characteristicsSelectorData = Util.getAnalysisCharacteristics(constraints);
+		Set<CharacteristicsSelectorData> characteristicsSelectorData = Util.getAnalysisCharacteristics(constraints);
 
 		DataDictionary dd = dfd.dataDictionary();
 
@@ -94,22 +97,79 @@ public class Preprocess {
 
 		DataFlowDiagram dfd = dfdIn.dataFlowDiagram();
 		DataDictionary dd = dfdIn.dataDictionary();
+		Map<Pin, List<AbstractAssignment>> outPinToAss = Util.outPinToAss(dfd.getNodes());
+
+		Set<Label> relevantNodeLabelsAdd = Util.getRelevantNodeLabelsAdd(dd, analysisConstraints);
+		Set<Label> relevantNodeLabelsRemove = Util.getRelevantNodeLabelsRemove(dd, analysisConstraints);
+		Set<Label> relevantDataLabelsAdd = Util.getRelevantDataLabelsAdd(dd, analysisConstraints);
+		Set<Label> relevantDataLabelsRemove = Util.getRelevantDataLabelsRemove(dd, analysisConstraints);
+		List<DFDVertexType> relevantNodeTypes = List.copyOf(Util.getRelevantVertexTypes(analysisConstraints));
+
+		// Labels that are not constraint-relevant also need to be considered if they
+		// can modify relevant labels
+		// by being referenced in assign statements that modify these labels
+		// Transitively, any labels that could modify such non-constraint-relevant
+		// labels, which could in turn
+		// influence constraint-relevant labels also need to be considered.
+		// Therefore we repeat this process until now new labels get added
+		List<Assignment> assignStatements = outPinToAss.values().stream().flatMap(x -> x.stream())
+				.filter(Assignment.class::isInstance).map(Assignment.class::cast).toList();
+		boolean changed;
+		do {
+			changed = false;
+			for (int i = 0; i < assignStatements.size(); i++) {
+				Assignment assign = assignStatements.get(i);
+				/// only consider assignments that could add or remove relevant labels
+				if (Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsAdd)
+						&& Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsRemove)) {
+					continue;
+				}
+				Set<LabelReference> labelReferences = Util.reduceToLabelReferences(assign.getTerm());
+				for (LabelReference labelRef : labelReferences) {
+					Label label = labelRef.getLabel();
+					if (!relevantDataLabelsAdd.contains(label)) {
+						relevantDataLabelsAdd.add(label);
+						changed = true;
+					}
+					if (!relevantDataLabelsRemove.contains(label)) {
+						relevantDataLabelsRemove.add(label);
+						changed = true;
+					}
+				}
+			}
+		} while (changed);
 
 		DFDModelResourceProvider dfdModelResourceProvider = new DFDModelResourceProvider(dd, dfd);
 		DFDConfidentialityAnalysis dfdConfidentialityAnalysis = new DFDDataFlowAnalysisBuilder().standalone()
 				.useCustomResourceProvider(dfdModelResourceProvider).build();
 		DFDFlowGraphCollection flowGraphs = dfdConfidentialityAnalysis.findFlowGraphs();
-		List<DFDTransposeFlowGraph> tfgs = flowGraphs.getTransposeFlowGraphs().stream()
-				.filter(DFDTransposeFlowGraph.class::isInstance).map(DFDTransposeFlowGraph.class::cast).toList();
 
-		Map<Pin, List<AbstractAssignment>> outPinToAss = Util.outPinToAss(dfd.getNodes());
+		// Not sure if only violating TFGs can be considered so we exclude this for now.
+		boolean onlyViolatingTFGs = false;
+		Set<DFDTransposeFlowGraph> tfgs;
+		// if (Collections.disjoint(relevantDataLabelsAdd, relevantDataLabelsRemove) &&
+		// Collections.disjoint(relevantNodeLabelsAdd, relevantDataLabelsRemove) ) {
+		if (onlyViolatingTFGs) {
+			flowGraphs.evaluate();
+			Set<DFDTransposeFlowGraph> violatingTFGs = new HashSet<>();
+			for (int i = 0; i < analysisConstraints.size(); i++) {
+				AnalysisConstraint analysisConstraint = analysisConstraints.get(i);
+				List<DSLResult> violations = analysisConstraint.findViolations(flowGraphs);
+				for (int j = 0; j < violations.size(); j++) {
+					violatingTFGs.add((DFDTransposeFlowGraph) violations.get(j).getTransposeFlowGraph());
+				}
+			}
+			tfgs = violatingTFGs;
+		} else {
+			tfgs = flowGraphs.getTransposeFlowGraphs().stream().filter(DFDTransposeFlowGraph.class::isInstance)
+					.map(DFDTransposeFlowGraph.class::cast).collect(Collectors.toSet());
+		}
 
-		List<DFDVertex> allVertices = new ArrayList<>();
-		List<TFGFlow> allFlows = new ArrayList<TFGFlow>();
+		Set<DFDVertex> allVertices = new HashSet<>();
+		Set<TFGFlow> allFlows = new HashSet<>();
 		Map<DFDVertex, List<TFGFlow>> allTFGFlowsToVertex = new HashMap<>();
 		// Create flows for each tfg
-		for (int i = 0; i < tfgs.size(); i++) {
-			DFDTransposeFlowGraph tfg = tfgs.get(i);
+		for (DFDTransposeFlowGraph tfg : tfgs) {
 			List<DFDVertex> vertices = tfg.getVertices().stream().filter(DFDVertex.class::isInstance)
 					.map(DFDVertex.class::cast).toList();
 			Map<Pin, TFGFlow> outPinToTFGFlowMap = new HashMap<>();
@@ -159,46 +219,6 @@ public class Preprocess {
 			}
 			allFlows.addAll(allTFGFlows);
 		}
-
-		Set<Label> relevantNodeLabelsAdd = Util.getRelevantNodeLabelsAdd(dd, analysisConstraints);
-		Set<Label> relevantNodeLabelsRemove = Util.getRelevantNodeLabelsRemove(dd, analysisConstraints);
-		Set<Label> relevantDataLabelsAdd = Util.getRelevantDataLabelsAdd(dd, analysisConstraints);
-		Set<Label> relevantDataLabelsRemove = Util.getRelevantDataLabelsRemove(dd, analysisConstraints);
-		List<DFDVertexType> relevantNodeTypes = List.copyOf(Util.getRelevantVertexTypes(analysisConstraints));
-
-		// Labels that are not constraint-relevant also need to be considered if they
-		// can modify relevant labels
-		// by being referenced in assign statements that modify these labels
-		// Transitively, any labels that could modify such non-constraint-relevant
-		// labels, which could in turn
-		// influence constraint-relevant labels also need to be considered.
-		// Therefore we repeat this process until now new labels get added
-		List<Assignment> assignStatements = outPinToAss.values().stream().flatMap(x -> x.stream())
-				.filter(Assignment.class::isInstance).map(Assignment.class::cast).toList();
-		boolean changed;
-		do {
-			changed = false;
-			for (int i = 0; i < assignStatements.size(); i++) {
-				Assignment assign = assignStatements.get(i);
-				/// only consider assignments that could add or remove relevant labels
-				if (Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsAdd)
-						&& Collections.disjoint(assign.getOutputLabels(), relevantDataLabelsRemove)) {
-					continue;
-				}
-				List<LabelReference> labelReferences = Util.reduceToLabelReferences(assign, assign.getTerm());
-				for (int j = 0; j < labelReferences.size(); j++) {
-					Label label = labelReferences.get(j).getLabel();
-					if (!relevantDataLabelsAdd.contains(label)) {
-						relevantDataLabelsAdd.add(label);
-						changed = true;
-					}
-					if (!relevantDataLabelsRemove.contains(label)) {
-						relevantDataLabelsRemove.add(label);
-						changed = true;
-					}
-				}
-			}
-		} while (changed);
 
 		PreprocessingResult result = new PreprocessingResult(dfdIn, allFlows, allVertices, relevantNodeLabelsAdd,
 				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, relevantNodeTypes,

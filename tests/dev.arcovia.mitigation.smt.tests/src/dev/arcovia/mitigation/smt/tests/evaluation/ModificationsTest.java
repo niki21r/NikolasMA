@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.tests;
+package dev.arcovia.mitigation.smt.tests.evaluation;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,18 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Mitigation;
-import dev.arcovia.mitigation.smt.config.Config;
-import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
+import dev.arcovia.mitigation.smt.operations.Operation;
 import dev.arcovia.mitigation.smt.util.Util;
 
-public class RuntimeTest {
+public class ModificationsTest {
 
 	@Test
-	public void testAllForRuntime() throws Exception {
+	public void testAllForModifications() throws Exception {
 		try {
 			var tuhhModels = TuhhModels.getTuhhModels();
 
-			List<RuntimeResult> runtimeResults = new ArrayList<RuntimeResult>();
+			List<ModificationsResult> modificationsResults = new ArrayList<ModificationsResult>();
 			Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
 			for (var model : tuhhModels.keySet()) {
 				if (!tuhhModels.get(model).contains(0))
@@ -42,31 +41,36 @@ public class RuntimeTest {
 								+ " because no model for this constraint is defined");
 						continue;
 					}
-					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
-					long dagSizeAfter = Mitigation.run(Util.loadDFD(model, model+"_0"), constraint, config).expressionTreeSize().get();
-					RuntimeResult runtimeResult = new RuntimeResult(dagSizeAfter, new ArrayList<>());
-					int totalRuns = 100;
-					for (int j = 0; j < totalRuns; j++) {
-						System.out.println("Running " + model + " with constraints " + i);
-						long before = System.currentTimeMillis();
-						DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-						Mitigation.run(dfd, constraint, null);
-						long after = System.currentTimeMillis();
-						runtimeResult.averageRuntime.add(after-before);
-						System.out.println("Total Runtime: "+(after-before));
+					DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
+					System.out.println("Running " + model + " with constraints " + i);
+					List<Operation> suggestedActions = Mitigation.run(dfd, constraint, null).repairOperations();
+					int removeableActions = 0;
+					for (int j = 0; j < suggestedActions.size(); j++) {
+						Operation action = suggestedActions.get(j);
+						System.out.println("Removed "+suggestedActions.get(j));
+						dfd = action.undoOperation(dfd);
+						if (Util.countViolations(dfd, constraint) <= 0) {
+							System.out.println("Found no violation");
+							removeableActions++;
+							System.exit(1);
+						}
+						dfd = action.doOperation(dfd);
+						System.out.println("Applied "+suggestedActions.get(j));
 					}
-					runtimeResults.add(runtimeResult);
+					ModificationsResult result = new ModificationsResult(model, i, suggestedActions.size(),
+							removeableActions);
+					modificationsResults.add(result);
 				}
 			}
 
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-			Path out = Path.of("testresults/results/runtimeResults/100runs/data.json");
+			Path out = Path.of("testresults/results/modificationResults/data.json");
 
 			Files.createDirectories(out.getParent());
 
-			mapper.writeValue(out.toFile(), runtimeResults);
+			mapper.writeValue(out.toFile(), modificationsResults);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -74,7 +78,7 @@ public class RuntimeTest {
 		}
 	}
 
-	private record RuntimeResult(long dagSize, List<Long> averageRuntime) {
+	private record ModificationsResult(String model, int constraints, int modificationCount, int removeableActions) {
 	}
 
 }

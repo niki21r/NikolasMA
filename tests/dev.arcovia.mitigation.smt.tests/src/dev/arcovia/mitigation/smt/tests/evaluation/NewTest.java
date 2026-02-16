@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.tests;
+package dev.arcovia.mitigation.smt.tests.evaluation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

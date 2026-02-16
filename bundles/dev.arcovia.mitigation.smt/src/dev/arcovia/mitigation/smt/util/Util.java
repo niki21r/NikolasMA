@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
@@ -31,7 +32,6 @@ import org.dataflowanalysis.analysis.dsl.selectors.VertexTypeSelector;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.AND;
 import org.dataflowanalysis.dfd.datadictionary.AbstractAssignment;
-import org.dataflowanalysis.dfd.datadictionary.Assignment;
 import org.dataflowanalysis.dfd.datadictionary.Behavior;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
@@ -90,12 +90,14 @@ public class Util {
 				Paths.get(location, model, (name + ".datadictionary")).toString(), Activator.class);
 	}
 
-	
 	public static DFDVertexType vertexToType(DFDVertex vertex) {
-		Node n = vertex.getReferencedElement();
+		return nodeToType(vertex.getReferencedElement());
+	}
+
+	public static DFDVertexType nodeToType(Node n) {
 		if (n instanceof External) {
 			return DFDVertexType.EXTERNAL;
-		} else if (n instanceof Process) {
+		} else if (n instanceof org.dataflowanalysis.dfd.dataflowdiagram.Process) {
 			return DFDVertexType.PROCESS;
 		} else {
 			return DFDVertexType.STORE;
@@ -185,8 +187,8 @@ public class Util {
 	 * @param constraints Incoming constraints
 	 * @return List of vertex characteristics in constraints
 	 */
-	public static List<CharacteristicsSelectorData> getAnalysisNodeCharacteristics(List<AnalysisConstraint> constraints,
-			boolean add) {
+	private static List<CharacteristicsSelectorData> getAnalysisNodeCharacteristics(
+			List<AnalysisConstraint> constraints, boolean add) {
 		List<CharacteristicsSelectorData> characteristicsSelectorData = new ArrayList<>();
 		for (AnalysisConstraint constr : constraints) {
 			List<AbstractSelector> allSelectors = constr.getVertexDestinationSelectors().getSelectors();
@@ -211,8 +213,8 @@ public class Util {
 	 * @param constraints Incoming constraints
 	 * @return List of data characteristics in constraints
 	 */
-	public static List<CharacteristicsSelectorData> getAnalysisDataCharacteristics(List<AnalysisConstraint> constraints,
-			boolean add) {
+	private static List<CharacteristicsSelectorData> getAnalysisDataCharacteristics(
+			List<AnalysisConstraint> constraints, boolean add) {
 		List<CharacteristicsSelectorData> characteristicsSelectorData = new ArrayList<>();
 
 		for (AnalysisConstraint constr : constraints) {
@@ -254,8 +256,8 @@ public class Util {
 	 * @param constraints List of constraints
 	 * @return List of characteristics
 	 */
-	public static List<CharacteristicsSelectorData> getAnalysisCharacteristics(List<AnalysisConstraint> constraints) {
-		List<CharacteristicsSelectorData> all = new ArrayList<>();
+	public static Set<CharacteristicsSelectorData> getAnalysisCharacteristics(List<AnalysisConstraint> constraints) {
+		Set<CharacteristicsSelectorData> all = new HashSet<>();
 		all.addAll(getAnalysisDataCharacteristics(constraints, false));
 		all.addAll(getAnalysisDataCharacteristics(constraints, true));
 		all.addAll(getAnalysisNodeCharacteristics(constraints, false));
@@ -275,10 +277,10 @@ public class Util {
 	 * 
 	 * @param dd   Datadictionary
 	 * @param name Label Type name
-	 * @return Label type, if exists, else crashe
+	 * @return Label type, if exists, elsenull
 	 */
 	public static LabelType getLabelTypeByName(DataDictionary dd, String name) {
-		return dd.getLabelTypes().stream().filter(x -> x.getEntityName().equals(name)).findFirst().get();
+		return dd.getLabelTypes().stream().filter(x -> x.getEntityName().equals(name)).findFirst().orElse(null);
 	}
 
 	/**
@@ -288,11 +290,11 @@ public class Util {
 	 * @param name      Name of the label
 	 * @return Label, if exists, else crashes
 	 */
-	public static Label getLabelByName(LabelType labelType, String name) {
-		return labelType.getLabel().stream().filter(x -> x.getEntityName().equals(name)).findFirst().get();
+	private static Label getLabelByName(LabelType labelType, String name) {
+		return labelType.getLabel().stream().filter(x -> x.getEntityName().equals(name)).findFirst().orElse(null);
 	}
 
-	public static Label getLabelByName(DataDictionary dd, String typeName, String labelName) {
+	private static Label getLabelByName(DataDictionary dd, String typeName, String labelName) {
 		LabelType labelType = getLabelTypeByName(dd, typeName);
 		return getLabelByName(labelType, labelName);
 	}
@@ -341,17 +343,6 @@ public class Util {
 	}
 
 	/**
-	 * Finds pin by id
-	 * 
-	 * @param id   id of the pin
-	 * @param pins List of pins to search
-	 * @return Pin if exists, else crashes
-	 */
-	public static Pin getPinById(String id, List<Pin> pins) {
-		return pins.stream().filter(x -> x.getId().equals(id)).findFirst().get();
-	}
-
-	/**
 	 * Counts violations of a DFD using existing tooling
 	 * 
 	 * @param dfd                 Input dfd
@@ -380,23 +371,24 @@ public class Util {
 		}
 
 	}
-	
-	public static List<LabelReference> reduceToLabelReferences(Assignment assign, Term term) {
-		if (term instanceof TRUE){
-			return new ArrayList<>();
-		} else if(term instanceof NOT cast) {
-			return reduceToLabelReferences(assign, cast.getNegatedTerm());
-		} else if (term instanceof OR cast) {
-			return cast.getTerms().stream().flatMap(x -> reduceToLabelReferences(assign, x).stream()).toList();
-		} else if (term instanceof AND cast) {
-			return cast.getTerms().stream().flatMap(x -> reduceToLabelReferences(assign, x).stream()).toList();
-		} else if(term instanceof LabelReference cast) {
-			ArrayList<LabelReference> list = new ArrayList<>();
-			list.add(cast);
-			return list;
-		} else {
-			return new ArrayList<>();
-		}
+
+	public static Set<LabelReference> reduceToLabelReferences(Term term) {
+		if (term instanceof TRUE)
+			return new HashSet<>();
+
+		if (term instanceof NOT n)
+			return reduceToLabelReferences(n.getNegatedTerm());
+
+		if (term instanceof OR o)
+			return o.getTerms().stream().flatMap(t -> reduceToLabelReferences(t).stream()).collect(Collectors.toSet());
+
+		if (term instanceof AND a)
+			return a.getTerms().stream().flatMap(t -> reduceToLabelReferences(t).stream()).collect(Collectors.toSet());
+
+		if (term instanceof LabelReference r)
+			return Set.of(r);
+
+		return Set.of();
 	}
 
 }

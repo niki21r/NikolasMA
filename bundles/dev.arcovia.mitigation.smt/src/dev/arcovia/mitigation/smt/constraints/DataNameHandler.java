@@ -7,7 +7,6 @@ import org.dataflowanalysis.analysis.dfd.core.DFDVertex;
 import org.dataflowanalysis.analysis.dsl.selectors.VariableNameSelector;
 
 import com.microsoft.z3.BoolExpr;
-import com.microsoft.z3.IntNum;
 
 import dev.arcovia.mitigation.smt.TFGFlow;
 
@@ -22,19 +21,20 @@ final class DataNameHandler implements SelectorHandler<VariableNameSelector> {
 		var ctx = env.ctx();
 
 		String selectorName = s.getVariableName();
-		IntNum selector = ctx.mkInt(env.mappings().flowNameToInt.get(selectorName));
-		
+
 		List<BoolExpr> flowsMatch = new ArrayList<>();
 		for (TFGFlow flow : env.vertexIncomingFlows().getOrDefault(vertex, List.of())) {
-			IntNum flowName = env.flowNames().get(flow);
-			flowsMatch.add(ctx.mkEq(flowName, selector));
+			if (flow.flow.getEntityName().equals(selectorName)) {
+				flowsMatch.add(ctx.mkTrue());
+			} else {
+				flowsMatch.add(ctx.mkFalse());
+			}
 		}
 
 		if (flowsMatch.isEmpty()) {
 			return ctx.mkFalse();
 		}
 
-		
 		BoolExpr anyFlowMatches = ctx.mkOr(flowsMatch.toArray(new BoolExpr[0]));
 		return anyFlowMatches;
 	}

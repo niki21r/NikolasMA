@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.tests;
+package dev.arcovia.mitigation.smt.tests.evaluation;
 
 import static java.util.Map.entry;
 
@@ -30,7 +30,7 @@ import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.SolvingResult;
 import dev.arcovia.mitigation.smt.config.Config;
-import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
+import dev.arcovia.mitigation.smt.config.ConfigBuilder;
 import dev.arcovia.mitigation.smt.operations.NodeLabelRemoveOperation;
 import dev.arcovia.mitigation.smt.operations.Operation;
 import dev.arcovia.mitigation.smt.operations.UnsetAssignmentOperation;
@@ -74,21 +74,24 @@ public class ModificationCountComparison {
 				int satCost;
 				int baseCost;
 				if (useNewModelCost) {
-					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
+					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model + "_0"), constraint, minCosts)
+							.calculateCostWithoutForwarding();
 					satCost = new ModelCostCalculator2(repairedDfd, constraint, minCosts)
 							.calculateCostWithoutForwarding();
 				} else {
-					baseCost = new ModelCostCalculator(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
+					baseCost = new ModelCostCalculator(Util.loadDFD(model, model + "_0"), constraint, minCosts)
+							.calculateCost();
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
-				satCost = satCost-baseCost;
-				Config config = new Config(true, true, false, true, false, new CostConfigBuilder().build(), false, false);
-				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"), constraintMap.get(variant), config);
+				satCost = satCost - baseCost;
+				Config config = new ConfigBuilder().removeDataLabels(false).removeNodeLabels(false).build();
+				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"),
+						constraintMap.get(variant), config);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);
-				System.out.println("MCC Base Cost "+baseCost);
-				System.out.println("MCC SAT Cost "+satCost);
-				System.out.println("SMT Cost "+solvingResult.repairCost());
+				System.out.println("MCC Base Cost " + baseCost);
+				System.out.println("MCC SAT Cost " + satCost);
+				System.out.println("SMT Cost " + solvingResult.repairCost());
 				for (Operation action : solvingResult.repairOperations()) {
 					if (action instanceof UnsetAssignmentOperation || action instanceof NodeLabelRemoveOperation) {
 						System.out.println("Found interesting action");
@@ -96,7 +99,7 @@ public class ModificationCountComparison {
 						System.exit(1);
 					}
 				}
-				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0){
+				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0) {
 					System.out.println("Violatiosn present");
 					System.exit(1);
 				}
@@ -115,7 +118,7 @@ public class ModificationCountComparison {
 
 		System.out.println(comparisonResults);
 	}
-	
+
 	@Test
 	void efficiencyTest()
 			throws ContradictionException, TimeoutException, IOException, StandaloneInitializationException {
@@ -152,21 +155,24 @@ public class ModificationCountComparison {
 				int satCost;
 				int baseCost;
 				if (useNewModelCost) {
-					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCostWithoutForwarding();
+					baseCost = new ModelCostCalculator2(Util.loadDFD(model, model + "_0"), constraint, minCosts)
+							.calculateCostWithoutForwarding();
 					satCost = new ModelCostCalculator2(repairedDfd, constraint, minCosts)
 							.calculateCostWithoutForwarding();
 				} else {
-					baseCost = new ModelCostCalculator(Util.loadDFD(model, model+"_0"), constraint, minCosts).calculateCost();
+					baseCost = new ModelCostCalculator(Util.loadDFD(model, model + "_0"), constraint, minCosts)
+							.calculateCost();
 					satCost = new ModelCostCalculator(repairedDfd, constraint, minCosts).calculateCost();
 				}
-				satCost = satCost-baseCost;
-				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"), constraintMap.get(variant), null);
+				satCost = satCost - baseCost;
+				SolvingResult solvingResult = Mitigation.run(Util.loadDFD(model, model + "_0"),
+						constraintMap.get(variant), null);
 				int smtCost = solvingResult.repairCost();
 				System.out.println("Comparing " + model + "_" + variant);
-				System.out.println("MCC Base Cost "+baseCost);
-				System.out.println("MCC SAT Cost "+satCost);
-				System.out.println("SMT Cost "+solvingResult.repairCost());
-				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0){
+				System.out.println("MCC Base Cost " + baseCost);
+				System.out.println("MCC SAT Cost " + satCost);
+				System.out.println("SMT Cost " + solvingResult.repairCost());
+				if (Util.countViolations(solvingResult.repairedDFD(), constraintMap.get(variant)) > 0) {
 					System.out.println("Violatiosn present");
 					System.exit(1);
 				}
@@ -185,8 +191,6 @@ public class ModificationCountComparison {
 
 		System.out.println(comparisonResults);
 	}
-	
-	
 
 	private record ComparisonResult(String model, int constraints, int satCost, int smtCost) {
 	}

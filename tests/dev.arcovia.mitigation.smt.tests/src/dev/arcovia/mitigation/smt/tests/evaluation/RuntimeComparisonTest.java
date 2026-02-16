@@ -1,4 +1,4 @@
-package dev.arcovia.mitigation.smt.tests;
+package dev.arcovia.mitigation.smt.tests.evaluation;
 
 import static java.util.Map.entry;
 
@@ -22,15 +22,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.sat.Constraint;
-import dev.arcovia.mitigation.sat.IncomingDataLabel;
 import dev.arcovia.mitigation.sat.Label;
-import dev.arcovia.mitigation.sat.Literal;
 import dev.arcovia.mitigation.sat.Mechanic;
-import dev.arcovia.mitigation.sat.NodeLabel;
 import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
 import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.config.Config;
-import dev.arcovia.mitigation.smt.config.CostConfigBuilder;
+import dev.arcovia.mitigation.smt.config.ConfigBuilder;
 import dev.arcovia.mitigation.smt.util.Util;
 import tools.mdsd.library.standalone.initialization.StandaloneInitializationException;
 
@@ -60,15 +57,16 @@ public class RuntimeComparisonTest {
 						continue;
 					}
 
-					Config config = new Config(true, true, true, true, true, new CostConfigBuilder().build(), false, true);
+					Config config = new ConfigBuilder().findExpressionTreeSize(true).build();
 
-					long dagSizeAfter = Mitigation.run(Util.loadDFD(model, model + "_0"), constraint, config).expressionTreeSize().get();
+					long dagSizeAfter = Mitigation.run(Util.loadDFD(model, model + "_0"), constraint, config)
+							.expressionTreeSize().get();
 
 					List<Long> smtRuntimes = new ArrayList<>();
 					List<Long> satRuntimes = new ArrayList<>();
 
 					for (int j = 0; j < RUNS_PER_CONFIGURATION; j++) {
-						//System.out.println("Running " + model + " with constraints " + i);
+						// System.out.println("Running " + model + " with constraints " + i);
 						long before = System.currentTimeMillis();
 						DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
 						Mitigation.run(dfd, constraint, null);
@@ -82,7 +80,7 @@ public class RuntimeComparisonTest {
 								.flatMap(x -> new CNFTranslation(x).constructCNF().stream()).toList();
 						runRepair(model, model + "_0", false, satConstraint, minCosts);
 						long after = System.currentTimeMillis();
-						satRuntimes.add((after-before));
+						satRuntimes.add((after - before));
 					}
 
 					int clauseCount = extractClauseCount("testresults/aName.cnf");
@@ -116,8 +114,10 @@ public class RuntimeComparisonTest {
 			name = "aName";
 		Mechanic mechanic = new Mechanic(dfd, name, constraints, costMap);
 		var repairedDfd = mechanic.repair();
-		//int violationsAfter = new Mechanic(repairedDfd, null, null).amountOfViolations(repairedDfd, constraints);
-		//return new RepairResult(repairedDfd, mechanic.getViolations(), violationsAfter, endTime - startTime);
+		// int violationsAfter = new Mechanic(repairedDfd, null,
+		// null).amountOfViolations(repairedDfd, constraints);
+		// return new RepairResult(repairedDfd, mechanic.getViolations(),
+		// violationsAfter, endTime - startTime);
 		return;
 	}
 

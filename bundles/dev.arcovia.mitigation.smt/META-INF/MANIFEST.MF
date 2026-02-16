@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: dev.arcovia.mitigation.smt,
  dev.arcovia.mitigation.smt.config,
  dev.arcovia.mitigation.smt.operations,
+ dev.arcovia.mitigation.smt.preprocess,
  dev.arcovia.mitigation.smt.util
 Automatic-Module-Name: dev.arcovia.mitigation.smt
 Bundle-RequiredExecutionEnvironment: JavaSE-17
