@@ -8,22 +8,23 @@ import org.dataflowanalysis.analysis.dsl.selectors.VariableNameSelector;
 
 import com.microsoft.z3.BoolExpr;
 
+import dev.arcovia.mitigation.smt.SMT;
 import dev.arcovia.mitigation.smt.TFGFlow;
 
-final class DataNameHandler implements SelectorHandler<VariableNameSelector> {
+final class DataNameHandler extends AbstractSelectorHandler<VariableNameSelector> {
 	@Override
-	public BoolExpr encode(VariableNameSelector s, DFDVertex vertex, SelectorRole role, TranslationEnv env) {
+	protected BoolExpr encode(VariableNameSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
 
 		if (role != SelectorRole.DATA_SOURCE) {
 			throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
 		}
 
-		var ctx = env.ctx();
+		var ctx = smt.getCtx();
 
 		String selectorName = s.getVariableName();
 
 		List<BoolExpr> flowsMatch = new ArrayList<>();
-		for (TFGFlow flow : env.vertexIncomingFlows().getOrDefault(vertex, List.of())) {
+		for (TFGFlow flow : smt.getVertexIncomingFlows().getOrDefault(vertex, List.of())) {
 			if (flow.flow.getEntityName().equals(selectorName)) {
 				flowsMatch.add(ctx.mkTrue());
 			} else {

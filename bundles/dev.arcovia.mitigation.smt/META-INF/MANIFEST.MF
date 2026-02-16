@@ -3,8 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Smt
 Bundle-SymbolicName: dev.arcovia.mitigation.smt
 Bundle-Version: 1.0.0.qualifier
-Export-Package: dev.arcovia.mitigation.smt,
+Export-Package: com.microsoft.z3,
+ dev.arcovia.mitigation.smt,
  dev.arcovia.mitigation.smt.config,
+ dev.arcovia.mitigation.smt.constraints,
+ dev.arcovia.mitigation.smt.cost,
  dev.arcovia.mitigation.smt.operations,
  dev.arcovia.mitigation.smt.preprocess,
  dev.arcovia.mitigation.smt.util

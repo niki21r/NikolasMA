@@ -1,25 +1,25 @@
 package dev.arcovia.mitigation.smt.config;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
 public class CostConfig {
 
-	public HashMap<String, Integer> getAddLabelCost() {
+	public Map<String, Integer> getAddLabelCost() {
 		return addLabelCost;
 	}
 
-	public HashMap<String, Integer> getRemoveLabelCost() {
+	public Map<String, Integer> getRemoveLabelCost() {
 		return removeLabelCost;
 	}
 
-	public HashMap<Node, Integer> getNodeFactor() {
+	public Map<Node, Integer> getNodeFactor() {
 		return nodeFactor;
 	}
 
-	public HashMap<Pin, Integer> getPinFactor() {
+	public Map<Pin, Integer> getPinFactor() {
 		return pinFactor;
 	}
 
@@ -27,22 +27,22 @@ public class CostConfig {
 		return weighTFGs;
 	}
 
-	public void setNodeFactor(HashMap<Node, Integer> nodeFactor) {
+	public void setNodeFactor(Map<Node, Integer> nodeFactor) {
 		this.nodeFactor = nodeFactor;
 	}
 
-	public void setPinFactor(HashMap<Pin, Integer> pinFactor) {
+	public void setPinFactor(Map<Pin, Integer> pinFactor) {
 		this.pinFactor = pinFactor;
 	}
 
-	private final HashMap<String, Integer> addLabelCost;
-	private final HashMap<String, Integer> removeLabelCost;
-	private HashMap<Node, Integer> nodeFactor;
-	private HashMap<Pin, Integer> pinFactor;
+	private final Map<String, Integer> addLabelCost;
+	private final Map<String, Integer> removeLabelCost;
+	private Map<Node, Integer> nodeFactor;
+	private Map<Pin, Integer> pinFactor;
 	private final boolean weighTFGs;
 
-	protected CostConfig(HashMap<String, Integer> addLabelCost, HashMap<String, Integer> removeLabelCost,
-			HashMap<Node, Integer> nodeFactor, HashMap<Pin, Integer> pinFactor, boolean weighTFGs) {
+	protected CostConfig(Map<String, Integer> addLabelCost, Map<String, Integer> removeLabelCost,
+			Map<Node, Integer> nodeFactor, Map<Pin, Integer> pinFactor, boolean weighTFGs) {
 		this.addLabelCost = addLabelCost;
 		this.removeLabelCost = removeLabelCost;
 		this.nodeFactor = nodeFactor;

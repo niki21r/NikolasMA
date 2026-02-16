@@ -11,24 +11,25 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 
 import com.microsoft.z3.BoolExpr;
 
+import dev.arcovia.mitigation.smt.SMT;
 import dev.arcovia.mitigation.smt.TFGFlow;
 import dev.arcovia.mitigation.smt.util.Util;
 
-final class DataCharacteristicListHandler implements SelectorHandler<DataCharacteristicListSelector> {
+final class DataCharacteristicListHandler extends AbstractSelectorHandler<DataCharacteristicListSelector> {
 	@Override
-	public BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SelectorRole role, TranslationEnv env) {
+	protected BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
 		if (role != SelectorRole.DATA_SOURCE) {
 			throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
 		}
 
-		var ctx = env.ctx();
+		var ctx = smt.getCtx();
 
-		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(env.dd(), s.getDataCharacteristics());
+		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), s.getDataCharacteristics());
 
 		List<BoolExpr> flowsMatch = new ArrayList<>();
 
-		for (TFGFlow flow : env.vertexIncomingFlows().getOrDefault(vertex, List.of())) {
-			Map<Label, BoolExpr> flowLabelMap = env.flowLabels().get(flow);
+		for (TFGFlow flow : smt.getVertexIncomingFlows().getOrDefault(vertex, List.of())) {
+			Map<Label, BoolExpr> flowLabelMap = smt.getFlowLabels().get(flow);
 
 			List<BoolExpr> anySelectorLabelPresent = new ArrayList<>(selectorLabels.size());
 			for (Label lbl : selectorLabels) {

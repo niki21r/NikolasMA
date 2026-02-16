@@ -24,14 +24,7 @@ Make
 2.1 Clone the Z3 Prover repository
     `git clone git@github.com:Z3Prover/z3.git`
 
-2.2 Compile the Z3 Prover with java Bindings according to the instructions provided on the github page (https://github.com/Z3Prover/z3). These operations may take several minutes.
-``` 
-    cd z3
-    python scripts/mk_make.py --java
-    cd build
-    make
-    sudo make install
-```
+2.2 Compile the Z3 Prover with java Bindings according to the instructions provided on the github page (https://github.com/Z3Prover/z3). These operations may take several minutes. We developed with version 4.15.5 - 64 bit.
 
 2.3 Return to the base folder
     `cd ..`
@@ -52,7 +45,6 @@ Make
 
 It is usually located in /reproduction/z3/build/
     From the base folder 
-
     mv z3/build/com.microsoft.z3.jar NikolasMA/bundles/dev.arcovia.mitigation.smt/lib/
    
 # Setup
@@ -103,7 +95,7 @@ Select NikolasMA -> Open -> Deselect all -> Manually select
 
 Then click finish
 
-3.7 In the package explorer find the file dev.arcovia.mitigation.smt.tests/src/dev.arcovia.mitigation.smt.tests/ViolationsTest.java
+3.7 In the package explorer find the file dev.arcovia.mitigation.smt.tests/src/dev.arcovia.mitigation.smt.tests/evaluation/ViolationsTest.java
 3.7.1 Right Click it and Select Run As -> 3 JUnit Test
 
 If the test runs, your installation is correct. You should see console output as well as successful test run.

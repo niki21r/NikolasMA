@@ -15,12 +15,14 @@ import org.dataflowanalysis.analysis.dsl.selectors.VertexTypeSelector;
 
 import com.microsoft.z3.BoolExpr;
 
-public final class DefaultSelectorTranslator implements SelectorTranslator {
-	private final TranslationEnv env;
-	private final Map<Class<?>, SelectorHandler<?>> handlers = new HashMap<>();
+import dev.arcovia.mitigation.smt.SMT;
 
-	public DefaultSelectorTranslator(TranslationEnv env) {
-		this.env = env;
+public final class DefaultSelectorTranslator implements SelectorTranslator {
+	private final Map<Class<?>, AbstractSelectorHandler<?>> handlers = new HashMap<>();
+	private final SMT smt;
+
+	public DefaultSelectorTranslator(SMT smt) {
+		this.smt = smt;
 
 		register(DataCharacteristicsSelector.class, new DataCharacteristicsHandler());
 		register(DataCharacteristicListSelector.class, new DataCharacteristicListHandler());
@@ -31,7 +33,7 @@ public final class DefaultSelectorTranslator implements SelectorTranslator {
 		register(VertexCharacteristicsSelector.class, new VertexCharacteristicsHandler());
 	}
 
-	private <T extends AbstractSelector> void register(Class<T> cls, SelectorHandler<T> h) {
+	private <T extends AbstractSelector> void register(Class<T> cls, AbstractSelectorHandler<T> h) {
 		handlers.put(cls, h);
 	}
 
@@ -42,11 +44,11 @@ public final class DefaultSelectorTranslator implements SelectorTranslator {
 			throw new IllegalArgumentException("No selector handler registered for " + selector.getClass().getName());
 		}
 		@SuppressWarnings("unchecked")
-		SelectorHandler<AbstractSelector> h = (SelectorHandler<AbstractSelector>) handler;
-		return h.encode(selector, vertex, role, env);
+		AbstractSelectorHandler<AbstractSelector> h = (AbstractSelectorHandler<AbstractSelector>) handler;
+		return h.encode(selector, vertex, role, smt);
 	}
 
-	private SelectorHandler<?> findHandler(Class<?> cls) {
+	private AbstractSelectorHandler<?> findHandler(Class<?> cls) {
 		var h = handlers.get(cls);
 		if (h != null)
 			return h;

@@ -12,27 +12,27 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 
 import com.microsoft.z3.BoolExpr;
 
+import dev.arcovia.mitigation.smt.SMT;
 import dev.arcovia.mitigation.smt.util.Util;
 
-final class VertexCharacteristicListHandler implements SelectorHandler<VertexCharacteristicsListSelector> {
+final class VertexCharacteristicListHandler extends AbstractSelectorHandler<VertexCharacteristicsListSelector> {
 
 	@Override
-	public BoolExpr encode(VertexCharacteristicsListSelector s, DFDVertex vertex, SelectorRole role,
-			TranslationEnv env) {
+	protected BoolExpr encode(VertexCharacteristicsListSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
 		return switch (role) {
-		case VERTEX_DESTINATION -> matchesDestinationVertexCharacteristicsList(s, vertex, env);
-		case VERTEX_SOURCE -> matchesSourceVertexCharacteristicsList(s, vertex, env);
+		case VERTEX_DESTINATION -> matchesDestinationVertexCharacteristicsList(s, vertex, smt);
+		case VERTEX_SOURCE -> matchesSourceVertexCharacteristicsList(s, vertex, smt);
 		case DATA_SOURCE -> throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
 		};
 	}
 
 	private BoolExpr matchesDestinationVertexCharacteristicsList(VertexCharacteristicsListSelector s, DFDVertex vertex,
-			TranslationEnv env) {
-		var ctx = env.ctx();
+			SMT smt) {
+		var ctx = smt.getCtx();
 
-		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(env.dd(), s.getVertexCharacteristics());
+		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), s.getVertexCharacteristics());
 
-		Map<Label, BoolExpr> present = env.nodeLabels().get(vertex.getReferencedElement());
+		Map<Label, BoolExpr> present = smt.getNodeLabels().get(vertex.getReferencedElement());
 
 		List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
 		for (Label lbl : selectorLabels) {
@@ -48,18 +48,18 @@ final class VertexCharacteristicListHandler implements SelectorHandler<VertexCha
 	}
 
 	private BoolExpr matchesSourceVertexCharacteristicsList(VertexCharacteristicsListSelector s, DFDVertex vertex,
-			TranslationEnv env) {
+			SMT smt) {
 		List<BoolExpr> matches = new ArrayList<>();
 
-		matches.add(matchesDestinationVertexCharacteristicsList(s, vertex, env));
+		matches.add(matchesDestinationVertexCharacteristicsList(s, vertex, smt));
 
 		for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
 			DFDVertex prev = (DFDVertex) prevAbstract;
-			matches.add(matchesDestinationVertexCharacteristicsList(s, prev, env));
+			matches.add(matchesDestinationVertexCharacteristicsList(s, prev, smt));
 		}
 
-		BoolExpr anyMatch = env.ctx().mkOr(matches.toArray(new BoolExpr[0]));
-		return s.isInverted() ? env.ctx().mkNot(anyMatch) : anyMatch;
+		BoolExpr anyMatch = smt.getCtx().mkOr(matches.toArray(new BoolExpr[0]));
+		return s.isInverted() ? smt.getCtx().mkNot(anyMatch) : anyMatch;
 	}
 
 }

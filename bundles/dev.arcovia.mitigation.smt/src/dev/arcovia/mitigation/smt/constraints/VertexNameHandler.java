@@ -5,17 +5,19 @@ import org.dataflowanalysis.analysis.dsl.selectors.VertexNameSelector;
 
 import com.microsoft.z3.BoolExpr;
 
-public class VertexNameHandler implements SelectorHandler<VertexNameSelector> {
+import dev.arcovia.mitigation.smt.SMT;
+
+public class VertexNameHandler extends AbstractSelectorHandler<VertexNameSelector> {
 
 	@Override
-	public BoolExpr encode(VertexNameSelector selector, DFDVertex vertex, SelectorRole role, TranslationEnv env) {
+	protected BoolExpr encode(VertexNameSelector selector, DFDVertex vertex, SelectorRole role, SMT smt) {
 
 		if (role != SelectorRole.VERTEX_DESTINATION) {
 			throw new UnsupportedOperationException(
 					"Roles other than Vertex Destination are not supported for vertex encoding");
 		}
 
-		var ctx = env.ctx();
+		var ctx = smt.getCtx();
 
 		String select = selector.getName();
 		BoolExpr matches;

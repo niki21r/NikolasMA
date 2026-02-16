@@ -124,7 +124,8 @@ public class MemoryIsolatedTest {
 		String classpath = System.getProperty("java.class.path");
 
 		ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath,
-				"dev.arcovia.mitigation.smt.tests.MemoryIsolatedRunner", model, Integer.toString(constraintId));
+				"dev.arcovia.mitigation.smt.tests.evaluation.MemoryIsolatedRunner", model,
+				Integer.toString(constraintId));
 
 		pb.redirectErrorStream(true);
 
