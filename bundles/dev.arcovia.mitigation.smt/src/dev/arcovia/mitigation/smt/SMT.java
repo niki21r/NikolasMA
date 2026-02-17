@@ -179,7 +179,7 @@ public class SMT {
 		if (st != Status.SATISFIABLE) {
 			ctx.close();
 			return new SolvingResult(false, null, null, Integer.MAX_VALUE, Optional.empty(), Optional.empty(),
-					solveTime);
+					solveTime, pre.findTFGsTime());
 		} else {
 			Model m = opt.getModel();
 			Optional<Long> expressionTreeSize;
@@ -204,7 +204,8 @@ public class SMT {
 				violationsAfter = Optional.empty();
 			}
 			ctx.close();
-			return new SolvingResult(true, dfd, parseActions, cost, expressionTreeSize, violationsAfter, solveTime);
+			return new SolvingResult(true, dfd, parseActions, cost, expressionTreeSize, violationsAfter, solveTime,
+					pre.findTFGsTime());
 		}
 	}
 

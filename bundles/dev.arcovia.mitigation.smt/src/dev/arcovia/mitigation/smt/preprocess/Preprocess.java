@@ -142,7 +142,10 @@ public class Preprocess {
 		DFDModelResourceProvider dfdModelResourceProvider = new DFDModelResourceProvider(dd, dfd);
 		DFDConfidentialityAnalysis dfdConfidentialityAnalysis = new DFDDataFlowAnalysisBuilder().standalone()
 				.useCustomResourceProvider(dfdModelResourceProvider).build();
+		long before = System.currentTimeMillis();
 		DFDFlowGraphCollection flowGraphs = dfdConfidentialityAnalysis.findFlowGraphs();
+		long after = System.currentTimeMillis();
+		long findTFGsTime = after - before;
 
 		// Not sure if only violating TFGs can be considered so we exclude this for now.
 		boolean onlyViolatingTFGs = false;
@@ -222,7 +225,7 @@ public class Preprocess {
 
 		PreprocessingResult result = new PreprocessingResult(dfdIn, allFlows, allVertices, relevantNodeLabelsAdd,
 				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, relevantNodeTypes,
-				allTFGFlowsToVertex);
+				allTFGFlowsToVertex, findTFGsTime);
 
 		return result;
 	}

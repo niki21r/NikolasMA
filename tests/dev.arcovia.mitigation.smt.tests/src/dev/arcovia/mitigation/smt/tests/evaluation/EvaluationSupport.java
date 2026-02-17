@@ -1,0 +1,55 @@
+package dev.arcovia.mitigation.smt.tests.evaluation;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
+import org.dataflowanalysis.examplemodels.TuhhModels;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+/**
+ * Common helper methods/objects for evaluation tests.
+ *
+ */
+public final class EvaluationSupport {
+
+	private EvaluationSupport() {
+	}
+
+	private static final ObjectMapper JSON = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+	public static void writeJson(Path out, Object value) throws Exception {
+		Files.createDirectories(out.getParent());
+		JSON.writeValue(out.toFile(), value);
+	}
+
+	public record Configuration(String model, int variantId, List<AnalysisConstraint> constraints) {
+	}
+
+	public static List<Configuration> configurations() throws Exception {
+		var tuhhModels = TuhhModels.getTuhhModels();
+		List<Configuration> out = new ArrayList<>();
+
+		for (var entry : tuhhModels.entrySet()) {
+			String model = entry.getKey();
+			List<Integer> definedVariants = entry.getValue();
+
+			if (!definedVariants.contains(0))
+				continue;
+
+			for (int variantId : ConstraintMapProvider.variantIds()) {
+				if (!definedVariants.contains(variantId))
+					continue;
+
+				List<AnalysisConstraint> constraints = ConstraintMapProvider.getOrThrow(variantId);
+				out.add(new Configuration(model, variantId, constraints));
+			}
+		}
+
+		return out;
+	}
+}

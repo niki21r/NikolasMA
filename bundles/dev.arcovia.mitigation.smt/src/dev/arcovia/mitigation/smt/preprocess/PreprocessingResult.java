@@ -18,5 +18,5 @@ import dev.arcovia.mitigation.smt.TFGFlow;
 public record PreprocessingResult(DataFlowDiagramAndDictionary dfd, Set<TFGFlow> flows, Set<DFDVertex> vertices,
 		Set<Label> relevantNodeLabelsAdd, Set<Label> relevantNodeLabelsRemove, Set<Label> relevantDataLabelsAdd,
 		Set<Label> relevantDataLabelsRemove, List<DFDVertexType> relevantNodeTypes,
-		Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows) {
+		Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows, long findTFGsTime) {
 }

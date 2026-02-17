@@ -13,16 +13,10 @@ public class NewTest {
 
 	@Test
 	public void newTest() throws Exception {
-		try {
-			DataFlowDiagramAndDictionary dfd = Util.loadDFD("koushikkothagal", "koushikkothagal_0");
-			List<AnalysisConstraint> constraints = ConstraintMapProvider.buildConstraintMap().get(4);
-			System.out.println(Util.countViolations(dfd, constraints));
-			System.out.println(Mitigation.run(dfd, constraints, null));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			System.exit(1);
-		}
-	}
+		DataFlowDiagramAndDictionary dfd = Util.loadDFD("koushikkothagal", "koushikkothagal_0");
+		List<AnalysisConstraint> constraints = ConstraintMapProvider.getOrThrow(4);
 
+		System.out.println(Util.countViolations(dfd, constraints));
+		System.out.println(Mitigation.run(dfd, constraints, null));
+	}
 }

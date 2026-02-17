@@ -9,5 +9,5 @@ import dev.arcovia.mitigation.smt.operations.Operation;
 
 public record SolvingResult(boolean satisfiable, DataFlowDiagramAndDictionary repairedDFD,
 		List<Operation> repairOperations, int repairCost, Optional<Long> expressionTreeSize,
-		Optional<Integer> violationsAfter, long solverTimeMs) {
+		Optional<Integer> violationsAfter, long solverTimeMs, long findTFGsTimeMs) {
 }

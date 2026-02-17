@@ -1,7 +1,6 @@
 package dev.arcovia.mitigation.smt.tests.evaluation;
 
 import java.util.List;
-import java.util.Map;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
@@ -18,16 +17,11 @@ public class MemoryIsolatedRunner {
 		}
 
 		String model = args[0];
-		int constraintId = Integer.parseInt(args[1]);
+		int variantId = Integer.parseInt(args[1]);
 
-		Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
-		List<AnalysisConstraint> constraint = constraintMap.get(constraintId);
-		if (constraint == null) {
-			System.err.println("Constraint undefined: " + constraintId);
-			System.exit(3);
-		}
+		List<AnalysisConstraint> constraints = ConstraintMapProvider.getOrThrow(variantId);
 
 		DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-		Mitigation.run(dfd, constraint, null);
+		Mitigation.run(dfd, constraints, null);
 	}
 }

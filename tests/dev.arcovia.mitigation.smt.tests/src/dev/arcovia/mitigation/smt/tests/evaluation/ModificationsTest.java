@@ -1,18 +1,11 @@
 package dev.arcovia.mitigation.smt.tests.evaluation;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
-import org.dataflowanalysis.examplemodels.TuhhModels;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.operations.Operation;
@@ -22,63 +15,29 @@ public class ModificationsTest {
 
 	@Test
 	public void testAllForModifications() throws Exception {
-		try {
-			var tuhhModels = TuhhModels.getTuhhModels();
+		List<ModificationsResult> results = new ArrayList<>();
+		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 
-			List<ModificationsResult> modificationsResults = new ArrayList<ModificationsResult>();
-			Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
-			for (var model : tuhhModels.keySet()) {
-				if (!tuhhModels.get(model).contains(0))
-					continue;
-				for (int i : List.of(1, 2, 4, 5, 7, 8, 10, 11)) {
-					List<AnalysisConstraint> constraint = constraintMap.get(i);
-					if (constraint == null) {
-						System.out.println(
-								"Skipping " + model + " with constraint " + i + " because Constraint is undefined");
-						continue;
-					} else if (!tuhhModels.get(model).contains(i)) {
-						System.out.println("Skipping " + model + " with constraint " + i
-								+ " because no model for this constraint is defined");
-						continue;
-					}
-					DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-					System.out.println("Running " + model + " with constraints " + i);
-					List<Operation> suggestedActions = Mitigation.run(dfd, constraint, null).repairOperations();
-					int removeableActions = 0;
-					for (int j = 0; j < suggestedActions.size(); j++) {
-						Operation action = suggestedActions.get(j);
-						System.out.println("Removed "+suggestedActions.get(j));
-						dfd = action.undoOperation(dfd);
-						if (Util.countViolations(dfd, constraint) <= 0) {
-							System.out.println("Found no violation");
-							removeableActions++;
-							System.exit(1);
-						}
-						dfd = action.doOperation(dfd);
-						System.out.println("Applied "+suggestedActions.get(j));
-					}
-					ModificationsResult result = new ModificationsResult(model, i, suggestedActions.size(),
-							removeableActions);
-					modificationsResults.add(result);
-				}
+		for (EvaluationSupport.Configuration cfg : configs) {
+			DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+
+			System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
+			List<Operation> suggestedActions = Mitigation.run(dfd, cfg.constraints(), null).repairOperations();
+
+			int removableActions = 0;
+			for (Operation action : suggestedActions) {
+				DataFlowDiagramAndDictionary undone = action.undoOperation(dfd);
+				if (Util.countViolations(undone, cfg.constraints()) <= 0)
+					removableActions++;
 			}
 
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-			Path out = Path.of("testresults/results/modificationResults/data.json");
-
-			Files.createDirectories(out.getParent());
-
-			mapper.writeValue(out.toFile(), modificationsResults);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			System.exit(1);
+			results.add(
+					new ModificationsResult(cfg.model(), cfg.variantId(), suggestedActions.size(), removableActions));
 		}
+
+		EvaluationSupport.writeJson(Path.of("testresults/results/modificationResults/data.json"), results);
 	}
 
 	private record ModificationsResult(String model, int constraints, int modificationCount, int removeableActions) {
 	}
-
 }
