@@ -24,15 +24,17 @@ public class ModificationCountComparison {
 	void efficiencyTestOnlyAdd() throws Exception {
 		Config smtConfig = new ConfigBuilder().removeDataLabels(false).removeNodeLabels(false).build();
 
-		runComparison(Path.of("testresults/results/modificationResults/comparison/add/data.json"), smtConfig, true);
+		runComparison(Path.of("testresults/results/modificationResults/comparison/add/data.json"), smtConfig, true,
+				true);
 	}
 
 	@Test
 	void efficiencyTest() throws Exception {
-		runComparison(Path.of("testresults/results/modificationResults/comparison/all/data.json"), null, true);
+		runComparison(Path.of("testresults/results/modificationResults/comparison/all/data.json"), null, true, false);
 	}
 
-	private void runComparison(Path outFile, Config smtConfig, boolean useNewModelCost) throws Exception {
+	private void runComparison(Path outFile, Config smtConfig, boolean useNewModelCost,
+			boolean checkForRemoveOperations) throws Exception {
 		List<ComparisonResult> results = new ArrayList<>();
 		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 
@@ -67,9 +69,11 @@ public class ModificationCountComparison {
 					smtConfig);
 			int smtCost = solving.repairCost();
 
-			for (Operation op : solving.repairOperations()) {
-				if (op instanceof UnsetAssignmentOperation || op instanceof NodeLabelRemoveOperation) {
-					throw new IllegalStateException("Unexpected operation type in SMT result: " + op.getClass());
+			if (checkForRemoveOperations) {
+				for (Operation op : solving.repairOperations()) {
+					if (op instanceof UnsetAssignmentOperation || op instanceof NodeLabelRemoveOperation) {
+						throw new IllegalStateException("Unexpected operation type in SMT result: " + op.getClass());
+					}
 				}
 			}
 
