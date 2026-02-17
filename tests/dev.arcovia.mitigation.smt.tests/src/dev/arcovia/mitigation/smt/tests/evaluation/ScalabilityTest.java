@@ -213,10 +213,10 @@ public class ScalabilityTest {
 	// linearly. Include the existing constraints for config as well
 	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, in.scaleFactor));
+		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, in.scaleFactor * 4));
 
 		return new ScaleOutput(dfdWithLabels, all);
 	};
