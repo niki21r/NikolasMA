@@ -43,7 +43,8 @@ public class ModificationCountComparison {
 
 			DataFlowDiagramAndDictionary baseDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
 
-			SatHelper.RepairResult satRepair = SatHelper.runRepair(baseDfd, false, cfg.constraints(),
+			DataFlowDiagramAndDictionary inputDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+			SatHelper.RepairResult satRepair = SatHelper.runRepair(inputDfd, false, cfg.constraints(),
 					SatHelper.MIN_COSTS);
 
 			DataFlowDiagramAndDictionary repairedDfd = satRepair.repairedDfd();
