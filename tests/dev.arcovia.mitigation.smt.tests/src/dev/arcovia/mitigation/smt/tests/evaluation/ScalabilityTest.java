@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.arcovia.mitigation.sat.Scaler;
@@ -26,7 +27,7 @@ import dev.arcovia.mitigation.smt.util.Util;
 public class ScalabilityTest {
 
 	private static final int RUNS_PER_CONFIGURATION = 10;
-	private static final long MAX_TIME_MILLIS = TimeUnit.MINUTES.toMillis(30);
+	private static final long MAX_TIME_MILLIS = TimeUnit.MINUTES.toMillis(60);
 
 	private record ScaleInput(DataFlowDiagramAndDictionary inputDfd, List<AnalysisConstraint> inputConstraints,
 			int scaleFactor) {
@@ -48,9 +49,8 @@ public class ScalabilityTest {
 		long totalRuntimeSmt = 0;
 		long totalRuntimeSat = 0;
 
-		// Increase scale while both runtimes are below bound. Last run that exceeds
-		// bound is discarded
-		scaleLoop: while (totalRuntimeSmt < MAX_TIME_MILLIS && totalRuntimeSat < MAX_TIME_MILLIS) {
+		// Increase scale while both runtimes are below bound.
+		while (totalRuntimeSmt < MAX_TIME_MILLIS && totalRuntimeSat < MAX_TIME_MILLIS) {
 			List<Long> smtRuntimes = new ArrayList<>();
 			List<Long> satRuntimes = new ArrayList<>();
 			List<Long> findTFGsTimes = new ArrayList<>();
@@ -86,10 +86,6 @@ public class ScalabilityTest {
 
 					totalTimeFindTFGs += solving.findTFGsTimeMs();
 					findTFGsTimes.add(solving.findTFGsTimeMs());
-
-					// Break if total time exceeds
-					if (totalRuntimeSmt >= MAX_TIME_MILLIS)
-						break scaleLoop;
 				}
 			}
 
@@ -113,13 +109,8 @@ public class ScalabilityTest {
 					long dt = rr.runtimeInMilliseconds();
 					satRuntimes.add(dt);
 					totalRuntimeSat += dt;
-
-					// Break if total time exceeds
-					if (totalRuntimeSat >= MAX_TIME_MILLIS)
-						break scaleLoop;
 				}
 			}
-
 			results.add(new ScalabilityResult(scale, RUNS_PER_CONFIGURATION, totalRuntimeSmt, totalRuntimeSat,
 					smtRuntimes, satRuntimes, totalTimeFindTFGs, findTFGsTimes));
 			scale++;
@@ -230,6 +221,8 @@ public class ScalabilityTest {
 		return new ScaleOutput(dfdWithLabels, all);
 	};
 
+	// Not used because redundant
+	@Disabled
 	@Test
 	public void testNodesAndFlows() throws Exception {
 		scalabilityTest(scaleNodesAndFlows, "nodesAndFlows");
