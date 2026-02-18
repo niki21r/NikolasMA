@@ -97,7 +97,7 @@ public class ScalabilityTest {
 					ScaleOutput out = scaleFunc.apply(new ScaleInput(base, cfg.constraints(), scale));
 
 					System.out.println(cfg);
-					System.out.println(out.outputConstraints);
+					System.out.println("Constraints after scale " + out.outputConstraints);
 					// Run Sat repair
 					RepairResult rr = SatHelper.runRepair(out.outputDfd, false, out.outputConstraints,
 							SatHelper.MIN_COSTS);
@@ -116,7 +116,7 @@ public class ScalabilityTest {
 			}
 			results.add(new ScalabilityResult(scale, RUNS_PER_CONFIGURATION, totalRuntimeSmt, totalRuntimeSat,
 					smtRuntimes, satRuntimes, totalTimeFindTFGs, findTFGsTimes));
-
+			System.out.println("Wrote results");
 			EvaluationSupport.writeJson(outPath, results);
 
 			scale++;
@@ -168,10 +168,10 @@ public class ScalabilityTest {
 	// Include the existing constraints for config as well.
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(4, in.scaleFactor));
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, Math.max(4, in.scaleFactor)));
+		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, in.scaleFactor * 4));
 
 		return new ScaleOutput(dfdWithLabels, all);
 
@@ -186,10 +186,10 @@ public class ScalabilityTest {
 	// Include the existing constraints for config as well.
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintAfterNeverFlows = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(1, 0, 0, in.scaleFactor, in.scaleFactor, in.scaleFactor));
+		all.addAll(scaler.scaleConstraint(1, 0, 0, in.scaleFactor, in.scaleFactor, in.scaleFactor * 4));
 		return new ScaleOutput(dfdWithLabels, all);
 	};
 
