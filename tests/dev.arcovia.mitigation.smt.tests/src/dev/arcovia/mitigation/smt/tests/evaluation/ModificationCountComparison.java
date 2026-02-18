@@ -8,7 +8,6 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.junit.jupiter.api.Test;
 
 import dev.arcovia.mitigation.sat.ModelCostCalculator;
-import dev.arcovia.mitigation.sat.ModelCostCalculator2;
 import dev.arcovia.mitigation.smt.Mitigation;
 import dev.arcovia.mitigation.smt.SolvingResult;
 import dev.arcovia.mitigation.smt.config.Config;
@@ -55,9 +54,9 @@ public class ModificationCountComparison {
 			var satConstraints = SatHelper.toSatConstraints(cfg.constraints());
 
 			if (useNewModelCost) {
-				baseCost = new ModelCostCalculator2(baseDfd, satConstraints, SatHelper.MIN_COSTS)
+				baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS)
 						.calculateCostWithoutForwarding();
-				satCost = new ModelCostCalculator2(repairedDfd, satConstraints, SatHelper.MIN_COSTS)
+				satCost = new ModelCostCalculator(repairedDfd, satConstraints, SatHelper.MIN_COSTS)
 						.calculateCostWithoutForwarding();
 			} else {
 				baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS).calculateCost();
