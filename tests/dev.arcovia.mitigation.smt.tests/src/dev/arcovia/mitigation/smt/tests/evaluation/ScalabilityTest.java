@@ -168,10 +168,10 @@ public class ScalabilityTest {
 	// Include the existing constraints for config as well.
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(4, in.scaleFactor * 3));
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, in.scaleFactor * 4));
+		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, Math.max(4, in.scaleFactor * 3)));
 
 		return new ScaleOutput(dfdWithLabels, all);
 
@@ -186,10 +186,11 @@ public class ScalabilityTest {
 	// Include the existing constraints for config as well.
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintAfterNeverFlows = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
+
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(in.scaleFactor * 3, 4));
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(1, 0, 0, in.scaleFactor, in.scaleFactor, in.scaleFactor * 4));
+		all.addAll(scaler.scaleConstraint(1, 0, 0, in.scaleFactor, in.scaleFactor, Math.max(in.scaleFactor * 3, 4)));
 		return new ScaleOutput(dfdWithLabels, all);
 	};
 
