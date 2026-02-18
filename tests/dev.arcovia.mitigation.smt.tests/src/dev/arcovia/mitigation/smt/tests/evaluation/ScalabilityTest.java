@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.arcovia.mitigation.sat.Scaler;
@@ -40,7 +39,7 @@ public class ScalabilityTest {
 		return Integer.parseInt(BigInteger.TWO.pow(power).toString());
 	}
 
-	public void scalabilityTest(Function<ScaleInput, ScaleOutput> scaleFunc, String name) throws Exception {
+	private void scalabilityTest(Function<ScaleInput, ScaleOutput> scaleFunc, String name) throws Exception {
 		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 		List<ScalabilityResult> results = new ArrayList<>();
 
@@ -48,6 +47,9 @@ public class ScalabilityTest {
 
 		long totalRuntimeSmt = 0;
 		long totalRuntimeSat = 0;
+
+		Path outPath = Path.of("testresults/results/scalabilityResults/" + name + "/" + RUNS_PER_CONFIGURATION + "Runs"
+				+ (MAX_TIME_MILLIS / 60000) + "Minutes" + "/data.json");
 
 		// Increase scale while both runtimes are below bound.
 		while (totalRuntimeSmt < MAX_TIME_MILLIS && totalRuntimeSat < MAX_TIME_MILLIS) {
@@ -94,10 +96,11 @@ public class ScalabilityTest {
 					DataFlowDiagramAndDictionary base = Util.loadDFD(cfg.model(), cfg.model() + "_0");
 					ScaleOutput out = scaleFunc.apply(new ScaleInput(base, cfg.constraints(), scale));
 
+					System.out.println(cfg);
+					System.out.println(out.outputConstraints);
 					// Run Sat repair
 					RepairResult rr = SatHelper.runRepair(out.outputDfd, false, out.outputConstraints,
 							SatHelper.MIN_COSTS);
-
 					if (runIdx == 0) {
 						if (rr.violationsAfter() > 0 || Util.countViolations(rr.repairedDfd(), cfg.constraints()) > 0) {
 							throw new IllegalStateException(
@@ -113,18 +116,12 @@ public class ScalabilityTest {
 			}
 			results.add(new ScalabilityResult(scale, RUNS_PER_CONFIGURATION, totalRuntimeSmt, totalRuntimeSat,
 					smtRuntimes, satRuntimes, totalTimeFindTFGs, findTFGsTimes));
+
+			EvaluationSupport.writeJson(outPath, results);
+
 			scale++;
 		}
 
-		Path out = Path.of("testresults/results/scalabilityResults/" + name + "/" + RUNS_PER_CONFIGURATION + "Runs"
-				+ (MAX_TIME_MILLIS / 60000) + "Minutes" + "/data.json");
-
-		EvaluationSupport.writeJson(out, results);
-	}
-
-	@Test
-	public void testTFGAmount() throws Exception {
-		scalabilityTest(scaleTFGAmount, "tfgAmount");
 	}
 
 	// Scale TFG amount linearly
@@ -133,7 +130,6 @@ public class ScalabilityTest {
 		return new ScaleOutput(scaler.scaleTFGAmount(in.scaleFactor), in.inputConstraints);
 	};
 
-	@Test
 	public void testTFGLength() throws Exception {
 		scalabilityTest(scaleTFGLength, "tfgLength");
 	}
@@ -145,11 +141,6 @@ public class ScalabilityTest {
 		return new ScaleOutput(scaler.scaleTFGLength(sf), in.inputConstraints);
 	};
 
-	@Test
-	public void testLabelTypes() throws Exception {
-		scalabilityTest(scaleLabelTypes, "labelTypes");
-	}
-
 	// Scale label types exponentially because effect is low
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelTypes = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
@@ -157,7 +148,6 @@ public class ScalabilityTest {
 		return new ScaleOutput(scaler.scaleLabelTypes(sf), in.inputConstraints);
 	};
 
-	@Test
 	public void testLabels() throws Exception {
 		scalabilityTest(scaleLabels, "labels");
 	}
@@ -178,10 +168,10 @@ public class ScalabilityTest {
 	// Include the existing constraints for config as well.
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelsInConstraintBeforeNeverFlows = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor);
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(4, in.scaleFactor));
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, in.scaleFactor));
+		all.addAll(scaler.scaleConstraint(1, in.scaleFactor, in.scaleFactor, 0, 0, Math.max(4, in.scaleFactor)));
 
 		return new ScaleOutput(dfdWithLabels, all);
 
@@ -200,7 +190,6 @@ public class ScalabilityTest {
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
 		all.addAll(scaler.scaleConstraint(1, 0, 0, in.scaleFactor, in.scaleFactor, in.scaleFactor));
-		System.out.println(all);
 		return new ScaleOutput(dfdWithLabels, all);
 	};
 
@@ -213,17 +202,16 @@ public class ScalabilityTest {
 	// linearly. Include the existing constraints for config as well
 	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(in.scaleFactor * 4);
+		// Scaler crashes with less than 4 labels, so use at least 4 in earlier case.
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(in.scaleFactor, 4));
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, in.scaleFactor * 4));
+		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, Math.max(in.scaleFactor, 4)));
 
 		return new ScaleOutput(dfdWithLabels, all);
 	};
 
-	// Not used because redundant
-	@Disabled
-	@Test
+	// Not used because too old
 	public void testNodesAndFlows() throws Exception {
 		scalabilityTest(scaleNodesAndFlows, "nodesAndFlows");
 	}
@@ -233,6 +221,16 @@ public class ScalabilityTest {
 		Scaler scaler = new Scaler(in.inputDfd);
 		return new ScaleOutput(scaler.scaleDFD(in.scaleFactor, in.scaleFactor), in.inputConstraints);
 	};
+
+	@Test
+	public void testLabelTypes() throws Exception {
+		scalabilityTest(scaleLabelTypes, "labelTypes");
+	}
+
+	@Test
+	public void testTFGAmount() throws Exception {
+		scalabilityTest(scaleTFGAmount, "tfgAmount");
+	}
 
 	private record ScalabilityResult(int scale, int runsPerConfiguration, long totalRuntimeSMT, long totalRuntimeSAT,
 			List<Long> runtimesSMT, List<Long> runtimesSAT, long totalTimeFindTFGs, List<Long> findTFGsTime) {
