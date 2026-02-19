@@ -37,11 +37,11 @@ final class VertexCharacteristicsHandler extends AbstractSelectorHandler<VertexC
 
 		List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
 		for (Label lbl : selectorLabels) {
-			BoolExpr has = (present != null) ? present.get(lbl) : null;
-			labelMatches.add(has != null ? has : ctx.mkFalse());
+			BoolExpr has = present.get(lbl);
+			labelMatches.add(has);
 		}
 
-		BoolExpr matches = labelMatches.isEmpty() ? ctx.mkFalse() : ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
+		BoolExpr matches = ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
 
 		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
 

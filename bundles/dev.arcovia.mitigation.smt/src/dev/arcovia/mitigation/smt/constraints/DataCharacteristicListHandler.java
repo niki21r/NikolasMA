@@ -33,8 +33,8 @@ final class DataCharacteristicListHandler extends AbstractSelectorHandler<DataCh
 
 			List<BoolExpr> anySelectorLabelPresent = new ArrayList<>(selectorLabels.size());
 			for (Label lbl : selectorLabels) {
-				BoolExpr has = (flowLabelMap != null) ? flowLabelMap.get(lbl) : null;
-				anySelectorLabelPresent.add(has != null ? has : ctx.mkFalse());
+				BoolExpr has = flowLabelMap.get(lbl);
+				anySelectorLabelPresent.add(has);
 			}
 
 			BoolExpr thisFlowMatches = ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
