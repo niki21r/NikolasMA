@@ -40,7 +40,7 @@ final class VertexCharacteristicListHandler extends AbstractSelectorHandler<Vert
 			labelMatches.add(has != null ? has : ctx.mkFalse());
 		}
 
-		BoolExpr matches = labelMatches.isEmpty() ? ctx.mkFalse() : ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
+		BoolExpr matches = ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
 
 		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
 
@@ -59,6 +59,7 @@ final class VertexCharacteristicListHandler extends AbstractSelectorHandler<Vert
 		}
 
 		BoolExpr anyMatch = smt.getCtx().mkOr(matches.toArray(new BoolExpr[0]));
+
 		return s.isInverted() ? smt.getCtx().mkNot(anyMatch) : anyMatch;
 	}
 

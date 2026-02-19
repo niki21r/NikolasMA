@@ -37,8 +37,7 @@ final class DataCharacteristicListHandler extends AbstractSelectorHandler<DataCh
 				anySelectorLabelPresent.add(has != null ? has : ctx.mkFalse());
 			}
 
-			BoolExpr thisFlowMatches = anySelectorLabelPresent.isEmpty() ? ctx.mkFalse()
-					: ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
+			BoolExpr thisFlowMatches = ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
 
 			flowsMatch.add(thisFlowMatches);
 		}
