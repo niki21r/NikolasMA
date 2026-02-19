@@ -200,6 +200,11 @@ public class ScalabilityTest {
 		}
 	}
 
+	@Test
+	public void testTFGAmount() throws Exception {
+		scalabilityTest(scaleTFGAmount, "tfgAmount");
+	}
+
 	// Scale TFG amount linearly
 	private static final Function<ScaleInput, ScaleOutput> scaleTFGAmount = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
@@ -219,6 +224,11 @@ public class ScalabilityTest {
 		Scaler scaler = new Scaler(in.inputDfd);
 		return new ScaleOutput(scaler.scaleTFGLength(in.scaleFactor), in.inputConstraints);
 	};
+
+	@Test
+	public void testLabelTypes() throws Exception {
+		scalabilityTest(scaleLabelTypes, "labelTypes");
+	}
 
 	// Scale label types exponentially because effect is low
 	private static final Function<ScaleInput, ScaleOutput> scaleLabelTypes = (in) -> {
@@ -300,14 +310,4 @@ public class ScalabilityTest {
 		Scaler scaler = new Scaler(in.inputDfd);
 		return new ScaleOutput(scaler.scaleDFD(in.scaleFactor, in.scaleFactor), in.inputConstraints);
 	};
-
-	@Test
-	public void testLabelTypes() throws Exception {
-		scalabilityTest(scaleLabelTypes, "labelTypes");
-	}
-
-	@Test
-	public void testTFGAmount() throws Exception {
-		scalabilityTest(scaleTFGAmount, "tfgAmount");
-	}
 }
