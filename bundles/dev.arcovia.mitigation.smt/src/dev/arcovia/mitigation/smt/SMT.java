@@ -30,6 +30,7 @@ import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Global;
 import com.microsoft.z3.IntExpr;
 import com.microsoft.z3.Model;
 import com.microsoft.z3.Optimize;
@@ -84,9 +85,14 @@ public class SMT {
 	private Map<Pin, Map<Label, BoolExpr>> pinSet;
 	private Map<Pin, Map<Label, BoolExpr>> pinUnset;
 
+	private static final boolean verboseSolver = false;
+
 	public SMT(PreprocessingResult pre, List<AnalysisConstraint> constraints, Config config) {
 		this.config = config;
 		this.constraints = constraints;
+		if (verboseSolver) {
+			Global.setParameter("verbose", "2");
+		}
 		this.ctx = new Context();
 		this.opt = ctx.mkOptimize();
 		this.pre = pre;

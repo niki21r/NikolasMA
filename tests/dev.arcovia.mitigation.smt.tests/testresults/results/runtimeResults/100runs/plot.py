@@ -26,9 +26,9 @@ def make_dag_runtime_png(input_json: Path, output_png: Path):
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(dag_sizes, mean_runtimes)
 
-    ax.set_xlabel("DAG Size")
+    ax.set_xlabel("Expression Tree Size")
     ax.set_ylabel("Average Runtime (ms)")
-    ax.set_title("DAG Size in relation to Average Runtime")
+    ax.set_title("")
     ax.grid(True)
 
     output_png.parent.mkdir(parents=True, exist_ok=True)

@@ -8,6 +8,7 @@ import java.util.List;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.examplemodels.TuhhModels;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -25,6 +26,10 @@ public final class EvaluationSupport {
 	public static void writeJson(Path out, Object value) throws Exception {
 		Files.createDirectories(out.getParent());
 		JSON.writeValue(out.toFile(), value);
+	}
+
+	public static <T> T readJson(Path path, TypeReference<T> typeRef) throws Exception {
+		return JSON.readValue(path.toFile(), typeRef);
 	}
 
 	public record Configuration(String model, int variantId, List<AnalysisConstraint> constraints) {

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,9 +124,16 @@ public class MemoryIsolatedTest {
 	}
 
 	private static long readRssBytesFromProcStatm(long pid, long pageSizeBytes) throws Exception {
-		String statm = Files.readString(Path.of("/proc", Long.toString(pid), "statm"), StandardCharsets.US_ASCII)
-				.trim();
-
+		Path path = Path.of("/proc", Long.toString(pid), "statm");
+		String statm;
+		try {
+			statm = Files.readString(path, StandardCharsets.US_ASCII).trim();
+		} catch (NoSuchFileException e) {
+			return 0;
+		} catch (Exception f) {
+			System.out.println(f.getMessage());
+			return 0;
+		}
 		int sp1 = statm.indexOf(' ');
 		if (sp1 < 0)
 			return 0;

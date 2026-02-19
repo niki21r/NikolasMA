@@ -18,7 +18,7 @@ public class RuntimeTest {
 	public void testAllForRuntime() throws Exception {
 		List<RuntimeResult> runtimeResults = new ArrayList<>();
 		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
-		int totalRuns = 10;
+		int totalRuns = 100;
 
 		for (EvaluationSupport.Configuration cfg : configs) {
 			Config config = new ConfigBuilder().findExpressionTreeSize(true).build();
@@ -29,8 +29,8 @@ public class RuntimeTest {
 			List<Long> runtimes = new ArrayList<>(totalRuns);
 			for (int j = 0; j < totalRuns; j++) {
 				System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
-				long before = System.currentTimeMillis();
 				DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+				long before = System.currentTimeMillis();
 				Mitigation.run(dfd, cfg.constraints(), null);
 				long after = System.currentTimeMillis();
 				runtimes.add(after - before);

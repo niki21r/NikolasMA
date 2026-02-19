@@ -69,6 +69,10 @@ public class ModificationCountComparison {
 					smtConfig);
 			int smtCost = solving.repairCost();
 
+			if (smtCost > satCost) {
+				throw new Exception("SMT cost greater than SAT Cost. This should not be the case");
+			}
+
 			if (checkForRemoveOperations) {
 				for (Operation op : solving.repairOperations()) {
 					if (op instanceof UnsetAssignmentOperation || op instanceof NodeLabelRemoveOperation) {

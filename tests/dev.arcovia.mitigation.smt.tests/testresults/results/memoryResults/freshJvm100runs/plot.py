@@ -22,7 +22,7 @@ def make_dag_memory_png(input_json: Path, output_png: Path):
 
     ax.set_xlabel("Expression tree size")
     ax.set_ylabel("Average Peak Memory Usage (MiB)")
-    ax.set_title("Average peak memory consumption in relation to size of expression tree")
+    ax.set_title("")
     ax.grid(True)
 
     output_png.parent.mkdir(parents=True, exist_ok=True)

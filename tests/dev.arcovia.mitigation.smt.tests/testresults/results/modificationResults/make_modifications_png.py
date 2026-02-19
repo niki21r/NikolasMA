@@ -53,7 +53,7 @@ def make_modification_png(input_json: Path, output_png: Path):
     table_bbox_px = tbl.get_window_extent(renderer=renderer)
 
     # --- Place title relative to the TABLE bbox (no mysterious gap) ---
-    title_str = "Amount of modifications to repair violations"
+    title_str = ""
     gap_px = 1        # gap between title and table (0–3)
     top_pad_px = 4    # extra padding above title (0–8)
 

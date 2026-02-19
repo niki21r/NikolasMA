@@ -2,7 +2,8 @@
 """
 Reads ./data.json (array of objects) and writes ./plot.png.
 
-- X axis: evenly spaced points (by index), tick labels are 2^scale
+- X axis: evenly spaced points (by index)
+- X tick labels: either 2^scale or scale itself (configurable via --xmode)
 - Y axis: milliseconds (log scale)
 - Y tick labels: human-readable time (ms/s/min/h) + log10(value in ms) appended
 - X label text is configurable via CLI arg, e.g.:
@@ -13,12 +14,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter, LogLocator
-import math
+from matplotlib.ticker import FuncFormatter
 
 
 DATA_FILE = Path("data.json")
@@ -56,7 +57,10 @@ def load_data(path: Path) -> List[Dict[str, Any]]:
     return data  # type: ignore[return-value]
 
 
-def prepare_series(rows: List[Dict[str, Any]]) -> Tuple[List[int], List[float], List[float], List[float]]:
+def prepare_series(
+    rows: List[Dict[str, Any]],
+    x_mode: str,
+) -> Tuple[List[int], List[float], List[float], List[float]]:
     parsed = []
     for obj in rows:
         scale = _require_int(obj, "scale")
@@ -67,7 +71,13 @@ def prepare_series(rows: List[Dict[str, Any]]) -> Tuple[List[int], List[float], 
 
     parsed.sort(key=lambda t: t[0])
 
-    x_vals = [2 ** t[0] for t in parsed]  # tick labels
+    if x_mode == "pow2":
+        x_vals = [2 ** t[0] for t in parsed]
+    elif x_mode == "scale":
+        x_vals = [t[0] for t in parsed]
+    else:
+        raise ValueError(f"Unknown x_mode: {x_mode}")
+
     sat_vals = [t[1] for t in parsed]
     smt_vals = [t[2] for t in parsed]
     tfg_vals = [t[3] for t in parsed]
@@ -123,7 +133,7 @@ def plot(
     smt_s = sanitize(smt)
     tfg_s = sanitize(tfg)
 
-    # evenly spaced positions, labels are the actual 2^scale values
+    # evenly spaced positions, labels are x_vals
     x_positions = list(range(len(x_vals)))
     x_tick_labels = [str(v) for v in x_vals]
 
@@ -139,6 +149,7 @@ def plot(
     def time_plus_log_formatter(ms: float, _) -> str:
         if ms <= 0:
             return ""
+
         # human readable
         if ms < 1000:
             human = f"{ms:.0f} ms"
@@ -153,9 +164,6 @@ def plot(
                 else:
                     h = m / 60.0
                     human = f"{h:.1f} h"
-        # log10 in ms
-        # (show 2 decimals; adjust if you prefer scientific notation)
-        import math
 
         logv = math.log10(ms)
         return f"{human}  (log10={logv:.2f})"
@@ -171,11 +179,11 @@ def plot(
     ax.set_xticks(x_positions)
     ax.set_xticklabels(x_tick_labels, rotation=45, ha="right")
 
-    # Ensure the bottom/top of the visible y-range also get labeled
     plt.tight_layout()
     _ensure_y_extremes_labeled(ax)
-
     plt.tight_layout()
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=200)
     plt.close()
 
@@ -191,16 +199,23 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--xmode",
+        choices=["pow2", "scale"],
+        default="pow2",
+        help="X-axis tick values: 'pow2' = 2^scale (default), 'scale' = raw scale",
+    )
+
+    parser.add_argument(
         "-i",
         "--input",
-        default="data.json",
+        default=str(DATA_FILE),
         help="Input JSON file (default: data.json)",
     )
 
     parser.add_argument(
         "-o",
         "--output",
-        default="plot.png",
+        default=str(OUT_FILE),
         help="Output PNG file (default: plot.png)",
     )
 
@@ -210,10 +225,11 @@ def main() -> None:
     output_path = Path(args.output)
 
     rows = load_data(input_path)
-    x_vals, sat, smt, tfg = prepare_series(rows)
+    x_vals, sat, smt, tfg = prepare_series(rows, x_mode=args.xmode)
     plot(x_vals, sat, smt, tfg, output_path, x_label=args.xlabel)
 
     print(f"Wrote {output_path.resolve()}")
+
 
 if __name__ == "__main__":
     main()
