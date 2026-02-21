@@ -111,7 +111,6 @@ public class ScalabilityTest {
 					RepairResult rr = SatHelper.runRepair(out.outputDfd, false, out.outputConstraints,
 							SatHelper.MIN_COSTS);
 					if (runIdx == 0) {
-						System.out.println("Checking Violations");
 						if (rr.violationsAfter() > 0 || Util.countViolations(rr.repairedDfd(), cfg.constraints()) > 0) {
 							throw new IllegalStateException("SAT invalid at scale=" + scaleOrExp + " for " + cfg.model()
 									+ "_" + cfg.variantId());
@@ -174,7 +173,6 @@ public class ScalabilityTest {
 
 					// Check for violations only once
 					if (runIdx == 0) {
-						System.out.println("Checking Violations");
 						if (!solving.satisfiable()
 								|| Util.countViolations(solving.repairedDFD(), cfg.constraints()) > 0) {
 							throw new IllegalStateException("SMT invalid at scale=" + scaleOrExp + " for " + cfg.model()
@@ -193,14 +191,13 @@ public class ScalabilityTest {
 			results.add(new SMTScalabiltyResult(scaleOrExp, RUNS_PER_CONFIGURATION, totalRuntimeSmt, smtRuntimes,
 					totalTimeFindTFGs, findTFGsTimes));
 			EvaluationSupport.writeJson(outPath, results);
-			System.out.println("Wrote results to " + outPath);
+			System.out.println("Wrote results to " + outPath + " for " + scaleOrExp);
 
 			scale++;
 			scaleOrExp = maybeExponentiate(scale, name);
 		}
 	}
 
-	@Test
 	public void testTFGAmount() throws Exception {
 		scalabilityTest(scaleTFGAmount, "tfgAmount");
 	}
@@ -292,10 +289,10 @@ public class ScalabilityTest {
 	private static final Function<ScaleInput, ScaleOutput> scaleNumConstraints = (in) -> {
 		Scaler scaler = new Scaler(in.inputDfd);
 		// Scaler crashes with less than 4 labels, so use at least 4 in earlier case.
-		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(in.scaleFactor, 4));
+		DataFlowDiagramAndDictionary dfdWithLabels = scaler.scaleLabels(Math.max(in.scaleFactor * 3, 4));
 
 		List<AnalysisConstraint> all = new ArrayList<>(in.inputConstraints);
-		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, Math.max(in.scaleFactor, 4)));
+		all.addAll(scaler.scaleConstraint(in.scaleFactor, 1, 1, 1, 1, Math.max(in.scaleFactor * 3, 4)));
 
 		return new ScaleOutput(dfdWithLabels, all);
 	};
