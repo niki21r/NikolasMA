@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Reads ./data.json (array of objects) and writes ./plot.png.
+Reads two JSON files from a folder and writes plot.png into that folder.
 
-- X axis: evenly spaced points (by index)
-- X tick labels: either 2^scale or scale itself (configurable via --xmode)
-- Y axis: milliseconds (log scale)
-- Y tick labels: human-readable time (ms/s/min/h) + log10(value in ms) appended
-- X label text is configurable via CLI arg, e.g.:
-    python plot.py "2^scale"
+Input files (each is a JSON array of objects):
+- smtData.json: objects contain { "scale": int, "totalRuntimeSMT": number, "totalTimeFindTFGs": number }
+- satData.json: objects contain { "scale": int, "totalRuntimeSAT": number }
+
+Behavior:
+- Each curve is plotted independently based on the scales present in its own file.
+- X axis: evenly spaced points (by index) *per series*, labels are from the series' x values (scale or 2^scale).
+- Y axis: milliseconds (log scale), major ticks only at 10^n (integer log10 values),
+  tick labels: human-readable + log10(ms).
+- Y axis always starts at 10^1 (log10=1) and ends at the next decade above the maximum value.
 """
 
 from __future__ import annotations
@@ -19,11 +23,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, LogLocator
 
-
-DATA_FILE = Path("data.json")
-OUT_FILE = Path("plot.png")
+SMT_FILE_NAME = "smtData.json"
+SAT_FILE_NAME = "satData.json"
+OUT_FILE_NAME = "plot.png"
 
 
 def _require_int(obj: Dict[str, Any], key: str) -> int:
@@ -44,7 +48,7 @@ def _require_number(obj: Dict[str, Any], key: str) -> float:
     return float(val)
 
 
-def load_data(path: Path) -> List[Dict[str, Any]]:
+def load_list(path: Path) -> List[Dict[str, Any]]:
     if not path.exists():
         raise FileNotFoundError(f"Could not find {path.resolve()}")
     with path.open("r", encoding="utf-8") as f:
@@ -57,31 +61,48 @@ def load_data(path: Path) -> List[Dict[str, Any]]:
     return data  # type: ignore[return-value]
 
 
-def prepare_series(
+def _x_value(scale: int, x_mode: str) -> int:
+    if x_mode == "pow2":
+        return 2**scale
+    if x_mode == "scale":
+        return scale
+    raise ValueError(f"Unknown x_mode: {x_mode}")
+
+
+def prepare_smt_series(
     rows: List[Dict[str, Any]],
     x_mode: str,
-) -> Tuple[List[int], List[float], List[float], List[float]]:
-    parsed = []
+) -> Tuple[List[int], List[float], List[float]]:
+    parsed: List[Tuple[int, float, float]] = []
     for obj in rows:
         scale = _require_int(obj, "scale")
-        sat = _require_number(obj, "totalRuntimeSAT")
         smt = _require_number(obj, "totalRuntimeSMT")
         tfg = _require_number(obj, "totalTimeFindTFGs")
-        parsed.append((scale, sat, smt, tfg))
+        parsed.append((scale, smt, tfg))
 
     parsed.sort(key=lambda t: t[0])
 
-    if x_mode == "pow2":
-        x_vals = [2 ** t[0] for t in parsed]
-    elif x_mode == "scale":
-        x_vals = [t[0] for t in parsed]
-    else:
-        raise ValueError(f"Unknown x_mode: {x_mode}")
+    x_vals = [_x_value(scale, x_mode) for scale, _, _ in parsed]
+    smt_vals = [smt for _, smt, _ in parsed]
+    tfg_vals = [tfg for _, _, tfg in parsed]
+    return x_vals, smt_vals, tfg_vals
 
-    sat_vals = [t[1] for t in parsed]
-    smt_vals = [t[2] for t in parsed]
-    tfg_vals = [t[3] for t in parsed]
-    return x_vals, sat_vals, smt_vals, tfg_vals
+
+def prepare_sat_series(
+    rows: List[Dict[str, Any]],
+    x_mode: str,
+) -> Tuple[List[int], List[float]]:
+    parsed: List[Tuple[int, float]] = []
+    for obj in rows:
+        scale = _require_int(obj, "scale")
+        sat = _require_number(obj, "totalRuntimeSAT")
+        parsed.append((scale, sat))
+
+    parsed.sort(key=lambda t: t[0])
+
+    x_vals = [_x_value(scale, x_mode) for scale, _ in parsed]
+    sat_vals = [sat for _, sat in parsed]
+    return x_vals, sat_vals
 
 
 def _min_positive(values: List[float]) -> float:
@@ -89,68 +110,59 @@ def _min_positive(values: List[float]) -> float:
     return min(pos) if pos else 1.0
 
 
-def _ensure_y_extremes_labeled(ax, min_log_sep: float = 0.20) -> None:
-    """
-    Add ymin/ymax as major ticks only if they are sufficiently separated
-    from existing major ticks in log10-space (avoids overlapping labels).
-    min_log_sep: minimum separation in decades (0.20 ~ factor 1.58).
-    """
-    ymin, ymax = ax.get_ylim()
-    ticks = [t for t in ax.get_yticks() if t > 0]
-
-    def is_far_enough(v: float) -> bool:
-        lv = math.log10(v)
-        for t in ticks:
-            if abs(lv - math.log10(t)) < min_log_sep:
-                return False
-        return True
-
-    new_ticks = list(ticks)
-    if ymin > 0 and is_far_enough(ymin):
-        new_ticks.append(ymin)
-    if ymax > 0 and is_far_enough(ymax):
-        new_ticks.append(ymax)
-
-    ax.set_yticks(sorted(set(new_ticks)))
-
-
 def plot(
-    x_vals: List[int],
-    sat: List[float],
-    smt: List[float],
-    tfg: List[float],
+    sat_x: List[int],
+    sat_y: List[float],
+    smt_x: List[int],
+    smt_y: List[float],
+    tfg_x: List[int],
+    tfg_y: List[float],
     out_path: Path,
     x_label: str,
 ) -> None:
-    # Log scale cannot show <= 0; replace non-positive with a small epsilon.
-    all_vals = sat + smt + tfg
-    eps = _min_positive(all_vals) / 10.0
+    # Log scale cannot show <= 0; replace non-positive with a small epsilon based on all series.
+    all_vals_raw = sat_y + smt_y + tfg_y
+    eps = _min_positive(all_vals_raw) / 10.0
 
     def sanitize(vals: List[float]) -> List[float]:
         return [v if v > 0 else eps for v in vals]
 
-    sat_s = sanitize(sat)
-    smt_s = sanitize(smt)
-    tfg_s = sanitize(tfg)
+    sat_s = sanitize(sat_y)
+    smt_s = sanitize(smt_y)
+    tfg_s = sanitize(tfg_y)
 
-    # evenly spaced positions, labels are x_vals
-    x_positions = list(range(len(x_vals)))
-    x_tick_labels = [str(v) for v in x_vals]
+    # Determine Y-axis decade bounds: start at 10^1 and extend to next decade above max
+    all_positive = [v for v in (sat_s + smt_s + tfg_s) if v > 0]
+    if not all_positive:
+        raise ValueError("No positive runtime values to plot.")
+
+    max_val = max(all_positive)
+    y_min_decade = 0  # log10 = 1 (10 ms)
+    y_max_decade = int(math.ceil(math.log10(max_val)))+1
+    y_min = 10 ** y_min_decade
+    y_max = 10 ** y_max_decade
 
     plt.figure(figsize=(10, 6))
-    plt.plot(x_positions, sat_s, marker="o", linestyle="-", label="totalRuntimeSAT")
-    plt.plot(x_positions, smt_s, marker="s", linestyle="-", label="totalRuntimeSMT")
-    plt.plot(x_positions, tfg_s, marker="^", linestyle="-", label="totalTimeFindTFGs")
-
     ax = plt.gca()
     ax.set_yscale("log")
+
+    # Only integer log10 major ticks (10^n), no minor ticks
+    ax.yaxis.set_major_locator(LogLocator(base=10.0, subs=(1.0,)))
+    ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=[]))
+
+    # Force decade boundaries
+    ax.set_ylim(y_min, y_max)
 
     # Human-readable time + log10(ms) on the same tick label
     def time_plus_log_formatter(ms: float, _) -> str:
         if ms <= 0:
             return ""
 
-        # human readable
+        logv = math.log10(ms)
+        # Defensive: only label integer-decade ticks
+        if not math.isclose(logv, round(logv), rel_tol=1e-9, abs_tol=1e-12):
+            return ""
+
         if ms < 1000:
             human = f"{ms:.0f} ms"
         else:
@@ -165,24 +177,56 @@ def plot(
                     h = m / 60.0
                     human = f"{h:.1f} h"
 
-        logv = math.log10(ms)
-        return f"{human}  (log10={logv:.2f})"
+        return f"{human}  (log10={logv:.0f})"
 
     ax.yaxis.set_major_formatter(FuncFormatter(time_plus_log_formatter))
 
-    ax.set_xlabel(x_label)
-    ax.set_ylabel("Runtime (log scale)")
-    ax.set_title("Runtimes vs scale")
-    ax.grid(True, which="major", linestyle="--", linewidth=0.5)
-    ax.legend()
+    # Plot each series independently on its own evenly-spaced index positions.
+    if sat_x and sat_s:
+        sat_pos = list(range(len(sat_x)))
+        plt.plot(
+            sat_pos,
+            sat_s,
+            marker="o",
+            linestyle="-",
+            label="Total runtime of Niehues et al. approach",
+        )
+
+    if smt_x and smt_s:
+        smt_pos = list(range(len(smt_x)))
+        plt.plot(
+            smt_pos,
+            smt_s,
+            marker="s",
+            linestyle="-",
+            label="Total runtime of our approach",
+        )
+
+    if tfg_x and tfg_s:
+        tfg_pos = list(range(len(tfg_x)))
+        plt.plot(
+            tfg_pos,
+            tfg_s,
+            marker="^",
+            linestyle="-",
+            label="Total time to find TFGs",
+        )
+
+    # X ticks: use the longest series for a single, consistent tick set.
+    series_for_ticks = max([sat_x, smt_x, tfg_x], key=len)
+    x_positions = list(range(len(series_for_ticks)))
+    x_tick_labels = [str(v) for v in series_for_ticks]
 
     ax.set_xticks(x_positions)
     ax.set_xticklabels(x_tick_labels, rotation=45, ha="right")
 
-    plt.tight_layout()
-    _ensure_y_extremes_labeled(ax)
-    plt.tight_layout()
+    ax.set_xlabel(x_label)
+    ax.set_ylabel("Total runtime in ms (log scale)")
+    ax.set_title("")
+    ax.grid(True, which="major", linestyle="--", linewidth=0.5)
+    ax.legend()
 
+    plt.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=200)
     plt.close()
@@ -190,6 +234,13 @@ def plot(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "folder",
+        nargs="?",
+        default=".",
+        help='Folder containing smtData.json and satData.json (default: ".")',
+    )
 
     parser.add_argument(
         "xlabel",
@@ -201,34 +252,43 @@ def main() -> None:
     parser.add_argument(
         "--xmode",
         choices=["pow2", "scale"],
-        default="pow2",
-        help="X-axis tick values: 'pow2' = 2^scale (default), 'scale' = raw scale",
-    )
-
-    parser.add_argument(
-        "-i",
-        "--input",
-        default=str(DATA_FILE),
-        help="Input JSON file (default: data.json)",
-    )
-
-    parser.add_argument(
-        "-o",
-        "--output",
-        default=str(OUT_FILE),
-        help="Output PNG file (default: plot.png)",
+        default="scale",
+        help="X-axis tick values: 'pow2' = 2^scale, 'scale' = raw scale (default: scale)",
     )
 
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    output_path = Path(args.output)
+    folder = Path(args.folder)
+    if not folder.exists():
+        raise FileNotFoundError(f"Folder does not exist: {folder.resolve()}")
+    if not folder.is_dir():
+        raise NotADirectoryError(f"Not a folder: {folder.resolve()}")
 
-    rows = load_data(input_path)
-    x_vals, sat, smt, tfg = prepare_series(rows, x_mode=args.xmode)
-    plot(x_vals, sat, smt, tfg, output_path, x_label=args.xlabel)
+    smt_path = folder / SMT_FILE_NAME
+    sat_path = folder / SAT_FILE_NAME
+    out_path = folder / OUT_FILE_NAME
 
-    print(f"Wrote {output_path.resolve()}")
+    smt_rows = load_list(smt_path)
+    sat_rows = load_list(sat_path)
+
+    smt_x, smt_y, tfg_y = prepare_smt_series(smt_rows, x_mode=args.xmode)
+    sat_x, sat_y = prepare_sat_series(sat_rows, x_mode=args.xmode)
+
+    # tfg shares x with smt file
+    tfg_x = smt_x
+
+    plot(
+        sat_x=sat_x,
+        sat_y=sat_y,
+        smt_x=smt_x,
+        smt_y=smt_y,
+        tfg_x=tfg_x,
+        tfg_y=tfg_y,
+        out_path=out_path,
+        x_label=args.xlabel,
+    )
+
+    print(f"Wrote {out_path.resolve()}")
 
 
 if __name__ == "__main__":

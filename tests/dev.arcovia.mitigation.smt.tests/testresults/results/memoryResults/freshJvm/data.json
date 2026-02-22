@@ -1,0 +1,154 @@
+[ {
+  "dagSize" : 1023,
+  "peakRssBytes" : 163811328
+}, {
+  "dagSize" : 1023,
+  "peakRssBytes" : 163348480
+}, {
+  "dagSize" : 2016,
+  "peakRssBytes" : 161845248
+}, {
+  "dagSize" : 843,
+  "peakRssBytes" : 163471360
+}, {
+  "dagSize" : 18653,
+  "peakRssBytes" : 168075264
+}, {
+  "dagSize" : 8294,
+  "peakRssBytes" : 163889152
+}, {
+  "dagSize" : 9108,
+  "peakRssBytes" : 166461440
+}, {
+  "dagSize" : 7662,
+  "peakRssBytes" : 169435136
+}, {
+  "dagSize" : 9075,
+  "peakRssBytes" : 168448000
+}, {
+  "dagSize" : 9075,
+  "peakRssBytes" : 167292928
+}, {
+  "dagSize" : 17311,
+  "peakRssBytes" : 169095168
+}, {
+  "dagSize" : 7653,
+  "peakRssBytes" : 167763968
+}, {
+  "dagSize" : 8532,
+  "peakRssBytes" : 165703680
+}, {
+  "dagSize" : 7763,
+  "peakRssBytes" : 164208640
+}, {
+  "dagSize" : 9196,
+  "peakRssBytes" : 166928384
+}, {
+  "dagSize" : 9196,
+  "peakRssBytes" : 165908480
+}, {
+  "dagSize" : 17519,
+  "peakRssBytes" : 169365504
+}, {
+  "dagSize" : 7762,
+  "peakRssBytes" : 165359616
+}, {
+  "dagSize" : 539,
+  "peakRssBytes" : 152330240
+}, {
+  "dagSize" : 299,
+  "peakRssBytes" : 150708224
+}, {
+  "dagSize" : 352,
+  "peakRssBytes" : 152711168
+}, {
+  "dagSize" : 352,
+  "peakRssBytes" : 150036480
+}, {
+  "dagSize" : 707,
+  "peakRssBytes" : 151367680
+}, {
+  "dagSize" : 286,
+  "peakRssBytes" : 157806592
+}, {
+  "dagSize" : 198,
+  "peakRssBytes" : 152096768
+}, {
+  "dagSize" : 396,
+  "peakRssBytes" : 152379392
+}, {
+  "dagSize" : 6523,
+  "peakRssBytes" : 167641088
+}, {
+  "dagSize" : 7733,
+  "peakRssBytes" : 168161280
+}, {
+  "dagSize" : 14634,
+  "peakRssBytes" : 169414656
+}, {
+  "dagSize" : 6557,
+  "peakRssBytes" : 166502400
+}, {
+  "dagSize" : 15660,
+  "peakRssBytes" : 170299392
+}, {
+  "dagSize" : 16524,
+  "peakRssBytes" : 168865792
+}, {
+  "dagSize" : 1126,
+  "peakRssBytes" : 157556736
+}, {
+  "dagSize" : 1331,
+  "peakRssBytes" : 159694848
+}, {
+  "dagSize" : 2583,
+  "peakRssBytes" : 158412800
+}, {
+  "dagSize" : 1109,
+  "peakRssBytes" : 158916608
+}, {
+  "dagSize" : 6663,
+  "peakRssBytes" : 167661568
+}, {
+  "dagSize" : 7887,
+  "peakRssBytes" : 167792640
+}, {
+  "dagSize" : 15124,
+  "peakRssBytes" : 170016768
+}, {
+  "dagSize" : 6627,
+  "peakRssBytes" : 166068224
+}, {
+  "dagSize" : 38005,
+  "peakRssBytes" : 176918528
+}, {
+  "dagSize" : 17190,
+  "peakRssBytes" : 171966464
+}, {
+  "dagSize" : 9018,
+  "peakRssBytes" : 166211584
+}, {
+  "dagSize" : 18036,
+  "peakRssBytes" : 170184704
+}, {
+  "dagSize" : 289,
+  "peakRssBytes" : 154038272
+}, {
+  "dagSize" : 341,
+  "peakRssBytes" : 152244224
+}, {
+  "dagSize" : 341,
+  "peakRssBytes" : 152645632
+}, {
+  "dagSize" : 672,
+  "peakRssBytes" : 153731072
+}, {
+  "dagSize" : 281,
+  "peakRssBytes" : 148750336
+}, {
+  "dagSize" : 180,
+  "peakRssBytes" : 154275840
+}, {
+  "dagSize" : 360,
+  "peakRssBytes" : 154329088
+} ]
