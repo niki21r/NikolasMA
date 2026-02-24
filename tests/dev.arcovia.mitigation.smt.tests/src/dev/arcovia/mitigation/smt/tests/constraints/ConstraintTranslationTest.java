@@ -35,7 +35,7 @@ public class ConstraintTranslationTest {
 		List<AnalysisConstraint> constraint = constraintMap.get(7);
 
 		Preprocess preprocess = new Preprocess();
-		PreprocessingResult pre = preprocess.preprocess(dfd, constraint);
+		PreprocessingResult pre = preprocess.preprocess(dfd, constraint, false);
 		Config config = new ConfigBuilder().build();
 
 		SMT smt = new SMT(pre, constraint, config);

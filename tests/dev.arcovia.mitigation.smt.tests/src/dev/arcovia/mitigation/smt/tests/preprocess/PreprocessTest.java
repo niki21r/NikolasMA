@@ -54,7 +54,7 @@ public class PreprocessTest {
 				DataFlowDiagram dfd = dfdAndDD.dataFlowDiagram();
 				DataDictionary dd = dfdAndDD.dataDictionary();
 				Preprocess pre = new Preprocess();
-				PreprocessingResult preprocessingResult = pre.preprocess(dfdAndDD, constraint);
+				PreprocessingResult preprocessingResult = pre.preprocess(dfdAndDD, constraint, false);
 
 				DFDModelResourceProvider dfdModelResourceProvider = new DFDModelResourceProvider(
 						preprocessingResult.dfd().dataDictionary(), preprocessingResult.dfd().dataFlowDiagram());
@@ -107,8 +107,6 @@ public class PreprocessTest {
 
 					}
 				}
-				// No vertex type selectors in tuhh set
-				assertTrue(preprocessingResult.relevantNodeTypes().isEmpty());
 				// Assert labels get properly extracted from dfd
 				assertEquals(preprocessingResult.relevantDataLabelsAdd(),
 						Util.getRelevantDataLabelsAdd(preprocessingResult.dfd().dataDictionary(), constraint));

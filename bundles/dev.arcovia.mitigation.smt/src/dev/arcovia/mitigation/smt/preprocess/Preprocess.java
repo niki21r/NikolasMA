@@ -67,11 +67,13 @@ public class Preprocess {
 				logger.error("Variable detected in Constraints. Currently not supported. Exiting");
 				System.exit(1);
 			}
+			// First add label type if it does not exist
 			String type = data.characteristicType().toString();
 			if (!Util.containsLabelType(dd, type)) {
 				LabelTypeOperation modifyLabelType = new LabelTypeOperation(type);
 				modifyLabelType.doOperation(dfd);
 			}
+			// Now add label
 			String value = data.characteristicValue().toString();
 			LabelType parentType = Util.getLabelTypeByName(dd, type);
 			if (!Util.containsLabel(parentType, value)) {
@@ -92,20 +94,24 @@ public class Preprocess {
 	 * @return Record Type that has all relevant preprocessing information
 	 */
 	public PreprocessingResult preprocess(DataFlowDiagramAndDictionary dfdIn,
-			List<AnalysisConstraint> analysisConstraints) {
+			List<AnalysisConstraint> analysisConstraints, boolean onlyViolatingTFGs) {
 		dfdIn = addMissingLabels(dfdIn, analysisConstraints);
 
 		DataFlowDiagram dfd = dfdIn.dataFlowDiagram();
 		DataDictionary dd = dfdIn.dataDictionary();
 		Map<Pin, List<AbstractAssignment>> outPinToAss = Util.outPinToAss(dfd.getNodes());
 
+		// Determine relevant labels based on confidentiality constraints. 
+		// Labels that appear in negated Vertex Selectors. Adding them could repair violations.
 		Set<Label> relevantNodeLabelsAdd = Util.getRelevantNodeLabelsAdd(dd, analysisConstraints);
+		// Labels that appear in non-negated Vertex Selectors. Removing them could repair violations.
 		Set<Label> relevantNodeLabelsRemove = Util.getRelevantNodeLabelsRemove(dd, analysisConstraints);
+		// Labels that appear in negated Data Selectors. Adding them could repair violations.
 		Set<Label> relevantDataLabelsAdd = Util.getRelevantDataLabelsAdd(dd, analysisConstraints);
+		// Labels that appear in non-negated Data Selectors. Removing them could repair violations.
 		Set<Label> relevantDataLabelsRemove = Util.getRelevantDataLabelsRemove(dd, analysisConstraints);
-		List<DFDVertexType> relevantNodeTypes = List.copyOf(Util.getRelevantVertexTypes(analysisConstraints));
 
-		// Labels that are not constraint-relevant also need to be considered if they
+		// Data Labels that are not constraint-relevant also need to be considered if they
 		// can modify relevant labels
 		// by being referenced in assign statements that modify these labels
 		// Transitively, any labels that could modify such non-constraint-relevant
@@ -125,6 +131,7 @@ public class Preprocess {
 					continue;
 				}
 				Set<LabelReference> labelReferences = Util.reduceToLabelReferences(assign.getTerm());
+				// Add the labels to the relevant data labels
 				for (LabelReference labelRef : labelReferences) {
 					Label label = labelRef.getLabel();
 					if (!relevantDataLabelsAdd.contains(label)) {
@@ -147,23 +154,27 @@ public class Preprocess {
 		long after = System.currentTimeMillis();
 		long findTFGsTime = after - before;
 
-		// Not sure if only violating TFGs can be considered so we exclude this for now.
-		boolean onlyViolatingTFGs = false;
+		// There are cases where inspecting only violating TFGs can lead to not finding minimal repairs. 
+		// We suspect that these cases are exactly those, where relevantNodeLabelsAdd and relevantNodeLabelsRemove are not disjoint and 
+		// the addition and removal of node labels is allowed OR relevantDataLabelsAdd and relevantDataLabelsRemove are not disjoint and
+		// the addition and removal of data labels is allowed
 		Set<DFDTransposeFlowGraph> tfgs;
-		// if (Collections.disjoint(relevantDataLabelsAdd, relevantDataLabelsRemove) &&
-		// Collections.disjoint(relevantNodeLabelsAdd, relevantDataLabelsRemove) ) {
 		if (onlyViolatingTFGs) {
+			logger.warn("Encoding only violating TFGs may lead to non-minimal repairs");
+			// Label propagation needs to be done for constraint evaluation
 			flowGraphs.evaluate();
 			Set<DFDTransposeFlowGraph> violatingTFGs = new HashSet<>();
 			for (int i = 0; i < analysisConstraints.size(); i++) {
 				AnalysisConstraint analysisConstraint = analysisConstraints.get(i);
 				List<DSLResult> violations = analysisConstraint.findViolations(flowGraphs);
+				// Add all violating tfgs
 				for (int j = 0; j < violations.size(); j++) {
 					violatingTFGs.add((DFDTransposeFlowGraph) violations.get(j).getTransposeFlowGraph());
 				}
 			}
 			tfgs = violatingTFGs;
 		} else {
+			// If all tfgs are considered the TFGs do not have to be evaluated as we model the label propagation ourselves
 			tfgs = flowGraphs.getTransposeFlowGraphs().stream().filter(DFDTransposeFlowGraph.class::isInstance)
 					.map(DFDTransposeFlowGraph.class::cast).collect(Collectors.toSet());
 		}
@@ -173,40 +184,52 @@ public class Preprocess {
 		Map<DFDVertex, List<TFGFlow>> allTFGFlowsToVertex = new HashMap<>();
 		// Create flows for each tfg
 		for (DFDTransposeFlowGraph tfg : tfgs) {
+			// Find all vertices for this tfg
 			List<DFDVertex> vertices = tfg.getVertices().stream().filter(DFDVertex.class::isInstance)
 					.map(DFDVertex.class::cast).toList();
-			Map<Pin, TFGFlow> outPinToTFGFlowMap = new HashMap<>();
-			Map<TFGFlow, Pin> tfgFlowToInPinMap = new HashMap<>();
+			// All tfg flows for this tfg.
 			List<TFGFlow> allTFGFlows = new ArrayList<>();
-			// Create flows for each dfdvertex
+			// Iterate over vertices backwards. This is crucial because the vertex API offers better support 
+			// for interfacing with preceeding vertices than with suceeding ones. It also eases the creation of correct
+			// forwarding and assign relationships between flows. 
 			for (int j = vertices.size() - 1; j >= 0; j--) {
 				DFDVertex vertex = vertices.get(j);
+				// Pins that lead to preceeding vertices
 				Map<Pin, DFDVertex> previousVerticesMap = vertex.getPinDFDVertexMap();
+				// Input pins of this vertex and their flow
 				Map<Pin, Flow> pinFlowMap = vertex.getPinFlowMap();
-				// Create a flow for each incoming pin that is connected to a previous dfd
-				// vertex
+				// Create a flow for each incoming pin that is connected to a previous vertex
 				for (Entry<Pin, Flow> pinFlow : pinFlowMap.entrySet()) {
+					// Find DFD flow that this TFG Flow should model
 					Flow flow = pinFlow.getValue();
+					// Create a new TFG Flow that represents the occurence of said flow for this TFG
 					TFGFlow tfgFlow = new TFGFlow(flow.getSourcePin(),
 							previousVerticesMap.get(flow.getDestinationPin()), flow.getDestinationPin(), vertex, flow);
-					outPinToTFGFlowMap.put(flow.getSourcePin(), tfgFlow);
-					tfgFlowToInPinMap.put(tfgFlow, flow.getDestinationPin());
 					allTFGFlows.add(tfgFlow);
+					// Also keep track of vertices that flows flow to as this is needed for later constraint encoding
 					List<TFGFlow> allTFGFlowsToThisVertex = allTFGFlowsToVertex.getOrDefault(vertex,
 							new ArrayList<TFGFlow>());
+					// For this vertex
 					allTFGFlowsToThisVertex.add(tfgFlow);
+					// For all vertices
 					allTFGFlowsToVertex.put(vertex, allTFGFlowsToThisVertex);
 				}
 				// Create mappings, so we can later know which tfg flows are forwarded by which
-				// and on which flows
-				// assign statements have to be evaluated.
+				// and on which flows assign statements have to be evaluated.
+				// Find all flows that leave this vertex because they may forward or Assign. 
+				// They exist because they were already created when handling the succeeding vertex
 				List<TFGFlow> thisVertexOutgoingFlows = allTFGFlows.stream().filter(x -> x.srcVertex.equals(vertex))
 						.toList();
+				// Also find all incoming flows to connect them to the outgoing ones
 				List<TFGFlow> allTFGFlowsToThisVertex = allTFGFlowsToVertex.getOrDefault(vertex,
 						new ArrayList<TFGFlow>());
+				// For every outgoing flow
 				for (TFGFlow tfgFlow : thisVertexOutgoingFlows) {
+					// For every assignment of its source pin
 					List<AbstractAssignment> thisPinAssigns = outPinToAss.get(tfgFlow.srcPin);
 					for (AbstractAssignment assign : thisPinAssigns) {
+						// A forward or Assign assignment forwards exactly those flows that flow to a input pin that is referenced
+						// by the assignment within the same tfg
 						if (assign instanceof ForwardingAssignment cast) {
 							List<TFGFlow> thisFlowForwards = allTFGFlowsToThisVertex.stream()
 									.filter(x -> cast.getInputPins().contains(x.dstPin)).toList();
@@ -224,8 +247,7 @@ public class Preprocess {
 		}
 
 		PreprocessingResult result = new PreprocessingResult(dfdIn, allFlows, allVertices, relevantNodeLabelsAdd,
-				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, relevantNodeTypes,
-				allTFGFlowsToVertex, findTFGsTime);
+				relevantNodeLabelsRemove, relevantDataLabelsAdd, relevantDataLabelsRemove, allTFGFlowsToVertex, findTFGsTime);
 
 		return result;
 	}

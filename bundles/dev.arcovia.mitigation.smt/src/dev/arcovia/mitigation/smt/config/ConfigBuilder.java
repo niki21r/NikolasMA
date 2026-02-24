@@ -1,21 +1,34 @@
 package dev.arcovia.mitigation.smt.config;
 
+/**
+ * Config Builder for convenient config creation.
+ * @author Nikolas Rank
+ *
+ */
+
 public class ConfigBuilder {
 
-	private boolean onlyRelevantLabels = true;
+	// Considering only those modifications that can repair confidentiality violations is faster
+	private boolean onlyRelevantModifications = true;
+	// Consider complete solution as default
 	private boolean addNodeLabels = true;
 	private boolean removeNodeLabels = true;
 	private boolean addDataLabels = true;
 	private boolean removeDataLabels = true;
+	// Default cost
 	private CostConfig costConfig = new CostConfigBuilder().build();
+	// These introduce runtime overhead
 	private boolean checkForViolationsAfter = false;
 	private boolean findExpressionTreeSize = false;
+	// It is not proven that inspecting only violating TFGs leads to minimal repairs for all cases
+	// Therefore default false
+	private boolean onlyViolatingTFGs = false;
 
 	public ConfigBuilder() {
 	}
 
-	public ConfigBuilder onlyRelevantLabels(boolean onlyRelevantLabels) {
-		this.onlyRelevantLabels = onlyRelevantLabels;
+	public ConfigBuilder onlyRelevantModifications(boolean onlyRelevantModifications) {
+		this.onlyRelevantModifications = onlyRelevantModifications;
 		return this;
 	}
 
@@ -53,10 +66,15 @@ public class ConfigBuilder {
 		this.findExpressionTreeSize = findExpressionTreeSize;
 		return this;
 	}
+	
+	public ConfigBuilder onlyViolatingTFGs(boolean onlyViolatingTFGs) {
+		this.onlyViolatingTFGs = onlyViolatingTFGs;
+		return this;
+	}
 
 	public Config build() {
-		return new Config(onlyRelevantLabels, addNodeLabels, removeNodeLabels, addDataLabels, removeDataLabels,
-				costConfig, checkForViolationsAfter, findExpressionTreeSize);
+		return new Config(onlyRelevantModifications, addNodeLabels, removeNodeLabels, addDataLabels, removeDataLabels,
+				costConfig, checkForViolationsAfter, findExpressionTreeSize, onlyViolatingTFGs);
 	}
 
 }

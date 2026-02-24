@@ -18,7 +18,7 @@ class ConfigBuilderTest {
 	void builder_defaults_matchConstructorDefaults() {
 		Config cfg = new ConfigBuilder().build();
 
-		assertTrue(cfg.isOnlyRelevantLabels());
+		assertTrue(cfg.isOnlyRelevantModifications());
 		assertTrue(cfg.isAddNodeLabels());
 		assertTrue(cfg.isRemoveNodeLabels());
 		assertTrue(cfg.isAddDataLabels());
@@ -28,17 +28,18 @@ class ConfigBuilderTest {
 
 		assertFalse(cfg.isCheckForViolationsAfter());
 		assertFalse(cfg.isFindExpressionTreeSize());
+		assertFalse(cfg.isOnlyViolatingTFGs());
 	}
 
 	@Test
 	void builder_appliesAllFlagsAndCostConfig() {
 		CostConfig cost = new CostConfigBuilder().weighTFGs(true).build();
 
-		Config cfg = new ConfigBuilder().onlyRelevantLabels(false).addNodeLabels(false).removeNodeLabels(false)
+		Config cfg = new ConfigBuilder().onlyRelevantModifications(false).addNodeLabels(false).removeNodeLabels(false)
 				.addDataLabels(false).removeDataLabels(false).costConfig(cost).checkForViolationsAfter(true)
-				.findExpressionTreeSize(true).build();
+				.findExpressionTreeSize(true).onlyViolatingTFGs(true).build();
 
-		assertFalse(cfg.isOnlyRelevantLabels());
+		assertFalse(cfg.isOnlyRelevantModifications());
 		assertFalse(cfg.isAddNodeLabels());
 		assertFalse(cfg.isRemoveNodeLabels());
 		assertFalse(cfg.isAddDataLabels());
@@ -48,6 +49,7 @@ class ConfigBuilderTest {
 
 		assertTrue(cfg.isCheckForViolationsAfter());
 		assertTrue(cfg.isFindExpressionTreeSize());
+		assertTrue(cfg.isOnlyViolatingTFGs());
 	}
 
 	@Test
@@ -55,11 +57,11 @@ class ConfigBuilderTest {
 		CostConfig cost1 = new CostConfigBuilder().weighTFGs(false).build();
 		CostConfig cost2 = new CostConfigBuilder().weighTFGs(true).build();
 
-		Config cfg = new ConfigBuilder().onlyRelevantLabels(false).onlyRelevantLabels(true).costConfig(cost1)
+		Config cfg = new ConfigBuilder().onlyRelevantModifications(false).onlyRelevantModifications(true).costConfig(cost1)
 				.costConfig(cost2).checkForViolationsAfter(false).checkForViolationsAfter(true)
 				.findExpressionTreeSize(false).findExpressionTreeSize(true).build();
 
-		assertTrue(cfg.isOnlyRelevantLabels());
+		assertTrue(cfg.isOnlyRelevantModifications());
 		assertSame(cost2, cfg.getCostConfig());
 		assertTrue(cfg.isCheckForViolationsAfter());
 		assertTrue(cfg.isFindExpressionTreeSize());

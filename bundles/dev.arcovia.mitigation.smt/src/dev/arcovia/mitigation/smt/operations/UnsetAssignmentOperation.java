@@ -7,6 +7,11 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.datadictionary.UnsetAssignment;
 
+/**
+ * This operation creates a Unset Assignment for a specific label and pin
+ * @author Nikolas Rank
+ *
+ */
 public final class UnsetAssignmentOperation extends AbstractPinAssignmentOperation<UnsetAssignment> {
 
     public UnsetAssignmentOperation(Pin pin, Label label) { super(pin, label); }

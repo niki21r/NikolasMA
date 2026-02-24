@@ -47,7 +47,7 @@ public class SMTGetterTest {
 				}
 				DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
 				Preprocess preprocess = new Preprocess();
-				PreprocessingResult pre = preprocess.preprocess(dfd, constraint);
+				PreprocessingResult pre = preprocess.preprocess(dfd, constraint, false);
 				DataFlowDiagramAndDictionary dfdWithAddedLabels = pre.dfd();
 				Config config = new ConfigBuilder().build();
 

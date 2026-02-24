@@ -13,7 +13,7 @@ import tools.mdsd.library.standalone.initialization.StandaloneInitializationExce
 
 /**
  * @author Nikolas Rank This class provides a static entrypoint into the solver.
- *         Given a DFD, and a list of constraints it returns a repaired DFD.
+ *         Given a DFD, a list of constraints and a config it returns a repaired DFD.
  *
  */
 public class Mitigation {
@@ -22,17 +22,18 @@ public class Mitigation {
 	 * Repairs DFD. First it preprocesses, using existing DFA tooling, creates
 	 * mappings of DFD entities to integers, and finally repairs
 	 * 
-	 * @param dfd         Input dataflow Diagram
+	 * @param dfd Input dataflow Diagram
 	 * @param constraints Constraints that the output needs to adhere too
+	 * @param config Chosen config. If null, the default config is used.
 	 * @throws StandaloneInitializationException If input DFD is incorrect
 	 */
 	public static SolvingResult run(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints,
 			Config config) throws StandaloneInitializationException {
-		Preprocess preprocces = new Preprocess();
-		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints);
 		if (config == null) {
 			config = new ConfigBuilder().build();
 		}
+		Preprocess preprocces = new Preprocess();
+		PreprocessingResult preprocessingResult = preprocces.preprocess(dfd, constraints, config.isOnlyViolatingTFGs());
 		SMT smt = new SMT(preprocessingResult, constraints, config);
 		return smt.repair();
 	}

@@ -17,10 +17,19 @@ import com.microsoft.z3.BoolExpr;
 
 import dev.arcovia.mitigation.smt.SMT;
 
+/**
+ * Encodes selector matching logic by choosing the correct handler.
+ * @author Nikolas Rank
+ *
+ */
 public final class DefaultSelectorTranslator implements SelectorTranslator {
 	private final Map<Class<?>, AbstractSelectorHandler<?>> handlers = new HashMap<>();
 	private final SMT smt;
 
+	/**
+	 * Register implemented selectors
+	 * @param smt SMT object that requests translation
+	 */
 	public DefaultSelectorTranslator(SMT smt) {
 		this.smt = smt;
 
@@ -33,6 +42,12 @@ public final class DefaultSelectorTranslator implements SelectorTranslator {
 		register(VertexCharacteristicsSelector.class, new VertexCharacteristicsHandler());
 	}
 
+	/**
+	 * Registers a handler for a given selector class
+	 * @param <T> Type of the DSL selector
+	 * @param cls Class of the DSL selector
+	 * @param h Handler that should translate selectors of given class.
+	 */
 	private <T extends AbstractSelector> void register(Class<T> cls, AbstractSelectorHandler<T> h) {
 		handlers.put(cls, h);
 	}
@@ -48,6 +63,11 @@ public final class DefaultSelectorTranslator implements SelectorTranslator {
 		return h.encode(selector, vertex, role, smt);
 	}
 
+	/**
+	 * Finds correct handler for selector of given class
+	 * @param cls Selector class
+	 * @return Handler for selectors of this class
+	 */
 	private AbstractSelectorHandler<?> findHandler(Class<?> cls) {
 		var h = handlers.get(cls);
 		if (h != null)

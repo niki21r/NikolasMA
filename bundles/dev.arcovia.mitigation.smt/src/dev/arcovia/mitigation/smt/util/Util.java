@@ -126,12 +126,12 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant Node labels of a datadictionary, i.e. those appearing in
-	 * vertex constraints
+	 * Finds relevant Node labels of a datadictionary, i.e. those appearing in negated
+	 * vertex selectors
 	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
-	 * @return List of relevant node labels
+	 * @return List of relevant node labels to add
 	 */
 	public static Set<Label> getRelevantNodeLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantNodeCharacteristics = getAnalysisNodeCharacteristics(constraints,
@@ -141,11 +141,11 @@ public class Util {
 
 	/**
 	 * Finds relevant Node labels of a datadictionary, i.e. those appearing in
-	 * vertex constraints
+	 * non-negated vertex selectors
 	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
-	 * @return List of relevant node labels
+	 * @return List of relevant node labels to remove
 	 */
 	public static Set<Label> getRelevantNodeLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantNodeCharacteristics = getAnalysisNodeCharacteristics(constraints,
@@ -154,12 +154,10 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in data
-	 * constraints
-	 * 
+	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in negated data selectors	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
-	 * @return List of relevant Data labels
+	 * @return List of relevant Data labels to add
 	 */
 	public static Set<Label> getRelevantDataLabelsAdd(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantDataCharacteristics = getAnalysisDataCharacteristics(constraints,
@@ -168,12 +166,11 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in data
-	 * constraints
+	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in non-negated data selectors
 	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
-	 * @return List of relevant Data labels
+	 * @return List of relevant Data labels to remove
 	 */
 	public static Set<Label> getRelevantDataLabelsRemove(DataDictionary dd, List<AnalysisConstraint> constraints) {
 		List<CharacteristicsSelectorData> relevantDataCharacteristics = getAnalysisDataCharacteristics(constraints,
@@ -182,10 +179,11 @@ public class Util {
 	}
 
 	/**
-	 * Given a list of analysis constraints, extracts vertex characteristics
+	 * Given a list of analysis constraints, extracts vertex characteristics that are either negated or non-negated
 	 * 
 	 * @param constraints Incoming constraints
-	 * @return List of vertex characteristics in constraints
+	 * @param add Whether labels that need to be added should be found. This means that labels from negated selectors are returned
+	 * @return List of requested vertex characteristics in constraints
 	 */
 	private static List<CharacteristicsSelectorData> getAnalysisNodeCharacteristics(
 			List<AnalysisConstraint> constraints, boolean add) {
@@ -208,9 +206,10 @@ public class Util {
 	}
 
 	/**
-	 * Given a list of analysis constraints, extracts data characteristics
+	 * Given a list of analysis constraints, extracts data characteristics that are either negated or non-negated
 	 * 
 	 * @param constraints Incoming constraints
+	 * @param add Whether labels that need to be added should be found. This means that labels from negated selectors are returned
 	 * @return List of data characteristics in constraints
 	 */
 	private static List<CharacteristicsSelectorData> getAnalysisDataCharacteristics(
@@ -233,16 +232,28 @@ public class Util {
 		return characteristicsSelectorData;
 	}
 
+	/**
+	 * Checks if a list of constraints contains a DataNameSelector
+	 * @param constraints 
+	 */
 	public static boolean containsFlowNameSelector(List<AnalysisConstraint> constraints) {
 		return constraints.stream().flatMap(x -> x.getDataSourceSelectors().getSelectors().stream())
 				.anyMatch(VariableNameSelector.class::isInstance);
 	}
-
+	
+	/**
+	 * Checks if a list of constraints contains a VertexNameSelector
+	 * @param constraints 
+	 */
 	public static boolean containsVertexNameSelector(List<AnalysisConstraint> constraints) {
 		return constraints.stream().flatMap(x -> x.getVertexDestinationSelectors().getSelectors().stream())
 				.anyMatch(VertexNameSelector.class::isInstance);
 	}
 
+	/**
+	 * Checks if a list of constraints contains a Vertex Type Selector
+	 * @param constraints
+	 */
 	public static boolean containsVertexTypeSelector(List<AnalysisConstraint> constraints) {
 		return constraints.stream()
 				.flatMap(c -> Stream.concat(c.getVertexDestinationSelectors().getSelectors().stream(),
@@ -264,7 +275,13 @@ public class Util {
 		all.addAll(getAnalysisNodeCharacteristics(constraints, true));
 		return all;
 	}
-
+	
+	/**
+	 * Transforms a map of string representations of labels to their concrete obejcts
+	 * @param dd that the labels will be searched for
+	 * @param labelCosts Input map with strings
+	 * @return map with label objects
+	 */
 	public static Map<Label, Integer> transformLabelCosts(DataDictionary dd, Map<String, Integer> labelCosts) {
 		Map<Label, Integer> result = new HashMap<>();
 		labelCosts.forEach((string, integer) -> result
@@ -288,12 +305,19 @@ public class Util {
 	 * 
 	 * @param labelType Type of the label
 	 * @param name      Name of the label
-	 * @return Label, if exists, else crashes
+	 * @return Label, if exists, else null
 	 */
 	private static Label getLabelByName(LabelType labelType, String name) {
 		return labelType.getLabel().stream().filter(x -> x.getEntityName().equals(name)).findFirst().orElse(null);
 	}
 
+	/**
+	 * Finds a label by name
+	 * @param dd that will be searched
+	 * @param typeName of the label type
+	 * @param labelName of the label
+	 * @return The label object
+	 */
 	private static Label getLabelByName(DataDictionary dd, String typeName, String labelName) {
 		LabelType labelType = getLabelTypeByName(dd, typeName);
 		return getLabelByName(labelType, labelName);
@@ -372,6 +396,11 @@ public class Util {
 
 	}
 
+	/**
+	 * Reduces a Assignment term to its LabelReferences and discards all other terms
+	 * @param term Input term
+	 * @return All LabelReferences in this Term
+	 */
 	public static Set<LabelReference> reduceToLabelReferences(Term term) {
 		if (term instanceof TRUE)
 			return new HashSet<>();

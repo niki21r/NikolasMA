@@ -2,8 +2,15 @@ package dev.arcovia.mitigation.smt.config;
 
 import java.util.Map;
 
+
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
+
+/**
+ * Contains a cost function configuration
+ * @author Nikolas Rank
+ *
+ */
 
 public class CostConfig {
 
