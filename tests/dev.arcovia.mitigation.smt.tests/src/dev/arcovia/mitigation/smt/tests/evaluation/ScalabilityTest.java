@@ -159,7 +159,7 @@ public class ScalabilityTest {
 				if (name.equals("tfgAmount") && cyclicDFDs.contains(cfg.model())) {
 					continue;
 				}
-
+				
 				for (int runIdx = 0; runIdx < RUNS_PER_CONFIGURATION; runIdx++) {
 
 					DataFlowDiagramAndDictionary base = Util.loadDFD(cfg.model(), cfg.model() + "_0");
@@ -198,6 +198,7 @@ public class ScalabilityTest {
 		}
 	}
 
+	@Test
 	public void testTFGAmount() throws Exception {
 		scalabilityTest(scaleTFGAmount, "tfgAmount");
 	}

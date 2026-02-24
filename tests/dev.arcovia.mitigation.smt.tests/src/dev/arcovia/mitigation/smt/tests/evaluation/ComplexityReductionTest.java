@@ -58,7 +58,7 @@ public class ComplexityReductionTest {
 		List<Long> runtimesOff = new ArrayList<>(runs);
 		for (int i = 0; i < runs; i++) {
 			DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-			Config config = new ConfigBuilder().onlyRelevantLabels(false).build();
+			Config config = new ConfigBuilder().onlyRelevantModifications(false).build();
 			long before = System.currentTimeMillis();
 			Mitigation.run(dfd, constraints, config);
 			long after = System.currentTimeMillis();
