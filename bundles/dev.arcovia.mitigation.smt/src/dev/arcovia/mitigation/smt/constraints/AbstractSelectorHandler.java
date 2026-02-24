@@ -22,5 +22,5 @@ abstract class AbstractSelectorHandler<T extends AbstractSelector> {
 	 * @param smt SMT object for access to required Encoding objects
 	 * @return BoolExpr that encodes, whether the specified vertex matches the selector
 	 */
-	abstract protected BoolExpr encode(T selector, DFDVertex vertex, SelectorRole role, SMT smt);
+	abstract protected BoolExpr encode(T selector, DFDVertex vertex, SMT smt);
 }

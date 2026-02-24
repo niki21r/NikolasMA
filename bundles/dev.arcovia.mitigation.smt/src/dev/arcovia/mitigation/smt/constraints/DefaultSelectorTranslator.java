@@ -53,14 +53,14 @@ public final class DefaultSelectorTranslator implements SelectorTranslator {
 	}
 
 	@Override
-	public BoolExpr toBool(AbstractSelector selector, DFDVertex vertex, SelectorRole role) {
+	public BoolExpr toBool(AbstractSelector selector, DFDVertex vertex) {
 		var handler = findHandler(selector.getClass());
 		if (handler == null) {
 			throw new IllegalArgumentException("No selector handler registered for " + selector.getClass().getName());
 		}
 		@SuppressWarnings("unchecked")
 		AbstractSelectorHandler<AbstractSelector> h = (AbstractSelectorHandler<AbstractSelector>) handler;
-		return h.encode(selector, vertex, role, smt);
+		return h.encode(selector, vertex, smt);
 	}
 
 	/**

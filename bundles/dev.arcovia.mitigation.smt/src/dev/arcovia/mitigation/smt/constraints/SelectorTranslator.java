@@ -18,5 +18,5 @@ public interface SelectorTranslator {
 	 * @param role Role of the selector
 	 * @return Expression that encodes whether the vertex matches the selector
 	 */
-	public BoolExpr toBool(AbstractSelector selector, DFDVertex vertex, SelectorRole role);
+	public BoolExpr toBool(AbstractSelector selector, DFDVertex vertex);
 }

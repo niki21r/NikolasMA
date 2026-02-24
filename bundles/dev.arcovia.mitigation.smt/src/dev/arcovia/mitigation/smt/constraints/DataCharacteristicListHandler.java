@@ -23,10 +23,7 @@ import dev.arcovia.mitigation.smt.util.Util;
 final class DataCharacteristicListHandler extends AbstractSelectorHandler<DataCharacteristicListSelector> {
 
 	@Override
-	protected BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
-		if (role != SelectorRole.DATA_SOURCE) {
-			throw new UnsupportedOperationException("Only role DATA_SOURCE is supported for data selectors");
-		}
+	protected BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SMT smt) {
 
 		var ctx = smt.getCtx();
 

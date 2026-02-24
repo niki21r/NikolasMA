@@ -1,7 +1,6 @@
 package dev.arcovia.mitigation.smt.constraints;
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,23 +27,7 @@ final class VertexCharacteristicListHandler extends AbstractSelectorHandler<Vert
 	 * Chooses correct encoding style based Selector Role.
 	 */
 	@Override
-	protected BoolExpr encode(VertexCharacteristicsListSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
-		return switch (role) {
-		case VERTEX_DESTINATION -> matchesDestinationVertexCharacteristicsList(s, vertex, smt);
-		case VERTEX_SOURCE -> matchesSourceVertexCharacteristicsList(s, vertex, smt);
-		case DATA_SOURCE -> throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
-		};
-	}
-
-	/**
-	 * Base Case for singular vertices.
-	 * @param s Selector
-	 * @param vertex Vertex
-	 * @param smt for access to node labels
-	 * @return Expression that denotes whether the vertex matches the selector
-	 */
-	private BoolExpr matchesDestinationVertexCharacteristicsList(VertexCharacteristicsListSelector s, DFDVertex vertex,
-			SMT smt) {
+	protected BoolExpr encode(VertexCharacteristicsListSelector s, DFDVertex vertex, SMT smt) {
 		var ctx = smt.getCtx();
 
 		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), s.getVertexCharacteristics());
@@ -65,32 +48,17 @@ final class VertexCharacteristicListHandler extends AbstractSelectorHandler<Vert
 		// Maybe invert
 		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
 
-		return result;
-	}
-
-	/**
-	 * Recursive case for vertex source selectors
-	 * @param s Selector 
-	 * @param vertex Vertex
-	 * @param smt for access to node labels
-	 * @return Expression that denotes whether the vertex matches the selector
-	 */
-	private BoolExpr matchesSourceVertexCharacteristicsList(VertexCharacteristicsListSelector s, DFDVertex vertex,
-			SMT smt) {
-		List<BoolExpr> matches = new ArrayList<>();
-
-		// Matches if the vertex matches.
-		matches.add(matchesDestinationVertexCharacteristicsList(s, vertex, smt));
-
-		// Or if any preceeding vertex matches
-		for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
-			DFDVertex prev = (DFDVertex) prevAbstract;
-			matches.add(matchesDestinationVertexCharacteristicsList(s, prev, smt));
+		if (s.isRecursive()) {
+			List<BoolExpr> anyMatches = new ArrayList<BoolExpr>();
+			anyMatches.add(result);
+			for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
+				DFDVertex prev = (DFDVertex) prevAbstract;
+				anyMatches.add(encode(s, prev, smt));
+			}
+			return ctx.mkOr(anyMatches.toArray(new BoolExpr[0]));
+		} else {
+			return result;
 		}
-
-		BoolExpr anyMatch = smt.getCtx().mkOr(matches.toArray(new BoolExpr[0]));
-		// Maybe invert
-		return s.isInverted() ? smt.getCtx().mkNot(anyMatch) : anyMatch;
 	}
 
 }

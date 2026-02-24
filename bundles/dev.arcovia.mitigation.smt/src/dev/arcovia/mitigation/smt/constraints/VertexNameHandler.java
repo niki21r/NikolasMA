@@ -16,12 +16,7 @@ import dev.arcovia.mitigation.smt.SMT;
 public class VertexNameHandler extends AbstractSelectorHandler<VertexNameSelector> {
 
 	@Override
-	protected BoolExpr encode(VertexNameSelector selector, DFDVertex vertex, SelectorRole role, SMT smt) {
-
-		if (role != SelectorRole.VERTEX_DESTINATION) {
-			throw new UnsupportedOperationException(
-					"Roles other than Vertex Destination are not supported for vertex encoding");
-		}
+	protected BoolExpr encode(VertexNameSelector selector, DFDVertex vertex, SMT smt) {
 
 		var ctx = smt.getCtx();
 

@@ -17,11 +17,7 @@ import dev.arcovia.mitigation.smt.TFGFlow;
  */
 final class DataNameHandler extends AbstractSelectorHandler<VariableNameSelector> {
 	@Override
-	protected BoolExpr encode(VariableNameSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
-
-		if (role != SelectorRole.DATA_SOURCE) {
-			throw new UnsupportedOperationException("Only role DATA_SOURCE is supported for data selectors");
-		}
+	protected BoolExpr encode(VariableNameSelector s, DFDVertex vertex, SMT smt) {
 
 		var ctx = smt.getCtx();
 
