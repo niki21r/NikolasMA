@@ -3,9 +3,11 @@ package dev.arcovia.mitigation.smt.tests.evaluation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.analysis.dsl.constraint.ConstraintDSL;
+import org.junit.jupiter.api.Test;
 
 public final class ConstraintMapProvider {
 
@@ -82,5 +84,14 @@ public final class ConstraintMapProvider {
 		if (c == null)
 			throw new IllegalArgumentException("Constraint undefined: " + variantId);
 		return c;
+	}
+
+	public void printConstraints() {
+		for (Entry<Integer, List<AnalysisConstraint>> entry : CONSTRAINTS.entrySet()) {
+			System.out.println(entry.getKey());
+			for (AnalysisConstraint constr : entry.getValue()) {
+				System.out.println(constr);
+			}
+		}
 	}
 }

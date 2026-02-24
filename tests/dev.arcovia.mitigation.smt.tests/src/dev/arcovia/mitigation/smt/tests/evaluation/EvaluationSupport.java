@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.examplemodels.TuhhModels;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import dev.arcovia.mitigation.smt.util.Util;
 
 /**
  * Common helper methods/objects for evaluation tests.
@@ -56,5 +59,20 @@ public final class EvaluationSupport {
 		}
 
 		return out;
+	}
+
+	/**
+	 * Prints maximum number of nodes of TUHH dataset
+	 * @throws Exception
+	 */
+	public void test() throws Exception {
+		int max = 0;
+		for (Configuration cfg : configurations()) {
+			var dfd = Util.loadDFD(cfg.model, cfg.model + "_0");
+			if (dfd.dataFlowDiagram().getNodes().size() > max) {
+				max = dfd.dataFlowDiagram().getNodes().size();
+			}
+		}
+		System.out.println(max);
 	}
 }

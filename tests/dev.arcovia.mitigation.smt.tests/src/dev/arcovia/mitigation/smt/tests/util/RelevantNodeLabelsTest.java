@@ -139,8 +139,7 @@ class RelevantNodeLabelsTest extends UtilTestBase {
 				// 4) only WITH on toVertex -> Add: {}, Remove: {F,G}
 				Arguments.of(List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of("F"),
 						List.of(List.of("F", "G")), Set.of(), Set.of("F", "G")),
-				// 5) mixed across both sides -> Add from WITHOUT (from+to), Remove from WITH
-				// (from+to)
+				// 5) mixed across both sides
 				Arguments.of(List.of("B"), List.of(List.of("C")), List.of("X"), List.of(List.of("Y")), List.of("D"),
 						List.of(List.of("E")), List.of("F"), List.of(List.of("G")), Set.of("B", "C", "D", "E"),
 						Set.of("X", "Y", "F", "G")),

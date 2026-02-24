@@ -46,6 +46,7 @@ final class VertexCharacteristicsHandler extends AbstractSelectorHandler<VertexC
 		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(),
 				List.of(s.getVertexCharacteristics()));
 
+		// Get labels for node
 		Map<Label, BoolExpr> present = smt.getNodeLabels().get(vertex.getReferencedElement());
 
 		List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());

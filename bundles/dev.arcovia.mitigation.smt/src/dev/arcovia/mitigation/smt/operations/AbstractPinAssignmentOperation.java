@@ -9,7 +9,12 @@ import org.dataflowanalysis.dfd.datadictionary.Behavior;
 import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 
-
+/**
+ * Modifies a Pin Assignment for a given Pin and Label
+ * @author Nikolas Rank
+ *
+ * @param <T> The type of assignment that should be used for the modification
+ */
 public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAssignment>
         extends DataDictionaryOperation
         permits SetAssignmentOperation, UnsetAssignmentOperation {
@@ -22,12 +27,24 @@ public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAs
         this.label = label;
     }
 
+    /**
+     * Creates an assignment of the specified type
+     * @return Newly created assignments
+     */
     protected abstract T createAssignment();
+    // These utility functions are used for handling assignment classes
     protected abstract boolean isInstance(AbstractAssignment a);
     protected abstract T cast(AbstractAssignment a);
 
+    // Adds the output label to the specified assignment
     protected abstract void addOutputLabel(T assignment, Label labels);
 
+    /**
+     * Checks if the specified assignment has exactly the specified output label
+     * @param assignment 
+     * @param labels
+     * @return Whetehr it has exactly the specified label
+     */
     protected abstract boolean outputLabelEquals(T assignment, Label labels);
 
     protected abstract String assignmentName();
@@ -39,6 +56,7 @@ public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAs
         assignment.setId(String.valueOf(random.nextInt()));
         addOutputLabel(assignment, label);
 
+        // Finds assignments for this operation's pin
         Optional<List<AbstractAssignment>> assignments = dfd.dataDictionary().getBehavior().stream()
                 .filter(b -> b.getOutPin().contains(pin))
                 .map(Behavior::getAssignment)
@@ -63,6 +81,7 @@ public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAs
             return dfd;
         }
 
+        // Find the assignment that was added earlier. This could remove the wrong assignment if an identical one exists. 
         Optional<T> found = behavior.get().getAssignment().stream()
                 .filter(a -> a.getOutputPin().equals(pin))
                 .filter(this::isInstance)

@@ -4,6 +4,11 @@ import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 
+/**
+ * This operation adds a label to a node
+ * @author Nikolas Rank
+ *
+ */
 public class NodeLabelAddOperation extends AbstractNodeLabelOperation {
 
 	public NodeLabelAddOperation(Node node, Label label) {

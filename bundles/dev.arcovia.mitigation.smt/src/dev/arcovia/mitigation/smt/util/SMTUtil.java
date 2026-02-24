@@ -15,8 +15,9 @@ import com.microsoft.z3.Expr;
 public class SMTUtil {
 
 	/**
-	 * Counts AST nodes in an array of BoolExpr (DAG size). Shared sub-terms across
-	 * expressions are counted only once.
+	 * Counts AST nodes in an array of BoolExpr (Expression tree size).
+	 * Adds the expression tree size of all root expressions.
+	 * 
 	 */
 	public static long countAstNodes(BoolExpr[] exprs) {
 		long total = 0;
@@ -28,6 +29,11 @@ public class SMTUtil {
 		return total;
 	}
 
+	/**
+	 * For each expression, count it as well as all its subexpressions
+	 * @param expr Z3 root expression
+	 * @return Amount of expressions in the tree
+	 */
 	private static long countTree(Expr<?> expr) {
 		Deque<Expr<?>> stack = new ArrayDeque<>();
 		stack.push(expr);

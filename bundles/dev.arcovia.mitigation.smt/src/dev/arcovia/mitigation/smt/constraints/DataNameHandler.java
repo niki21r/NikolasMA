@@ -10,21 +10,27 @@ import com.microsoft.z3.BoolExpr;
 
 import dev.arcovia.mitigation.smt.SMT;
 import dev.arcovia.mitigation.smt.TFGFlow;
-
+/**
+ * Selector translation logic for Data Name selectors
+ * @author Nikolas Rank
+ *
+ */
 final class DataNameHandler extends AbstractSelectorHandler<VariableNameSelector> {
 	@Override
 	protected BoolExpr encode(VariableNameSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
 
 		if (role != SelectorRole.DATA_SOURCE) {
-			throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
+			throw new UnsupportedOperationException("Only role DATA_SOURCE is supported for data selectors");
 		}
 
 		var ctx = smt.getCtx();
 
 		String selectorName = s.getVariableName();
 
+		
 		List<BoolExpr> flowsMatch = new ArrayList<>();
 		for (TFGFlow flow : smt.getVertexIncomingFlows().getOrDefault(vertex, List.of())) {
+			// Because flow names are not modifiable, we can statically evaluate this at encoding time
 			if (flow.flow.getEntityName().equals(selectorName)) {
 				flowsMatch.add(ctx.mkTrue());
 			} else {
@@ -32,10 +38,12 @@ final class DataNameHandler extends AbstractSelectorHandler<VariableNameSelector
 			}
 		}
 
+		// Selector never matches for no incoming flows
 		if (flowsMatch.isEmpty()) {
 			return ctx.mkFalse();
 		}
 
+		// Selector matches if any incoming flow matches. Selector is not invertable.
 		BoolExpr anyFlowMatches = ctx.mkOr(flowsMatch.toArray(new BoolExpr[0]));
 		return anyFlowMatches;
 	}

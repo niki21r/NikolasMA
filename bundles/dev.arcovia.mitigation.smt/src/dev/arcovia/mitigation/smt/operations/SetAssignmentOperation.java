@@ -7,7 +7,11 @@ import org.dataflowanalysis.dfd.datadictionary.Label;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.datadictionary.SetAssignment;
 
-
+/**
+ * This operation creates a Set Assignment for a specific label and pin
+ * @author Nikolas Rank
+ *
+ */
 public final class SetAssignmentOperation extends AbstractPinAssignmentOperation<SetAssignment> {
 
     public SetAssignmentOperation(Pin pin, Label label) { super(pin, label); }

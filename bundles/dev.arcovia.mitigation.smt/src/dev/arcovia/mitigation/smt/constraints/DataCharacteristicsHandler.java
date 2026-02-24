@@ -15,15 +15,21 @@ import dev.arcovia.mitigation.smt.SMT;
 import dev.arcovia.mitigation.smt.TFGFlow;
 import dev.arcovia.mitigation.smt.util.Util;
 
+/**
+ * Selector translation logic for DataCharacteristicsSelector
+ * @author niki
+ *
+ */
 final class DataCharacteristicsHandler extends AbstractSelectorHandler<DataCharacteristicsSelector> {
 	@Override
 	protected BoolExpr encode(DataCharacteristicsSelector s, DFDVertex vertex, SelectorRole role, SMT smt) {
 		if (role != SelectorRole.DATA_SOURCE) {
-			throw new UnsupportedOperationException("DATA_SOURCE is not supported for vertex encoding");
+			throw new UnsupportedOperationException("Only role DATA_SOURCE is supported for data selectors");
 		}
 
 		var ctx = smt.getCtx();
 
+		// Set only contains one label
 		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), List.of(s.getDataCharacteristic()));
 
 		List<BoolExpr> flowsMatch = new ArrayList<>();
@@ -37,16 +43,20 @@ final class DataCharacteristicsHandler extends AbstractSelectorHandler<DataChara
 				anySelectorLabelPresent.add(has);
 			}
 
+			// Flow matches, if label is present
 			BoolExpr thisFlowMatches = ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
 
 			flowsMatch.add(thisFlowMatches);
 		}
 
+		// If vertex has no incoming flows it never matches
 		if (flowsMatch.isEmpty()) {
 			return ctx.mkFalse();
 		}
 
+		// It matches if any incoming flow matches
 		BoolExpr anyFlowMatches = ctx.mkOr(flowsMatch.toArray(new BoolExpr[0]));
+		// Maybe invert
 		return s.isInverted() ? ctx.mkNot(anyFlowMatches) : anyFlowMatches;
 	}
 }

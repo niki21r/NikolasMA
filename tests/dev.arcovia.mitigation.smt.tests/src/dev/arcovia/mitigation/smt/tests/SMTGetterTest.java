@@ -53,14 +53,17 @@ public class SMTGetterTest {
 
 				SMT smt = new SMT(pre, constraint, config);
 
+				//SMT operates on data dictionary with added labels
 				assertEquals(smt.getDD(), dfdWithAddedLabels.dataDictionary());
 
 				Map<TFGFlow, Map<Label, BoolExpr>> flowLabels = smt.getFlowLabels();
+				//If flow labels are encoded, every flow has labels. Otherwise none
 				if (!(pre.relevantDataLabelsAdd().isEmpty() && pre.relevantDataLabelsRemove().isEmpty())) {
 					assertEquals(flowLabels.keySet().size(), pre.flows().size());
 				} else {
 					assertEquals(flowLabels.keySet().size(), 0);
 				}
+				//Correct data labels are encoded
 				Set<Label> expectedDataLabels = new HashSet<>();
 				expectedDataLabels.addAll(pre.relevantDataLabelsAdd());
 				expectedDataLabels.addAll(pre.relevantDataLabelsRemove());
@@ -68,10 +71,10 @@ public class SMTGetterTest {
 					assertEquals(labels.keySet(), expectedDataLabels);
 				}
 
+				//Correct node labels are encoded
 				Set<Label> expectedNodeLabels = new HashSet<>();
 				expectedNodeLabels.addAll(pre.relevantNodeLabelsAdd());
 				expectedNodeLabels.addAll(pre.relevantNodeLabelsRemove());
-
 				Map<Node, Map<Label, BoolExpr>> nodeLabels = smt.getNodeLabels();
 				if (!(pre.relevantNodeLabelsAdd().isEmpty() && pre.relevantNodeLabelsRemove().isEmpty())) {
 					assertEquals(nodeLabels.keySet().size(), dfdWithAddedLabels.dataFlowDiagram().getNodes().size());
@@ -83,6 +86,7 @@ public class SMTGetterTest {
 					assertEquals(nodeLabels.keySet().size(), 0);
 				}
 
+				//Vertex incoming flows actually flow to vertex
 				Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows = smt.getVertexIncomingFlows();
 				for (Entry<DFDVertex, List<TFGFlow>> entry : vertexIncomingFlows.entrySet()) {
 					for (TFGFlow flow : entry.getValue()) {

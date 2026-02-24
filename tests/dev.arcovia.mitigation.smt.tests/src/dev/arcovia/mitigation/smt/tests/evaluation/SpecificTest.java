@@ -24,7 +24,9 @@ public class SpecificTest {
 		System.out.println(Mitigation.run(dfd, constraints, null));
 	}
 
-	@Test
+	/**
+	 * Finds cyclic DFDs from the TUHH set.
+	 */
 	public void test() throws Exception {
 		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 		for (EvaluationSupport.Configuration cfg : configs) {
