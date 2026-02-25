@@ -37,16 +37,16 @@ def make_violations_png(input_json: Path, output_png: Path):
     tbl.set_fontsize(10)
     tbl.scale(1.0, 1.4)
 
-    # --- Draw once to get the table's exact bbox ---
+
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     table_bbox_px = tbl.get_window_extent(renderer=renderer)
 
-    # --- Place title relative to the TABLE bbox (pixel-perfect) ---
-    title_str = ""
-    gap_px = 1  # set to 0 if you want it touching; 1-3 usually looks best
 
-    # Convert table bbox x-center and y-top from pixels -> figure fraction
+    title_str = ""
+    gap_px = 1  
+
+
     x_center_px = (table_bbox_px.x0 + table_bbox_px.x1) / 2
     y_top_px = table_bbox_px.y1
 
@@ -60,16 +60,16 @@ def make_violations_png(input_json: Path, output_png: Path):
         fontsize=12, fontweight="bold",
     )
 
-    # Need another draw to get the title bbox
+
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     title_bbox_px = title_text.get_window_extent(renderer=renderer)
 
-    # --- Crop to union of table + title ---
+
     full_bbox_px = Bbox.union([table_bbox_px, title_bbox_px])
 
-    # 🔧 ADD TOP PADDING (in pixels)
-    top_pad_px = 4  # <-- adjust this (2–6 is usually perfect)
+
+    top_pad_px = 4  
     full_bbox_px = Bbox.from_extents(
         full_bbox_px.x0,
         full_bbox_px.y0,
@@ -77,7 +77,7 @@ def make_violations_png(input_json: Path, output_png: Path):
         full_bbox_px.y1 + top_pad_px,
     )
 
-    # Convert pixels -> inches
+
     full_bbox_in = full_bbox_px.transformed(fig.dpi_scale_trans.inverted())
 
     output_png.parent.mkdir(parents=True, exist_ok=True)
@@ -94,7 +94,7 @@ def make_violations_png(input_json: Path, output_png: Path):
         output_png,
         dpi=dpi,
         bbox_inches=full_bbox_in,
-        pad_inches=0,   # NO whitespace around crop
+        pad_inches=0,  
         transparent=False,
     )
     plt.close(fig)

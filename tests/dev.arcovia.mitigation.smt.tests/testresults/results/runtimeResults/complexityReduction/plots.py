@@ -11,7 +11,6 @@ def load_data(input_json: Path):
 
 
 def avg(values, default=0.0):
-    # Defensive: handle empty lists just in case
     return mean(values) if values else default
 
 
@@ -36,7 +35,7 @@ def plot_complexity_reduction(data, out_png: Path):
 
 def main():
     input_json = Path("data.json")
-    out_png = Path("plots.png")  # Save in current directory
+    out_png = Path("plots.png")  
 
     data = load_data(input_json)
     plot_complexity_reduction(data, out_png)

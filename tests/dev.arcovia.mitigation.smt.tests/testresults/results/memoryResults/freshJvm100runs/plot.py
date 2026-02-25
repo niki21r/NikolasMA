@@ -11,7 +11,6 @@ def make_dag_memory_png(input_json: Path, output_png: Path):
 
     dag_sizes = [entry["dagSize"] for entry in data]
 
-    # Average bytes -> MiB (one dot per entry; do NOT merge same dagSize)
     memory_mib = [
         mean(entry["peakRssBytes"]) / (1024 * 1024)
         for entry in data

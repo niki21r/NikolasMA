@@ -120,7 +120,7 @@ def plot(
     out_path: Path,
     x_label: str,
 ) -> None:
-    # Log scale cannot show <= 0; replace non-positive with a small epsilon based on all series.
+
     all_vals_raw = sat_y + smt_y + tfg_y
     eps = _min_positive(all_vals_raw) / 10.0
 
@@ -131,7 +131,7 @@ def plot(
     smt_s = sanitize(smt_y)
     tfg_s = sanitize(tfg_y)
 
-    # Determine Y-axis decade bounds: start at 10^1 and extend to next decade above max
+
     all_positive = [v for v in (sat_s + smt_s + tfg_s) if v > 0]
     if not all_positive:
         raise ValueError("No positive runtime values to plot.")
@@ -146,20 +146,20 @@ def plot(
     ax = plt.gca()
     ax.set_yscale("log")
 
-    # Only integer log10 major ticks (10^n), no minor ticks
+
     ax.yaxis.set_major_locator(LogLocator(base=10.0, subs=(1.0,)))
     ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=[]))
 
-    # Force decade boundaries
+
     ax.set_ylim(y_min, y_max)
 
-    # Human-readable time + log10(ms) on the same tick label
+
     def time_plus_log_formatter(ms: float, _) -> str:
         if ms <= 0:
             return ""
 
         logv = math.log10(ms)
-        # Defensive: only label integer-decade ticks
+
         if not math.isclose(logv, round(logv), rel_tol=1e-9, abs_tol=1e-12):
             return ""
 
@@ -181,7 +181,7 @@ def plot(
 
     ax.yaxis.set_major_formatter(FuncFormatter(time_plus_log_formatter))
 
-    # Plot each series independently on its own evenly-spaced index positions.
+
     if sat_x and sat_s:
         sat_pos = list(range(len(sat_x)))
         plt.plot(
@@ -274,7 +274,7 @@ def main() -> None:
     smt_x, smt_y, tfg_y = prepare_smt_series(smt_rows, x_mode=args.xmode)
     sat_x, sat_y = prepare_sat_series(sat_rows, x_mode=args.xmode)
 
-    # tfg shares x with smt file
+
     tfg_x = smt_x
 
     plot(

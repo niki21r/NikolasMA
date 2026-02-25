@@ -11,7 +11,6 @@ def load_data(input_json: Path):
 
 
 def avg(values, default=0.0):
-    # Defensive: handle empty lists just in case
     return mean(values) if values else default
 
 
