@@ -17,66 +17,80 @@ import dev.arcovia.mitigation.smt.operations.SetAssignmentOperation;
 
 class SetAssignmentOperationTest extends OperationTestBase {
 
-	@Test
-	void doOperationAddsSetAssignmentToMatchingBehavior() {
-		var dfd = emptyDfd();
+    @Test
+    void doOperationAddsSetAssignmentToMatchingBehavior() {
+        var dfd = emptyDfd();
 
-		Pin pin = ddFactory.createPin();
-		pin.setId("p1");
+        Pin pin = ddFactory.createPin();
+        pin.setId("p1");
 
-		Behavior behavior = ddFactory.createBehavior();
-		behavior.getOutPin().add(pin);
-		dfd.dataDictionary().getBehavior().add(behavior);
+        Behavior behavior = ddFactory.createBehavior();
+        behavior.getOutPin()
+                .add(pin);
+        dfd.dataDictionary()
+                .getBehavior()
+                .add(behavior);
 
-		var label = ddFactory.createLabel();
-		label.setEntityName("L");
+        var label = ddFactory.createLabel();
+        label.setEntityName("L");
 
-		new SetAssignmentOperation(pin, label).doOperation(dfd);
+        new SetAssignmentOperation(pin, label).doOperation(dfd);
 
-		List<AbstractAssignment> assigns = behavior.getAssignment();
-		assertTrue(assigns.stream().anyMatch(a -> a instanceof SetAssignment));
+        List<AbstractAssignment> assigns = behavior.getAssignment();
+        assertTrue(assigns.stream()
+                .anyMatch(a -> a instanceof SetAssignment));
 
-		SetAssignment sa = (SetAssignment) assigns.stream().filter(a -> a instanceof SetAssignment).findFirst().get();
+        SetAssignment sa = (SetAssignment) assigns.stream()
+                .filter(a -> a instanceof SetAssignment)
+                .findFirst()
+                .get();
 
-		assertEquals(pin, sa.getOutputPin());
-		assertEquals(List.of(label), sa.getOutputLabels());
-		assertNotNull(sa.getId());
-	}
+        assertEquals(pin, sa.getOutputPin());
+        assertEquals(List.of(label), sa.getOutputLabels());
+        assertNotNull(sa.getId());
+    }
 
-	@Test
-	void undoOperationRemovesMatchingSetAssignment() {
-		var dfd = emptyDfd();
+    @Test
+    void undoOperationRemovesMatchingSetAssignment() {
+        var dfd = emptyDfd();
 
-		Pin pin = ddFactory.createPin();
-		pin.setId("p1");
+        Pin pin = ddFactory.createPin();
+        pin.setId("p1");
 
-		Behavior behavior = ddFactory.createBehavior();
-		behavior.getOutPin().add(pin);
-		dfd.dataDictionary().getBehavior().add(behavior);
+        Behavior behavior = ddFactory.createBehavior();
+        behavior.getOutPin()
+                .add(pin);
+        dfd.dataDictionary()
+                .getBehavior()
+                .add(behavior);
 
-		var label = ddFactory.createLabel();
-		label.setEntityName("L");
+        var label = ddFactory.createLabel();
+        label.setEntityName("L");
 
-		new SetAssignmentOperation(pin, label).doOperation(dfd);
-		assertFalse(behavior.getAssignment().isEmpty());
+        new SetAssignmentOperation(pin, label).doOperation(dfd);
+        assertFalse(behavior.getAssignment()
+                .isEmpty());
 
-		new SetAssignmentOperation(pin, label).undoOperation(dfd);
+        new SetAssignmentOperation(pin, label).undoOperation(dfd);
 
-		assertTrue(behavior.getAssignment().isEmpty());
-	}
+        assertTrue(behavior.getAssignment()
+                .isEmpty());
+    }
 
-	@Test
-	void doOperationNoopIfNoBehaviorMatchesPin() {
-		var dfd = emptyDfd();
+    @Test
+    void doOperationNoopIfNoBehaviorMatchesPin() {
+        var dfd = emptyDfd();
 
-		Pin pin = ddFactory.createPin();
-		pin.setId("p1");
+        Pin pin = ddFactory.createPin();
+        pin.setId("p1");
 
-		var label = ddFactory.createLabel();
-		label.setEntityName("L");
+        var label = ddFactory.createLabel();
+        label.setEntityName("L");
 
-		new SetAssignmentOperation(pin, label).doOperation(dfd);
+        new SetAssignmentOperation(pin, label).doOperation(dfd);
 
-		assertTrue(dfd.dataDictionary().getBehavior().isEmpty());
-	}
+        assertTrue(dfd.dataDictionary()
+                .getBehavior()
+                .isEmpty());
+    }
 }

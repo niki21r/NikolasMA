@@ -17,47 +17,66 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class AnalysisCharacteristicsTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("characteristicCases")
-	void testGetAnalysisCharacteristics(AnalysisConstraint constraint, int expectedCount, Set<String> expectedEntries) {
+    @ParameterizedTest
+    @MethodSource("characteristicCases")
+    void testGetAnalysisCharacteristics(AnalysisConstraint constraint, int expectedCount, Set<String> expectedEntries) {
 
-		var result = Util.getAnalysisCharacteristics(List.of(constraint));
+        var result = Util.getAnalysisCharacteristics(List.of(constraint));
 
-		assertEquals(expectedCount, result.size());
+        assertEquals(expectedCount, result.size());
 
-		// compare printed form
-		Set<String> actualEntries = result.stream().map(Object::toString).collect(Collectors.toSet());
+        // compare printed form
+        Set<String> actualEntries = result.stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
 
-		assertEquals(expectedEntries, actualEntries);
-	}
+        assertEquals(expectedEntries, actualEntries);
+    }
 
-	static Stream<Arguments> characteristicCases() {
-		return Stream.of(
-				// []
-				Arguments.of(new ConstraintDSL().fromNode().neverFlows().toVertex().create(), 0, Set.of()),
+    static Stream<Arguments> characteristicCases() {
+        return Stream.of(
+                // []
+                Arguments.of(new ConstraintDSL().fromNode()
+                        .neverFlows()
+                        .toVertex()
+                        .create(), 0, Set.of()),
 
-				// [A.B]
-				Arguments.of(new ConstraintDSL().ofData().withLabel("A", "B").neverFlows().toVertex().create(), 1,
-						Set.of("A.B")),
+                // [A.B]
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withLabel("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), 1, Set.of("A.B")),
 
-				// [A.B]
-				Arguments.of(new ConstraintDSL().ofData().withoutLabel("A", "B").neverFlows().toVertex().create(), 1,
-						Set.of("A.B")),
+                // [A.B]
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withoutLabel("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), 1, Set.of("A.B")),
 
-				// [A.B]
-				Arguments.of(
-						new ConstraintDSL().fromNode().withCharacteristic("A", "B").neverFlows().toVertex().create(), 1,
-						Set.of("A.B")),
+                // [A.B]
+                Arguments.of(new ConstraintDSL().fromNode()
+                        .withCharacteristic("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), 1, Set.of("A.B")),
 
-				// [A.B]
-				Arguments.of(
-						new ConstraintDSL().fromNode().withoutCharacteristic("A", "B").neverFlows().toVertex().create(),
-						1, Set.of("A.B")),
+                // [A.B]
+                Arguments.of(new ConstraintDSL().fromNode()
+                        .withoutCharacteristic("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), 1, Set.of("A.B")),
 
-				// [A.B, A.C, A.D, A.E]
-				Arguments.of(
-						new ConstraintDSL().ofData().withLabel("A", "B").withoutLabel("A", "C").neverFlows().toVertex()
-								.withCharacteristic("A", "D").withoutCharacteristic("A", "E").create(),
-						4, Set.of("A.B", "A.C", "A.D", "A.E")));
-	}
+                // [A.B, A.C, A.D, A.E]
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withLabel("A", "B")
+                        .withoutLabel("A", "C")
+                        .neverFlows()
+                        .toVertex()
+                        .withCharacteristic("A", "D")
+                        .withoutCharacteristic("A", "E")
+                        .create(), 4, Set.of("A.B", "A.C", "A.D", "A.E")));
+    }
 }

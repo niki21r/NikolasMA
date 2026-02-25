@@ -10,38 +10,45 @@ import dev.arcovia.mitigation.smt.operations.NodeLabelRemoveOperation;
 
 class NodeLabelRemoveOperationTest extends OperationTestBase {
 
-	@Test
-	void doOperationRemovesLabelFromMatchingNode() {
-		var dfd = emptyDfd();
+    @Test
+    void doOperationRemovesLabelFromMatchingNode() {
+        var dfd = emptyDfd();
 
-		Node node = dfdFactory.createProcess();
-		node.setEntityName("P");
-		node.setId("n1");
-		dfd.dataFlowDiagram().getNodes().add(node);
+        Node node = dfdFactory.createProcess();
+        node.setEntityName("P");
+        node.setId("n1");
+        dfd.dataFlowDiagram()
+                .getNodes()
+                .add(node);
 
-		var label = ddFactory.createLabel();
-		label.setEntityName("L");
-		node.getProperties().add(label);
+        var label = ddFactory.createLabel();
+        label.setEntityName("L");
+        node.getProperties()
+                .add(label);
 
-		new NodeLabelRemoveOperation(node, label).doOperation(dfd);
+        new NodeLabelRemoveOperation(node, label).doOperation(dfd);
 
-		assertFalse(node.getProperties().contains(label));
-	}
+        assertFalse(node.getProperties()
+                .contains(label));
+    }
 
-	@Test
-	void undoOperationAddsLabelBackToMatchingNode() {
-		var dfd = emptyDfd();
+    @Test
+    void undoOperationAddsLabelBackToMatchingNode() {
+        var dfd = emptyDfd();
 
-		Node node = dfdFactory.createProcess();
-		node.setEntityName("P");
-		node.setId("n1");
-		dfd.dataFlowDiagram().getNodes().add(node);
+        Node node = dfdFactory.createProcess();
+        node.setEntityName("P");
+        node.setId("n1");
+        dfd.dataFlowDiagram()
+                .getNodes()
+                .add(node);
 
-		var label = ddFactory.createLabel();
-		label.setEntityName("L");
+        var label = ddFactory.createLabel();
+        label.setEntityName("L");
 
-		new NodeLabelRemoveOperation(node, label).undoOperation(dfd);
+        new NodeLabelRemoveOperation(node, label).undoOperation(dfd);
 
-		assertTrue(node.getProperties().contains(label));
-	}
+        assertTrue(node.getProperties()
+                .contains(label));
+    }
 }

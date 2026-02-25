@@ -13,84 +13,99 @@ import org.dataflowanalysis.dfd.dataflowdiagram.dataflowdiagramFactory;
 import static dev.arcovia.mitigation.smt.tests.constraints.AbstractSelectorConstraintTest.*;
 
 public class DFDProvider {
-	  private static final dataflowdiagramFactory dfdFactory = dataflowdiagramFactory.eINSTANCE;
-	  private static final datadictionaryFactory ddFactory = datadictionaryFactory.eINSTANCE;
-	
-	  protected static DataFlowDiagramAndDictionary buildTestCase() {
-		    var dd = ddFactory.createDataDictionary();
-		    var dfd = dfdFactory.createDataFlowDiagram();
+    private static final dataflowdiagramFactory dfdFactory = dataflowdiagramFactory.eINSTANCE;
+    private static final datadictionaryFactory ddFactory = datadictionaryFactory.eINSTANCE;
 
-		    LabelType dummyType = ddFactory.createLabelType();
-		    dummyType.setEntityName(LABELTYPE);
-		    dummyType.setId("type1");
+    protected static DataFlowDiagramAndDictionary buildTestCase() {
+        var dd = ddFactory.createDataDictionary();
+        var dfd = dfdFactory.createDataFlowDiagram();
 
-		    Label dummyLabel1 = ddFactory.createLabel();
-		    dummyLabel1.setEntityName(LABEL1);
-		    dummyLabel1.setId("label1");
+        LabelType dummyType = ddFactory.createLabelType();
+        dummyType.setEntityName(LABELTYPE);
+        dummyType.setId("type1");
 
-		    Label dummyLabel2 = ddFactory.createLabel();
-		    dummyLabel2.setEntityName(LABEL2);
-		    dummyLabel2.setId("label2");
+        Label dummyLabel1 = ddFactory.createLabel();
+        dummyLabel1.setEntityName(LABEL1);
+        dummyLabel1.setId("label1");
 
-		    dummyType.getLabel().add(dummyLabel1);
-		    dummyType.getLabel().add(dummyLabel2);
-		    dd.getLabelTypes().add(dummyType);
+        Label dummyLabel2 = ddFactory.createLabel();
+        dummyLabel2.setEntityName(LABEL2);
+        dummyLabel2.setId("label2");
 
-		    Node source = dfdFactory.createExternal();
-		    source.setEntityName(SOURCE);
-		    source.setId("node1");
-		    source.getProperties().add(dummyLabel1);
-		    dfd.getNodes().add(source);
+        dummyType.getLabel()
+                .add(dummyLabel1);
+        dummyType.getLabel()
+                .add(dummyLabel2);
+        dd.getLabelTypes()
+                .add(dummyType);
 
-		    Pin sourceOut = ddFactory.createPin();
-		    sourceOut.setEntityName("sourceOut");
-		    sourceOut.setId(PIN);
+        Node source = dfdFactory.createExternal();
+        source.setEntityName(SOURCE);
+        source.setId("node1");
+        source.getProperties()
+                .add(dummyLabel1);
+        dfd.getNodes()
+                .add(source);
 
-		    SetAssignment set = ddFactory.createSetAssignment();
-		    set.setEntityName("set");
-		    set.setId("set1");
-		    set.setOutputPin(sourceOut);
-		    set.getOutputLabels().add(dummyLabel1);
-		    set.getOutputLabels().add(dummyLabel2);
+        Pin sourceOut = ddFactory.createPin();
+        sourceOut.setEntityName("sourceOut");
+        sourceOut.setId(PIN);
 
-		    Behavior sourceBehavior = ddFactory.createBehavior();
-		    sourceBehavior.setEntityName("sourceBehavior");
-		    sourceBehavior.setId("behavior1");
-		    sourceBehavior.getAssignment().add(set);
-		    sourceBehavior.getOutPin().add(sourceOut);
+        SetAssignment set = ddFactory.createSetAssignment();
+        set.setEntityName("set");
+        set.setId("set1");
+        set.setOutputPin(sourceOut);
+        set.getOutputLabels()
+                .add(dummyLabel1);
+        set.getOutputLabels()
+                .add(dummyLabel2);
 
-		    dd.getBehavior().add(sourceBehavior);
-		    source.setBehavior(sourceBehavior);
+        Behavior sourceBehavior = ddFactory.createBehavior();
+        sourceBehavior.setEntityName("sourceBehavior");
+        sourceBehavior.setId("behavior1");
+        sourceBehavior.getAssignment()
+                .add(set);
+        sourceBehavior.getOutPin()
+                .add(sourceOut);
 
-		    Node sink = dfdFactory.createStore();
-		    sink.setEntityName(SINK);
-		    sink.setId("node2");
-		    sink.getProperties().add(dummyLabel2);
-		    dfd.getNodes().add(sink);
+        dd.getBehavior()
+                .add(sourceBehavior);
+        source.setBehavior(sourceBehavior);
 
-		    Pin sinkIn = ddFactory.createPin();
-		    sinkIn.setEntityName("sinkIn");
-		    sinkIn.setId("pin2");
+        Node sink = dfdFactory.createStore();
+        sink.setEntityName(SINK);
+        sink.setId("node2");
+        sink.getProperties()
+                .add(dummyLabel2);
+        dfd.getNodes()
+                .add(sink);
 
-		    Behavior sinkBehavior = ddFactory.createBehavior();
-		    sinkBehavior.setEntityName("sinkBehavior");
-		    sinkBehavior.setId("behavior2");
-		    sinkBehavior.getInPin().add(sinkIn);
+        Pin sinkIn = ddFactory.createPin();
+        sinkIn.setEntityName("sinkIn");
+        sinkIn.setId("pin2");
 
-		    dd.getBehavior().add(sinkBehavior);
-		    sink.setBehavior(sinkBehavior);
+        Behavior sinkBehavior = ddFactory.createBehavior();
+        sinkBehavior.setEntityName("sinkBehavior");
+        sinkBehavior.setId("behavior2");
+        sinkBehavior.getInPin()
+                .add(sinkIn);
 
-		    Flow flow = dfdFactory.createFlow();
-		    flow.setEntityName(FLOW);
-		    flow.setId("flow1");
-		    flow.setSourcePin(sourceOut);
-		    flow.setSourceNode(source);
-		    flow.setDestinationPin(sinkIn);
-		    flow.setDestinationNode(sink);
+        dd.getBehavior()
+                .add(sinkBehavior);
+        sink.setBehavior(sinkBehavior);
 
-		    dfd.getFlows().add(flow);
+        Flow flow = dfdFactory.createFlow();
+        flow.setEntityName(FLOW);
+        flow.setId("flow1");
+        flow.setSourcePin(sourceOut);
+        flow.setSourceNode(source);
+        flow.setDestinationPin(sinkIn);
+        flow.setDestinationNode(sink);
 
-		    return new DataFlowDiagramAndDictionary(dfd, dd);
-		  }
+        dfd.getFlows()
+                .add(flow);
+
+        return new DataFlowDiagramAndDictionary(dfd, dd);
+    }
 
 }

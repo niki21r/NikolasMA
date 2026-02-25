@@ -17,54 +17,60 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class TransformLabelCostsTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("cases")
-	void testTransformLabelCosts(Map<String, Integer> input, Map<String, Integer> expectedByName) {
-		DataDictionary dd = ddFactory.createDataDictionary();
+    @ParameterizedTest
+    @MethodSource("cases")
+    void testTransformLabelCosts(Map<String, Integer> input, Map<String, Integer> expectedByName) {
+        DataDictionary dd = ddFactory.createDataDictionary();
 
-		Map<String, Label> labelsByQualifiedName = new HashMap<>();
+        Map<String, Label> labelsByQualifiedName = new HashMap<>();
 
-		// Create label types and labels referenced in test cases
-		expectedByName.keySet().forEach(qn -> {
-			String[] parts = qn.split("\\.");
-			String typeName = parts[0];
-			String labelName = parts[1];
+        // Create label types and labels referenced in test cases
+        expectedByName.keySet()
+                .forEach(qn -> {
+                    String[] parts = qn.split("\\.");
+                    String typeName = parts[0];
+                    String labelName = parts[1];
 
-			LabelType type = dd.getLabelTypes().stream().filter(t -> typeName.equals(t.getEntityName())).findFirst()
-					.orElseGet(() -> {
-						LabelType t = ddFactory.createLabelType();
-						t.setEntityName(typeName);
-						dd.getLabelTypes().add(t);
-						return t;
-					});
+                    LabelType type = dd.getLabelTypes()
+                            .stream()
+                            .filter(t -> typeName.equals(t.getEntityName()))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                LabelType t = ddFactory.createLabelType();
+                                t.setEntityName(typeName);
+                                dd.getLabelTypes()
+                                        .add(t);
+                                return t;
+                            });
 
-			Label label = ddFactory.createLabel();
-			label.setEntityName(labelName);
-			type.getLabel().add(label);
+                    Label label = ddFactory.createLabel();
+                    label.setEntityName(labelName);
+                    type.getLabel()
+                            .add(label);
 
-			labelsByQualifiedName.put(qn, label);
-		});
+                    labelsByQualifiedName.put(qn, label);
+                });
 
-		Map<Label, Integer> result = Util.transformLabelCosts(dd, input);
+        Map<Label, Integer> result = Util.transformLabelCosts(dd, input);
 
-		Map<Label, Integer> expected = new HashMap<>();
-		expectedByName.forEach((qn, cost) -> expected.put(labelsByQualifiedName.get(qn), cost));
+        Map<Label, Integer> expected = new HashMap<>();
+        expectedByName.forEach((qn, cost) -> expected.put(labelsByQualifiedName.get(qn), cost));
 
-		assertEquals(expected, result);
-	}
+        assertEquals(expected, result);
+    }
 
-	static Stream<Arguments> cases() {
-		return Stream.of(
-				// single entry
-				Arguments.of(Map.of("A.B", 5), Map.of("A.B", 5)),
+    static Stream<Arguments> cases() {
+        return Stream.of(
+                // single entry
+                Arguments.of(Map.of("A.B", 5), Map.of("A.B", 5)),
 
-				// multiple labels in one type
-				Arguments.of(Map.of("A.B", 3, "A.C", 7), Map.of("A.B", 3, "A.C", 7)),
+                // multiple labels in one type
+                Arguments.of(Map.of("A.B", 3, "A.C", 7), Map.of("A.B", 3, "A.C", 7)),
 
-				// multiple label types
-				Arguments.of(Map.of("A.B", 1, "X.Y", 9), Map.of("A.B", 1, "X.Y", 9)),
+                // multiple label types
+                Arguments.of(Map.of("A.B", 1, "X.Y", 9), Map.of("A.B", 1, "X.Y", 9)),
 
-				// empty input
-				Arguments.of(Map.of(), Map.of()));
-	}
+                // empty input
+                Arguments.of(Map.of(), Map.of()));
+    }
 }

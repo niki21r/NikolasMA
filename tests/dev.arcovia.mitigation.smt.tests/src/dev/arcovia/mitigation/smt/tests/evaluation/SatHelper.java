@@ -19,40 +19,40 @@ import tools.mdsd.library.standalone.initialization.StandaloneInitializationExce
 
 public final class SatHelper {
 
-	private SatHelper() {
-	}
+    private SatHelper() {
+    }
 
-	public static final Map<Label, Integer> MIN_COSTS = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),
-			entry(new Label("Stereotype", "authenticated_request"), 1),
-			entry(new Label("Stereotype", "transform_identity_representation"), 1),
-			entry(new Label("Stereotype", "token_validation"), 1),
-			entry(new Label("Stereotype", "login_attempts_regulation"), 1),
-			entry(new Label("Stereotype", "encrypted_connection"), 1),
-			entry(new Label("Stereotype", "log_sanitization"), 1), entry(new Label("Stereotype", "local_logging"), 1));
+    public static final Map<Label, Integer> MIN_COSTS = Map.ofEntries(entry(new Label("Stereotype", "gateway"), 1),
+            entry(new Label("Stereotype", "authenticated_request"), 1), entry(new Label("Stereotype", "transform_identity_representation"), 1),
+            entry(new Label("Stereotype", "token_validation"), 1), entry(new Label("Stereotype", "login_attempts_regulation"), 1),
+            entry(new Label("Stereotype", "encrypted_connection"), 1), entry(new Label("Stereotype", "log_sanitization"), 1),
+            entry(new Label("Stereotype", "local_logging"), 1));
 
-	public record RepairResult(DataFlowDiagramAndDictionary repairedDfd, int violationsBefore, int violationsAfter,
-			long runtimeInMilliseconds) {
-	}
+    public record RepairResult(DataFlowDiagramAndDictionary repairedDfd, int violationsBefore, int violationsAfter, long runtimeInMilliseconds) {
+    }
 
-	public static List<Constraint> toSatConstraints(List<AnalysisConstraint> analysisConstraints) {
-		return analysisConstraints.stream().flatMap(ac -> new CNFTranslation(ac).constructCNF().stream()).toList();
-	}
+    public static List<Constraint> toSatConstraints(List<AnalysisConstraint> analysisConstraints) {
+        return analysisConstraints.stream()
+                .flatMap(ac -> new CNFTranslation(ac).constructCNF()
+                        .stream())
+                .toList();
+    }
 
-	public static RepairResult runRepair(DataFlowDiagramAndDictionary dfd, boolean store,
-			List<AnalysisConstraint> analysisConstraints, Map<Label, Integer> costMap)
-			throws StandaloneInitializationException, ContradictionException, TimeoutException, IOException {
+    public static RepairResult runRepair(DataFlowDiagramAndDictionary dfd, boolean store, List<AnalysisConstraint> analysisConstraints,
+            Map<Label, Integer> costMap) throws StandaloneInitializationException, ContradictionException, TimeoutException, IOException {
 
-		String name = dfd.dataFlowDiagram().getEntityName();
-		String cnfName = store ? name : "aName";
+        String name = dfd.dataFlowDiagram()
+                .getEntityName();
+        String cnfName = store ? name : "aName";
 
-		long start = System.currentTimeMillis();
-		List<Constraint> translated = toSatConstraints(analysisConstraints);
-		Mechanic mechanic = new Mechanic(dfd, cnfName, translated, costMap);
-		DataFlowDiagramAndDictionary repairedDfd = mechanic.repair();
-		long end = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
+        List<Constraint> translated = toSatConstraints(analysisConstraints);
+        Mechanic mechanic = new Mechanic(dfd, cnfName, translated, costMap);
+        DataFlowDiagramAndDictionary repairedDfd = mechanic.repair();
+        long end = System.currentTimeMillis();
 
-		int violationsAfter = new Mechanic(repairedDfd, null, null).amountOfViolations(repairedDfd, translated);
+        int violationsAfter = new Mechanic(repairedDfd, null, null).amountOfViolations(repairedDfd, translated);
 
-		return new RepairResult(repairedDfd, mechanic.getViolations(), violationsAfter, end - start);
-	}
+        return new RepairResult(repairedDfd, mechanic.getViolations(), violationsAfter, end - start);
+    }
 }

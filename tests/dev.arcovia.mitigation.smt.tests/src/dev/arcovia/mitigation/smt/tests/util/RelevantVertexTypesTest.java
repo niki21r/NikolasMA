@@ -20,62 +20,63 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class RelevantVertexTypesTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("constraintCases")
-	void testGetRelevantVertexTypes(List<DFDVertexType> withTypes, List<DFDVertexType> withoutTypes,
-			Set<DFDVertexType> expected) {
+    @ParameterizedTest
+    @MethodSource("constraintCases")
+    void testGetRelevantVertexTypes(List<DFDVertexType> withTypes, List<DFDVertexType> withoutTypes, Set<DFDVertexType> expected) {
 
-		DSLNodeSourceSelector builder = new ConstraintDSL().fromNode();
+        DSLNodeSourceSelector builder = new ConstraintDSL().fromNode();
 
-		for (DFDVertexType t : withTypes)
-			builder = builder.withType(t);
+        for (DFDVertexType t : withTypes)
+            builder = builder.withType(t);
 
-		for (DFDVertexType t : withoutTypes)
-			builder = builder.withoutType(t);
+        for (DFDVertexType t : withoutTypes)
+            builder = builder.withoutType(t);
 
-		AnalysisConstraint constraint = builder.neverFlows().toVertex().create();
+        AnalysisConstraint constraint = builder.neverFlows()
+                .toVertex()
+                .create();
 
-		assertEquals(expected, Util.getRelevantVertexTypes(List.of(constraint)));
-	}
+        assertEquals(expected, Util.getRelevantVertexTypes(List.of(constraint)));
+    }
 
-	static Stream<Arguments> constraintCases() {
-		DFDVertexType[] types = DFDVertexType.values();
-		List<List<DFDVertexType>> subsets = generateSubsetsStatic(types);
+    static Stream<Arguments> constraintCases() {
+        DFDVertexType[] types = DFDVertexType.values();
+        List<List<DFDVertexType>> subsets = generateSubsetsStatic(types);
 
-		List<Arguments> args = new ArrayList<>();
+        List<Arguments> args = new ArrayList<>();
 
-		// empty constraint case
-		args.add(Arguments.of(List.of(), List.of(), Set.of()));
+        // empty constraint case
+        args.add(Arguments.of(List.of(), List.of(), Set.of()));
 
-		for (List<DFDVertexType> withTypes : subsets) {
-			for (List<DFDVertexType> withoutTypes : subsets) {
+        for (List<DFDVertexType> withTypes : subsets) {
+            for (List<DFDVertexType> withoutTypes : subsets) {
 
-				Set<DFDVertexType> expected = new HashSet<>();
-				expected.addAll(withTypes);
-				expected.addAll(withoutTypes);
+                Set<DFDVertexType> expected = new HashSet<>();
+                expected.addAll(withTypes);
+                expected.addAll(withoutTypes);
 
-				args.add(Arguments.of(withTypes, withoutTypes, expected));
-			}
-		}
+                args.add(Arguments.of(withTypes, withoutTypes, expected));
+            }
+        }
 
-		return args.stream();
-	}
+        return args.stream();
+    }
 
-	private static List<List<DFDVertexType>> generateSubsetsStatic(DFDVertexType[] types) {
+    private static List<List<DFDVertexType>> generateSubsetsStatic(DFDVertexType[] types) {
 
-		List<List<DFDVertexType>> subsets = new ArrayList<>();
-		subsets.add(new ArrayList<>());
+        List<List<DFDVertexType>> subsets = new ArrayList<>();
+        subsets.add(new ArrayList<>());
 
-		for (DFDVertexType type : types) {
-			List<List<DFDVertexType>> additions = new ArrayList<>();
-			for (List<DFDVertexType> existing : subsets) {
-				List<DFDVertexType> copy = new ArrayList<>(existing);
-				copy.add(type);
-				additions.add(copy);
-			}
-			subsets.addAll(additions);
-		}
+        for (DFDVertexType type : types) {
+            List<List<DFDVertexType>> additions = new ArrayList<>();
+            for (List<DFDVertexType> existing : subsets) {
+                List<DFDVertexType> copy = new ArrayList<>(existing);
+                copy.add(type);
+                additions.add(copy);
+            }
+            subsets.addAll(additions);
+        }
 
-		return subsets;
-	}
+        return subsets;
+    }
 }

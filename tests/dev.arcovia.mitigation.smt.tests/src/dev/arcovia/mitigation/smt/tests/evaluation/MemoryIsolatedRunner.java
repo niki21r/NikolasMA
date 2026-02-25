@@ -10,18 +10,18 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class MemoryIsolatedRunner {
 
-	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.err.println("Usage: MemoryIsolatedRunner <model> <constraintId>");
-			System.exit(2);
-		}
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) {
+            System.err.println("Usage: MemoryIsolatedRunner <model> <constraintId>");
+            System.exit(2);
+        }
 
-		String model = args[0];
-		int variantId = Integer.parseInt(args[1]);
+        String model = args[0];
+        int variantId = Integer.parseInt(args[1]);
 
-		List<AnalysisConstraint> constraints = ConstraintMapProvider.getOrThrow(variantId);
+        List<AnalysisConstraint> constraints = ConstraintMapProvider.getOrThrow(variantId);
 
-		DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-		Mitigation.run(dfd, constraints, null);
-	}
+        DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
+        Mitigation.run(dfd, constraints, null);
+    }
 }

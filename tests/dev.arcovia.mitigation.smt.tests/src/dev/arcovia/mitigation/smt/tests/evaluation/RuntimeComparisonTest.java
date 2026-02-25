@@ -18,68 +18,69 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class RuntimeComparisonTest {
 
-	private static final int RUNS_PER_CONFIGURATION = 100;
+    private static final int RUNS_PER_CONFIGURATION = 100;
 
-	@Test
-	public void testAllForRuntime() throws Exception {
-		List<RuntimeResult> runtimeResults = new ArrayList<>();
-		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
+    @Test
+    public void testAllForRuntime() throws Exception {
+        List<RuntimeResult> runtimeResults = new ArrayList<>();
+        List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 
-		for (EvaluationSupport.Configuration cfg : configs) {
-			Config config = new ConfigBuilder().findExpressionTreeSize(true).build();
+        for (EvaluationSupport.Configuration cfg : configs) {
+            Config config = new ConfigBuilder().findExpressionTreeSize(true)
+                    .build();
 
-			long dagSizeAfter = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(), config)
-					.expressionTreeSize().orElseThrow();
+            long dagSizeAfter = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(), config)
+                    .expressionTreeSize()
+                    .orElseThrow();
 
-			List<Long> smtRuntimes = measureSmtRuntimes(cfg.model(), cfg.constraints(), RUNS_PER_CONFIGURATION);
-			List<Long> satRuntimes = measureSatRuntimes(cfg.model(), cfg.constraints(), RUNS_PER_CONFIGURATION);
+            List<Long> smtRuntimes = measureSmtRuntimes(cfg.model(), cfg.constraints(), RUNS_PER_CONFIGURATION);
+            List<Long> satRuntimes = measureSatRuntimes(cfg.model(), cfg.constraints(), RUNS_PER_CONFIGURATION);
 
-			int clauseCount = extractClauseCount("testresults/aName.cnf");
+            int clauseCount = extractClauseCount("testresults/aName.cnf");
 
-			runtimeResults.add(new RuntimeResult(dagSizeAfter, clauseCount, smtRuntimes, satRuntimes));
-		}
+            runtimeResults.add(new RuntimeResult(dagSizeAfter, clauseCount, smtRuntimes, satRuntimes));
+        }
 
-		EvaluationSupport.writeJson(Path.of("testresults/results/runtimeResults/comparison/data.json"), runtimeResults);
-	}
+        EvaluationSupport.writeJson(Path.of("testresults/results/runtimeResults/comparison/data.json"), runtimeResults);
+    }
 
-	private static List<Long> measureSmtRuntimes(String model, List<AnalysisConstraint> constraints, int runs)
-			throws Exception {
+    private static List<Long> measureSmtRuntimes(String model, List<AnalysisConstraint> constraints, int runs) throws Exception {
 
-		List<Long> runtimes = new ArrayList<>(runs);
-		for (int i = 0; i < runs; i++) {
-			DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-			long before = System.currentTimeMillis();
-			Mitigation.run(dfd, constraints, null);
-			long after = System.currentTimeMillis();
-			runtimes.add(after - before);
-		}
-		return runtimes;
-	}
+        List<Long> runtimes = new ArrayList<>(runs);
+        for (int i = 0; i < runs; i++) {
+            DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
+            long before = System.currentTimeMillis();
+            Mitigation.run(dfd, constraints, null);
+            long after = System.currentTimeMillis();
+            runtimes.add(after - before);
+        }
+        return runtimes;
+    }
 
-	private static List<Long> measureSatRuntimes(String model, List<AnalysisConstraint> constraints, int runs)
-			throws Exception {
+    private static List<Long> measureSatRuntimes(String model, List<AnalysisConstraint> constraints, int runs) throws Exception {
 
-		List<Long> runtimes = new ArrayList<>(runs);
-		for (int i = 0; i < runs; i++) {
-			DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
-			RepairResult rr = SatHelper.runRepair(dfd, false, constraints, SatHelper.MIN_COSTS);
-			runtimes.add(rr.runtimeInMilliseconds());
-		}
-		return runtimes;
-	}
+        List<Long> runtimes = new ArrayList<>(runs);
+        for (int i = 0; i < runs; i++) {
+            DataFlowDiagramAndDictionary dfd = Util.loadDFD(model, model + "_0");
+            RepairResult rr = SatHelper.runRepair(dfd, false, constraints, SatHelper.MIN_COSTS);
+            runtimes.add(rr.runtimeInMilliseconds());
+        }
+        return runtimes;
+    }
 
-	private record RuntimeResult(long dagSize, int clauseCount, List<Long> runtimesSMT, List<Long> runtimesSAT) {
-	}
+    private record RuntimeResult(long dagSize, int clauseCount, List<Long> runtimesSMT, List<Long> runtimesSAT) {
+    }
 
-	private static int extractClauseCount(String filePath) throws Exception {
-		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-			String firstLine = reader.readLine();
-			if (firstLine != null && firstLine.startsWith("p cnf")) {
-				String[] parts = firstLine.trim().split("\\s+");
-				if (parts.length == 4)
-					return Integer.parseInt(parts[3]);
-			}
-		}
-		throw new IllegalArgumentException("First line is not in the expected 'p cnf <vars> <clauses>' format.");
-	}
+    private static int extractClauseCount(String filePath) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String firstLine = reader.readLine();
+            if (firstLine != null && firstLine.startsWith("p cnf")) {
+                String[] parts = firstLine.trim()
+                        .split("\\s+");
+                if (parts.length == 4)
+                    return Integer.parseInt(parts[3]);
+            }
+        }
+        throw new IllegalArgumentException("First line is not in the expected 'p cnf <vars> <clauses>' format.");
+    }
 }

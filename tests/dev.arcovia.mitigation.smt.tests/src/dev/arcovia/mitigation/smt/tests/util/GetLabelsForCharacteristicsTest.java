@@ -24,62 +24,85 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class GetLabelsForCharacteristicsTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("cases")
-	void testGetLabelsForCharacteristics(AnalysisConstraint constraint, Set<String> expectedLabelNames) {
-		// Build DataDictionary containing exactly the labels we expect (and optionally
-		// extras)
-		DataDictionary dd = ddFactory.createDataDictionary();
+    @ParameterizedTest
+    @MethodSource("cases")
+    void testGetLabelsForCharacteristics(AnalysisConstraint constraint, Set<String> expectedLabelNames) {
+        // Build DataDictionary containing exactly the labels we expect (and optionally
+        // extras)
+        DataDictionary dd = ddFactory.createDataDictionary();
 
-		LabelType typeA = ddFactory.createLabelType();
-		typeA.setEntityName("A");
+        LabelType typeA = ddFactory.createLabelType();
+        typeA.setEntityName("A");
 
-		Map<String, Label> labelsByName = new HashMap<>();
-		for (String name : expectedLabelNames) {
-			Label l = ddFactory.createLabel();
-			l.setEntityName(name);
-			typeA.getLabel().add(l);
-			labelsByName.put(name, l);
-		}
+        Map<String, Label> labelsByName = new HashMap<>();
+        for (String name : expectedLabelNames) {
+            Label l = ddFactory.createLabel();
+            l.setEntityName(name);
+            typeA.getLabel()
+                    .add(l);
+            labelsByName.put(name, l);
+        }
 
-		// add an extra label not referenced (edge: ensure not returned)
-		Label extra = ddFactory.createLabel();
-		extra.setEntityName("Z");
-		typeA.getLabel().add(extra);
+        // add an extra label not referenced (edge: ensure not returned)
+        Label extra = ddFactory.createLabel();
+        extra.setEntityName("Z");
+        typeA.getLabel()
+                .add(extra);
 
-		dd.getLabelTypes().add(typeA);
+        dd.getLabelTypes()
+                .add(typeA);
 
-		var chars = Util.getAnalysisCharacteristics(List.of(constraint));
-		List<CharacteristicsSelectorData> data = new ArrayList<>(chars);
-		Set<Label> result = Util.getLabelsForCharacteristics(dd, data);
+        var chars = Util.getAnalysisCharacteristics(List.of(constraint));
+        List<CharacteristicsSelectorData> data = new ArrayList<>(chars);
+        Set<Label> result = Util.getLabelsForCharacteristics(dd, data);
 
-		Set<Label> expected = expectedLabelNames.stream().map(labelsByName::get).collect(Collectors.toSet());
+        Set<Label> expected = expectedLabelNames.stream()
+                .map(labelsByName::get)
+                .collect(Collectors.toSet());
 
-		assertEquals(expected, result);
-	}
+        assertEquals(expected, result);
+    }
 
-	static Stream<Arguments> cases() {
-		return Stream.of(
-				// edge: no characteristics => empty result
-				Arguments.of(new ConstraintDSL().fromNode().neverFlows().toVertex().create(), Set.of()),
+    static Stream<Arguments> cases() {
+        return Stream.of(
+                // edge: no characteristics => empty result
+                Arguments.of(new ConstraintDSL().fromNode()
+                        .neverFlows()
+                        .toVertex()
+                        .create(), Set.of()),
 
-				// single characteristic (data add)
-				Arguments.of(new ConstraintDSL().ofData().withLabel("A", "B").neverFlows().toVertex().create(),
-						Set.of("B")),
+                // single characteristic (data add)
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withLabel("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), Set.of("B")),
 
-				// single characteristic (node remove)
-				Arguments.of(
-						new ConstraintDSL().fromNode().withoutCharacteristic("A", "C").neverFlows().toVertex().create(),
-						Set.of("C")),
+                // single characteristic (node remove)
+                Arguments.of(new ConstraintDSL().fromNode()
+                        .withoutCharacteristic("A", "C")
+                        .neverFlows()
+                        .toVertex()
+                        .create(), Set.of("C")),
 
-				// duplicates across data/node + add/remove should de-dupe in Set
-				Arguments.of(new ConstraintDSL().ofData().withLabel("A", "B").withoutLabel("A", "B").neverFlows()
-						.toVertex().withCharacteristic("A", "B").withoutCharacteristic("A", "B").create(), Set.of("B")),
+                // duplicates across data/node + add/remove should de-dupe in Set
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withLabel("A", "B")
+                        .withoutLabel("A", "B")
+                        .neverFlows()
+                        .toVertex()
+                        .withCharacteristic("A", "B")
+                        .withoutCharacteristic("A", "B")
+                        .create(), Set.of("B")),
 
-				// mixed multiple
-				Arguments.of(
-						new ConstraintDSL().ofData().withLabel("A", "B").withoutLabel("A", "C").neverFlows().toVertex()
-								.withCharacteristic("A", "D").withoutCharacteristic("A", "E").create(),
-						Set.of("B", "C", "D", "E")));
-	}
+                // mixed multiple
+                Arguments.of(new ConstraintDSL().ofData()
+                        .withLabel("A", "B")
+                        .withoutLabel("A", "C")
+                        .neverFlows()
+                        .toVertex()
+                        .withCharacteristic("A", "D")
+                        .withoutCharacteristic("A", "E")
+                        .create(), Set.of("B", "C", "D", "E")));
+    }
 }

@@ -14,34 +14,36 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class RuntimeTest {
 
-	@Test
-	public void testAllForRuntime() throws Exception {
-		List<RuntimeResult> runtimeResults = new ArrayList<>();
-		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
-		int totalRuns = 100;
+    @Test
+    public void testAllForRuntime() throws Exception {
+        List<RuntimeResult> runtimeResults = new ArrayList<>();
+        List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
+        int totalRuns = 100;
 
-		for (EvaluationSupport.Configuration cfg : configs) {
-			Config config = new ConfigBuilder().findExpressionTreeSize(true).build();
+        for (EvaluationSupport.Configuration cfg : configs) {
+            Config config = new ConfigBuilder().findExpressionTreeSize(true)
+                    .build();
 
-			long dagSizeAfter = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(), config)
-					.expressionTreeSize().orElseThrow();
+            long dagSizeAfter = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(), config)
+                    .expressionTreeSize()
+                    .orElseThrow();
 
-			List<Long> runtimes = new ArrayList<>(totalRuns);
-			for (int j = 0; j < totalRuns; j++) {
-				System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
-				DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
-				long before = System.currentTimeMillis();
-				Mitigation.run(dfd, cfg.constraints(), null);
-				long after = System.currentTimeMillis();
-				runtimes.add(after - before);
-			}
+            List<Long> runtimes = new ArrayList<>(totalRuns);
+            for (int j = 0; j < totalRuns; j++) {
+                System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
+                DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+                long before = System.currentTimeMillis();
+                Mitigation.run(dfd, cfg.constraints(), null);
+                long after = System.currentTimeMillis();
+                runtimes.add(after - before);
+            }
 
-			runtimeResults.add(new RuntimeResult(dagSizeAfter, runtimes));
-		}
+            runtimeResults.add(new RuntimeResult(dagSizeAfter, runtimes));
+        }
 
-		EvaluationSupport.writeJson(Path.of("testresults/results/runtimeResults/100runs/data.json"), runtimeResults);
-	}
+        EvaluationSupport.writeJson(Path.of("testresults/results/runtimeResults/100runs/data.json"), runtimeResults);
+    }
 
-	private record RuntimeResult(long dagSize, List<Long> averageRuntime) {
-	}
+    private record RuntimeResult(long dagSize, List<Long> averageRuntime) {
+    }
 }

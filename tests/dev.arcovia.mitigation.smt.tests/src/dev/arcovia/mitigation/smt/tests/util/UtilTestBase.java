@@ -5,8 +5,8 @@ import org.dataflowanalysis.dfd.dataflowdiagram.dataflowdiagramFactory;
 
 public abstract class UtilTestBase {
 
-	protected static final dataflowdiagramFactory dfdFactory = dataflowdiagramFactory.eINSTANCE;
+    protected static final dataflowdiagramFactory dfdFactory = dataflowdiagramFactory.eINSTANCE;
 
-	protected static final datadictionaryFactory ddFactory = datadictionaryFactory.eINSTANCE;
+    protected static final datadictionaryFactory ddFactory = datadictionaryFactory.eINSTANCE;
 
 }

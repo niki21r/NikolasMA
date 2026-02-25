@@ -19,79 +19,74 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class ModificationCountComparison {
 
-	@Test
-	void efficiencyTestOnlyAdd() throws Exception {
-		Config smtConfig = new ConfigBuilder().removeDataLabels(false).removeNodeLabels(false).build();
+    @Test
+    void efficiencyTestOnlyAdd() throws Exception {
+        Config smtConfig = new ConfigBuilder().removeDataLabels(false)
+                .removeNodeLabels(false)
+                .build();
 
-		runComparison(Path.of("testresults/results/modificationResults/comparison/add/data.json"), smtConfig, true,
-				true);
-	}
+        runComparison(Path.of("testresults/results/modificationResults/comparison/add/data.json"), smtConfig, true, true);
+    }
 
-	@Test
-	void efficiencyTest() throws Exception {
-		runComparison(Path.of("testresults/results/modificationResults/comparison/all/data.json"), null, true, false);
-	}
+    @Test
+    void efficiencyTest() throws Exception {
+        runComparison(Path.of("testresults/results/modificationResults/comparison/all/data.json"), null, true, false);
+    }
 
-	private void runComparison(Path outFile, Config smtConfig, boolean useNewModelCost,
-			boolean checkForRemoveOperations) throws Exception {
-		List<ComparisonResult> results = new ArrayList<>();
-		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
+    private void runComparison(Path outFile, Config smtConfig, boolean useNewModelCost, boolean checkForRemoveOperations) throws Exception {
+        List<ComparisonResult> results = new ArrayList<>();
+        List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 
-		for (EvaluationSupport.Configuration cfg : configs) {
-			System.out.println("Comparing " + cfg.model() + "_" + cfg.variantId());
+        for (EvaluationSupport.Configuration cfg : configs) {
+            System.out.println("Comparing " + cfg.model() + "_" + cfg.variantId());
 
-			DataFlowDiagramAndDictionary baseDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+            DataFlowDiagramAndDictionary baseDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
 
-			DataFlowDiagramAndDictionary inputDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
-			SatHelper.RepairResult satRepair = SatHelper.runRepair(inputDfd, false, cfg.constraints(),
-					SatHelper.MIN_COSTS);
+            DataFlowDiagramAndDictionary inputDfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+            SatHelper.RepairResult satRepair = SatHelper.runRepair(inputDfd, false, cfg.constraints(), SatHelper.MIN_COSTS);
 
-			DataFlowDiagramAndDictionary repairedDfd = satRepair.repairedDfd();
+            DataFlowDiagramAndDictionary repairedDfd = satRepair.repairedDfd();
 
-			int baseCost;
-			int satCost;
+            int baseCost;
+            int satCost;
 
-			var satConstraints = SatHelper.toSatConstraints(cfg.constraints());
+            var satConstraints = SatHelper.toSatConstraints(cfg.constraints());
 
-			if (useNewModelCost) {
-				baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS)
-						.calculateCostWithoutForwarding();
-				satCost = new ModelCostCalculator(repairedDfd, satConstraints, SatHelper.MIN_COSTS)
-						.calculateCostWithoutForwarding();
-			} else {
-				baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS).calculateCost();
-				satCost = new ModelCostCalculator(repairedDfd, satConstraints, SatHelper.MIN_COSTS).calculateCost();
-			}
+            if (useNewModelCost) {
+                baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS).calculateCostWithoutForwarding();
+                satCost = new ModelCostCalculator(repairedDfd, satConstraints, SatHelper.MIN_COSTS).calculateCostWithoutForwarding();
+            } else {
+                baseCost = new ModelCostCalculator(baseDfd, satConstraints, SatHelper.MIN_COSTS).calculateCost();
+                satCost = new ModelCostCalculator(repairedDfd, satConstraints, SatHelper.MIN_COSTS).calculateCost();
+            }
 
-			satCost -= baseCost;
+            satCost -= baseCost;
 
-			SolvingResult solving = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(),
-					smtConfig);
-			int smtCost = solving.repairCost();
+            SolvingResult solving = Mitigation.run(Util.loadDFD(cfg.model(), cfg.model() + "_0"), cfg.constraints(), smtConfig);
+            int smtCost = solving.repairCost();
 
-			if (smtCost > satCost) {
-				throw new Exception("SMT cost greater than SAT Cost. This should not be the case");
-			}
+            if (smtCost > satCost) {
+                throw new Exception("SMT cost greater than SAT Cost. This should not be the case");
+            }
 
-			if (checkForRemoveOperations) {
-				for (Operation op : solving.repairOperations()) {
-					if (op instanceof UnsetAssignmentOperation || op instanceof NodeLabelRemoveOperation) {
-						throw new IllegalStateException("Unexpected operation type in SMT result: " + op.getClass());
-					}
-				}
-			}
+            if (checkForRemoveOperations) {
+                for (Operation op : solving.repairOperations()) {
+                    if (op instanceof UnsetAssignmentOperation || op instanceof NodeLabelRemoveOperation) {
+                        throw new IllegalStateException("Unexpected operation type in SMT result: " + op.getClass());
+                    }
+                }
+            }
 
-			if (Util.countViolations(solving.repairedDFD(), cfg.constraints()) > 0) {
-				throw new IllegalStateException(
-						"Violations present after SMT repair for " + cfg.model() + "_" + cfg.variantId());
-			}
+            if (Util.countViolations(solving.repairedDFD(), cfg.constraints()) > 0) {
+                throw new IllegalStateException("Violations present after SMT repair for " + cfg.model() + "_" + cfg.variantId());
+            }
 
-			results.add(new ComparisonResult(cfg.model(), cfg.variantId(), satCost, smtCost));
-		}
+            results.add(new ComparisonResult(cfg.model(), cfg.variantId(), satCost, smtCost));
+        }
 
-		EvaluationSupport.writeJson(outFile, results);
-	}
+        EvaluationSupport.writeJson(outFile, results);
+    }
 
-	private record ComparisonResult(String model, int constraints, int satCost, int smtCost) {
-	}
+    private record ComparisonResult(String model, int constraints, int satCost, int smtCost) {
+    }
 }

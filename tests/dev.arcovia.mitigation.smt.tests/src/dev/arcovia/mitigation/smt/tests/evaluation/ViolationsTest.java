@@ -12,35 +12,35 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class ViolationsTest {
 
-	@Test
-	public void testAllForViolations() throws Exception {
-		List<ViolationsResult> results = new ArrayList<>();
-		List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
+    @Test
+    public void testAllForViolations() throws Exception {
+        List<ViolationsResult> results = new ArrayList<>();
+        List<EvaluationSupport.Configuration> configs = EvaluationSupport.configurations();
 
-		int totalViolations = 0;
+        int totalViolations = 0;
 
-		for (EvaluationSupport.Configuration cfg : configs) {
-			DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
+        for (EvaluationSupport.Configuration cfg : configs) {
+            DataFlowDiagramAndDictionary dfd = Util.loadDFD(cfg.model(), cfg.model() + "_0");
 
-			int before = Util.countViolations(dfd, cfg.constraints());
-			totalViolations += before;
+            int before = Util.countViolations(dfd, cfg.constraints());
+            totalViolations += before;
 
-			System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
-			DataFlowDiagramAndDictionary repaired = Mitigation.run(dfd, cfg.constraints(), null).repairedDFD();
+            System.out.println("Running " + cfg.model() + " with constraints " + cfg.variantId());
+            DataFlowDiagramAndDictionary repaired = Mitigation.run(dfd, cfg.constraints(), null)
+                    .repairedDFD();
 
-			int after = Util.countViolations(repaired, cfg.constraints());
-			if (after > 0) {
-				throw new IllegalStateException(
-						"Violations after repair still present for " + cfg.model() + "_" + cfg.variantId());
-			}
+            int after = Util.countViolations(repaired, cfg.constraints());
+            if (after > 0) {
+                throw new IllegalStateException("Violations after repair still present for " + cfg.model() + "_" + cfg.variantId());
+            }
 
-			results.add(new ViolationsResult(cfg.model(), cfg.variantId(), before, after));
-		}
+            results.add(new ViolationsResult(cfg.model(), cfg.variantId(), before, after));
+        }
 
-		EvaluationSupport.writeJson(Path.of("testresults/results/violationResults/data.json"), results);
-		System.out.println("Total violations " + totalViolations);
-	}
+        EvaluationSupport.writeJson(Path.of("testresults/results/violationResults/data.json"), results);
+        System.out.println("Total violations " + totalViolations);
+    }
 
-	private record ViolationsResult(String model, int constraints, int violationsBefore, int violationsAfter) {
-	}
+    private record ViolationsResult(String model, int constraints, int violationsBefore, int violationsAfter) {
+    }
 }

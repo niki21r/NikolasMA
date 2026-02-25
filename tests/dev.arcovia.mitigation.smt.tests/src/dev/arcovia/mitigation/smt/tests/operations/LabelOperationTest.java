@@ -11,42 +11,58 @@ import dev.arcovia.mitigation.smt.operations.LabelOperation;
 
 class LabelOperationTest extends OperationTestBase {
 
-	@Test
-	void doOperationAddsLabelWhenTypeExists() {
-		var dfd = emptyDfd();
-		LabelType typeA = ddFactory.createLabelType();
-		typeA.setEntityName("A");
-		dfd.dataDictionary().getLabelTypes().add(typeA);
+    @Test
+    void doOperationAddsLabelWhenTypeExists() {
+        var dfd = emptyDfd();
+        LabelType typeA = ddFactory.createLabelType();
+        typeA.setEntityName("A");
+        dfd.dataDictionary()
+                .getLabelTypes()
+                .add(typeA);
 
-		new LabelOperation("A", "B", "42").doOperation(dfd);
+        new LabelOperation("A", "B", "42").doOperation(dfd);
 
-		assertTrue(typeA.getLabel().stream().anyMatch(l -> "B".equals(l.getEntityName())));
-		assertEquals("42",
-				typeA.getLabel().stream().filter(l -> "B".equals(l.getEntityName())).findFirst().get().getId());
-	}
+        assertTrue(typeA.getLabel()
+                .stream()
+                .anyMatch(l -> "B".equals(l.getEntityName())));
+        assertEquals("42", typeA.getLabel()
+                .stream()
+                .filter(l -> "B".equals(l.getEntityName()))
+                .findFirst()
+                .get()
+                .getId());
+    }
 
-	@Test
-	void doOperationNoopWhenTypeMissing() {
-		var dfd = emptyDfd();
+    @Test
+    void doOperationNoopWhenTypeMissing() {
+        var dfd = emptyDfd();
 
-		new LabelOperation("A", "B", "42").doOperation(dfd);
+        new LabelOperation("A", "B", "42").doOperation(dfd);
 
-		assertTrue(dfd.dataDictionary().getLabelTypes().isEmpty());
-	}
+        assertTrue(dfd.dataDictionary()
+                .getLabelTypes()
+                .isEmpty());
+    }
 
-	@Test
-	void undoOperationRemovesLabelByName() {
-		var dfd = emptyDfd();
-		LabelType typeA = ddFactory.createLabelType();
-		typeA.setEntityName("A");
-		dfd.dataDictionary().getLabelTypes().add(typeA);
+    @Test
+    void undoOperationRemovesLabelByName() {
+        var dfd = emptyDfd();
+        LabelType typeA = ddFactory.createLabelType();
+        typeA.setEntityName("A");
+        dfd.dataDictionary()
+                .getLabelTypes()
+                .add(typeA);
 
-		new LabelOperation("A", "B", "42").doOperation(dfd);
-		new LabelOperation("A", "C", "43").doOperation(dfd);
+        new LabelOperation("A", "B", "42").doOperation(dfd);
+        new LabelOperation("A", "C", "43").doOperation(dfd);
 
-		new LabelOperation("A", "B", "42").undoOperation(dfd);
+        new LabelOperation("A", "B", "42").undoOperation(dfd);
 
-		assertFalse(typeA.getLabel().stream().anyMatch(l -> "B".equals(l.getEntityName())));
-		assertTrue(typeA.getLabel().stream().anyMatch(l -> "C".equals(l.getEntityName())));
-	}
+        assertFalse(typeA.getLabel()
+                .stream()
+                .anyMatch(l -> "B".equals(l.getEntityName())));
+        assertTrue(typeA.getLabel()
+                .stream()
+                .anyMatch(l -> "C".equals(l.getEntityName())));
+    }
 }

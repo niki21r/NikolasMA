@@ -21,48 +21,54 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class ReduceToLabelReferenceTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("cases")
-	void testReduceToLabelReferences(Term term, Set<String> expectedLabelNames) {
-		Set<LabelReference> result = Util.reduceToLabelReferences(term);
+    @ParameterizedTest
+    @MethodSource("cases")
+    void testReduceToLabelReferences(Term term, Set<String> expectedLabelNames) {
+        Set<LabelReference> result = Util.reduceToLabelReferences(term);
 
-		Set<String> actualLabelNames = result.stream()
-				.map(lr -> lr.getLabel() == null ? null : lr.getLabel().getEntityName()).collect(Collectors.toSet());
+        Set<String> actualLabelNames = result.stream()
+                .map(lr -> lr.getLabel() == null ? null
+                        : lr.getLabel()
+                                .getEntityName())
+                .collect(Collectors.toSet());
 
-		assertEquals(expectedLabelNames, actualLabelNames);
-	}
+        assertEquals(expectedLabelNames, actualLabelNames);
+    }
 
-	static Stream<Arguments> cases() {
-		Term tTrue = ddFactory.createTRUE();
+    static Stream<Arguments> cases() {
+        Term tTrue = ddFactory.createTRUE();
 
-		NOT notTrue = ddFactory.createNOT();
-		notTrue.setNegatedTerm(ddFactory.createTRUE());
+        NOT notTrue = ddFactory.createNOT();
+        notTrue.setNegatedTerm(ddFactory.createTRUE());
 
-		LabelReference r1 = ref("L1");
+        LabelReference r1 = ref("L1");
 
-		NOT notR1 = ddFactory.createNOT();
-		notR1.setNegatedTerm(ref("L1"));
+        NOT notR1 = ddFactory.createNOT();
+        notR1.setNegatedTerm(ref("L1"));
 
-		AND andMix = ddFactory.createAND();
-		andMix.getTerms().addAll(List.of(ddFactory.createTRUE(), notTrue, ref("L1"), notR1));
+        AND andMix = ddFactory.createAND();
+        andMix.getTerms()
+                .addAll(List.of(ddFactory.createTRUE(), notTrue, ref("L1"), notR1));
 
-		OR orMix = ddFactory.createOR();
-		orMix.getTerms().addAll(List.of(ref("L2"), andMix));
+        OR orMix = ddFactory.createOR();
+        orMix.getTerms()
+                .addAll(List.of(ref("L2"), andMix));
 
-		AND nested = ddFactory.createAND();
-		nested.getTerms().addAll(List.of(orMix, ref("L3")));
+        AND nested = ddFactory.createAND();
+        nested.getTerms()
+                .addAll(List.of(orMix, ref("L3")));
 
-		return Stream.of(Arguments.of(tTrue, Set.of()), Arguments.of(notTrue, Set.of()), Arguments.of(r1, Set.of("L1")),
-				Arguments.of(notR1, Set.of("L1")), Arguments.of(andMix, Set.of("L1")),
-				Arguments.of(orMix, Set.of("L1", "L2")), Arguments.of(nested, Set.of("L1", "L2", "L3")));
-	}
+        return Stream.of(Arguments.of(tTrue, Set.of()), Arguments.of(notTrue, Set.of()), Arguments.of(r1, Set.of("L1")),
+                Arguments.of(notR1, Set.of("L1")), Arguments.of(andMix, Set.of("L1")), Arguments.of(orMix, Set.of("L1", "L2")),
+                Arguments.of(nested, Set.of("L1", "L2", "L3")));
+    }
 
-	private static LabelReference ref(String labelName) {
-		Label l = ddFactory.createLabel();
-		l.setEntityName(labelName);
+    private static LabelReference ref(String labelName) {
+        Label l = ddFactory.createLabel();
+        l.setEntityName(labelName);
 
-		LabelReference r = ddFactory.createLabelReference();
-		r.setLabel(l);
-		return r;
-	}
+        LabelReference r = ddFactory.createLabelReference();
+        r.setLabel(l);
+        return r;
+    }
 }

@@ -15,50 +15,54 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 class LabelContainmentTest extends UtilTestBase {
 
-	@ParameterizedTest
-	@MethodSource("labelTypeCases")
-	void testContainsLabelType(String lookupName, boolean expected) {
-		DataDictionary dd = ddFactory.createDataDictionary();
+    @ParameterizedTest
+    @MethodSource("labelTypeCases")
+    void testContainsLabelType(String lookupName, boolean expected) {
+        DataDictionary dd = ddFactory.createDataDictionary();
 
-		LabelType typeA = ddFactory.createLabelType();
-		typeA.setEntityName("A");
+        LabelType typeA = ddFactory.createLabelType();
+        typeA.setEntityName("A");
 
-		LabelType typeB = ddFactory.createLabelType();
-		typeB.setEntityName("B");
+        LabelType typeB = ddFactory.createLabelType();
+        typeB.setEntityName("B");
 
-		dd.getLabelTypes().add(typeA);
-		dd.getLabelTypes().add(typeB);
+        dd.getLabelTypes()
+                .add(typeA);
+        dd.getLabelTypes()
+                .add(typeB);
 
-		boolean result = Util.containsLabelType(dd, lookupName);
-		assertEquals(expected, result);
-	}
+        boolean result = Util.containsLabelType(dd, lookupName);
+        assertEquals(expected, result);
+    }
 
-	static Stream<Arguments> labelTypeCases() {
-		return Stream.of(Arguments.of("A", true), Arguments.of("B", true), Arguments.of("C", false),
-				Arguments.of("", false), Arguments.of(null, false));
-	}
+    static Stream<Arguments> labelTypeCases() {
+        return Stream.of(Arguments.of("A", true), Arguments.of("B", true), Arguments.of("C", false), Arguments.of("", false),
+                Arguments.of(null, false));
+    }
 
-	@ParameterizedTest
-	@MethodSource("labelCases")
-	void testContainsLabel(String lookupName, boolean expected) {
-		LabelType type = ddFactory.createLabelType();
-		type.setEntityName("A");
+    @ParameterizedTest
+    @MethodSource("labelCases")
+    void testContainsLabel(String lookupName, boolean expected) {
+        LabelType type = ddFactory.createLabelType();
+        type.setEntityName("A");
 
-		Label labelB = ddFactory.createLabel();
-		labelB.setEntityName("B");
+        Label labelB = ddFactory.createLabel();
+        labelB.setEntityName("B");
 
-		Label labelC = ddFactory.createLabel();
-		labelC.setEntityName("C");
+        Label labelC = ddFactory.createLabel();
+        labelC.setEntityName("C");
 
-		type.getLabel().add(labelB);
-		type.getLabel().add(labelC);
+        type.getLabel()
+                .add(labelB);
+        type.getLabel()
+                .add(labelC);
 
-		boolean result = Util.containsLabel(type, lookupName);
-		assertEquals(expected, result);
-	}
+        boolean result = Util.containsLabel(type, lookupName);
+        assertEquals(expected, result);
+    }
 
-	static Stream<Arguments> labelCases() {
-		return Stream.of(Arguments.of("B", true), Arguments.of("C", true), Arguments.of("D", false),
-				Arguments.of("", false), Arguments.of(null, false));
-	}
+    static Stream<Arguments> labelCases() {
+        return Stream.of(Arguments.of("B", true), Arguments.of("C", true), Arguments.of("D", false), Arguments.of("", false),
+                Arguments.of(null, false));
+    }
 }

@@ -26,45 +26,46 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 public class ConstraintTranslationTest {
 
-	@Test
-	public void testTranslation() throws Exception {
-		var tuhhModels = TuhhModels.getTuhhModels();
+    @Test
+    public void testTranslation() throws Exception {
+        var tuhhModels = TuhhModels.getTuhhModels();
 
-		Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
-		DataFlowDiagramAndDictionary dfd = Util.loadDFD("georgwittberger", "georgwittberger_0");
-		List<AnalysisConstraint> constraint = constraintMap.get(7);
+        Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
+        DataFlowDiagramAndDictionary dfd = Util.loadDFD("georgwittberger", "georgwittberger_0");
+        List<AnalysisConstraint> constraint = constraintMap.get(7);
 
-		Preprocess preprocess = new Preprocess();
-		PreprocessingResult pre = preprocess.preprocess(dfd, constraint, false);
-		Config config = new ConfigBuilder().build();
+        Preprocess preprocess = new Preprocess();
+        PreprocessingResult pre = preprocess.preprocess(dfd, constraint, false);
+        Config config = new ConfigBuilder().build();
 
-		SMT smt = new SMT(pre, constraint, config);
+        SMT smt = new SMT(pre, constraint, config);
 
-		ConstraintTranslator translator = new ConstraintTranslator(smt);
+        ConstraintTranslator translator = new ConstraintTranslator(smt);
 
-		List<String> actualExprs = new ArrayList<>();
-		for (DFDVertex vertex : pre.vertices()) {
-			actualExprs.add(translator.translateConstraint(constraint.get(0), vertex).simplify().toString());
-		}
+        List<String> actualExprs = new ArrayList<>();
+        for (DFDVertex vertex : pre.vertices()) {
+            actualExprs.add(translator.translateConstraint(constraint.get(0), vertex)
+                    .simplify()
+                    .toString());
+        }
 
-		List<String> expectedExprs = List.of("true",
-				"(not (and (not Pin_37_unset_entrypoint)\n" + "          (not Pin_34_unset_entrypoint)\n"
-						+ "          (not (or Pin_34_set_encrypted_connection\n"
-						+ "                   Pin_37_set_encrypted_connection\n"
-						+ "                   Pin_30_set_encrypted_connection))))",
-				"(not (and (not Pin_42_unset_entrypoint)\n" + "          (not (or Pin_42_set_encrypted_connection\n"
-						+ "                   Pin_30_set_encrypted_connection))))",
-				"true",
-				"(not (and (not Pin_37_unset_entrypoint)\n" + "          (not (or Pin_37_set_encrypted_connection\n"
-						+ "                   Pin_30_set_encrypted_connection))))",
-				"true",
-				"(not (and (not Pin_39_unset_entrypoint)\n" + "          (not (or Pin_39_set_encrypted_connection\n"
-						+ "                   Pin_30_set_encrypted_connection))))",
-				"true", "true");
+        List<String> expectedExprs = List
+                .of("true",
+                        "(not (and (not Pin_37_unset_entrypoint)\n" + "          (not Pin_34_unset_entrypoint)\n"
+                                + "          (not (or Pin_34_set_encrypted_connection\n" + "                   Pin_37_set_encrypted_connection\n"
+                                + "                   Pin_30_set_encrypted_connection))))",
+                        "(not (and (not Pin_42_unset_entrypoint)\n"
+                                + "          (not (or Pin_42_set_encrypted_connection\n" + "                   Pin_30_set_encrypted_connection))))",
+                        "true",
+                        "(not (and (not Pin_37_unset_entrypoint)\n" + "          (not (or Pin_37_set_encrypted_connection\n"
+                                + "                   Pin_30_set_encrypted_connection))))",
+                        "true", "(not (and (not Pin_39_unset_entrypoint)\n" + "          (not (or Pin_39_set_encrypted_connection\n"
+                                + "                   Pin_30_set_encrypted_connection))))",
+                        "true", "true");
 
-		Set<String> actual = new HashSet<>(actualExprs);
-		assertTrue(actual.containsAll(expectedExprs));
-		assertEquals(new HashSet<>(expectedExprs), actual);
-	}
+        Set<String> actual = new HashSet<>(actualExprs);
+        assertTrue(actual.containsAll(expectedExprs));
+        assertEquals(new HashSet<>(expectedExprs), actual);
+    }
 
 }
