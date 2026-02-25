@@ -28,6 +28,30 @@ import dev.arcovia.mitigation.smt.preprocess.PreprocessingResult;
 public abstract class AbstractSelectorConstraintTest {
 
   protected abstract Stream<SelectorTestCase> cases();
+  
+  protected static final String LABELTYPE = "dummyType";
+  protected static final String LABEL1 = "dummyLabel1";
+  protected static final String LABEL2 = "dummyLabel2";
+  protected static final String LABEL3 = "dummyLabel3";
+  protected static final String LABEL4 = "dummyLabel4";
+  protected static final String SOURCE = "source";
+  protected static final String SINK = "sink";
+  protected static final String FLOW = "sourceToSink";
+  protected static final String PIN = "pin1";
+  protected static final String TRUE = "true";
+  protected static final String FALSE = "false";
+  
+  protected static String set(String labelName) {
+	  return "Pin_"+PIN+"_set_"+labelName;
+  }
+  
+  protected static String unset(String labelName) {
+	  return "Pin_"+PIN+"_unset_"+labelName;
+  }
+  
+  protected static String nodeLabel(String nodeName, String labelName) {
+	  return nodeName+"_label_"+labelName;
+  }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("cases")

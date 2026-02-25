@@ -19,12 +19,12 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withLabel(single) -> sink satisfies only if label removed",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withLabel("dummyType", List.of("dummyLabel1"))
+		              .withLabel(LABELTYPE, List.of(LABEL1))
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("Pin_pin1_unset_dummyLabel1")
+		          List.of(TRUE),
+		          List.of(unset(LABEL1))
 		      ),
 
 		      // Sink constraint should only be satisfied when both labels are removed.
@@ -32,14 +32,14 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withLabel(multi) -> sink satisfies only if both labels removed",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withLabel("dummyType", List.of("dummyLabel1", "dummyLabel2"))
+		              .withLabel(LABELTYPE, List.of(LABEL1, LABEL2))
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
+		          List.of(TRUE),
 		          List.of(
-		              "(not (or (not Pin_pin1_unset_dummyLabel1) (not Pin_pin1_unset_dummyLabel2)))",
-		              "(not (or (not Pin_pin1_unset_dummyLabel2) (not Pin_pin1_unset_dummyLabel1)))"
+		              "(not (or (not "+unset(LABEL1)+") (not "+unset(LABEL2)+")))",
+		              "(not (or (not "+unset(LABEL2)+") (not "+unset(LABEL1)+")))"
 		          )
 		      ),
 
@@ -48,12 +48,12 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withLabel(empty) -> sink always satisfies",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withLabel("dummyType", List.of())
+		              .withLabel(LABELTYPE, List.of())
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("true")
+		          List.of(TRUE),
+		          List.of(TRUE)
 		      ),
 
 		      // Edge case: Sink should never satisfy negated selector with empty list.
@@ -61,12 +61,12 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withoutLabel(empty) -> sink never satisfies",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withoutLabel("dummyType", List.of())
+		              .withoutLabel(LABELTYPE, List.of())
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("false")
+		          List.of(TRUE),
+		          List.of(FALSE)
 		      ),
 
 		      // Sink should satisfy this constraint since both labels are already present.
@@ -74,12 +74,12 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withoutLabel(dummyLabel1,dummyLabel2) -> sink satisfies (already present)",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withoutLabel("dummyType", List.of("dummyLabel1", "dummyLabel2"))
+		              .withoutLabel(LABELTYPE, List.of(LABEL1, LABEL2))
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("true")
+		          List.of(TRUE),
+		          List.of(TRUE)
 		      ),
 
 		      // Sink should only satisfy if at least one of the labels is added.
@@ -87,14 +87,14 @@ public class DataCharacteristicsListTest extends AbstractSelectorConstraintTest{
 		          "withoutLabel(dummyLabel3,dummyLabel4) -> sink satisfies if one gets added",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withoutLabel("dummyType", List.of("dummyLabel3", "dummyLabel4"))
+		              .withoutLabel(LABELTYPE, List.of(LABEL3, LABEL4))
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
 		          List.of("true"),
 		          List.of(
-		              "(or Pin_pin1_set_dummyLabel4 Pin_pin1_set_dummyLabel3)",
-		              "(or Pin_pin1_set_dummyLabel3 Pin_pin1_set_dummyLabel4)"
+		              "(or "+set(LABEL4)+" "+set(LABEL3)+")",
+		              "(or "+set(LABEL3)+" "+set(LABEL4)+")"
 		          )
 		      )
 		  );

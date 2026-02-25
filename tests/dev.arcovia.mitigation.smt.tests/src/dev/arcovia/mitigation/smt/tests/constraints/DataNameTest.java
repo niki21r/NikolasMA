@@ -21,7 +21,7 @@ public class DataNameTest extends AbstractSelectorConstraintTest {
 	static Stream<SelectorTestCase> dataNameTest() {
 		
 		 DSLContext context = new DSLContext();
-		 VariableNameSelector matches = VariableNameSelector.fromString(new StringView("named sourceToSink"), context).getResult();
+		 VariableNameSelector matches = VariableNameSelector.fromString(new StringView("named "+FLOW), context).getResult();
 		 VariableNameSelector notMatches = VariableNameSelector.fromString(new StringView("named otherName"), context).getResult();
 		 
 		 AnalysisConstraint firstConstr = new AnalysisConstraint("default");
@@ -35,14 +35,14 @@ public class DataNameTest extends AbstractSelectorConstraintTest {
 			      new SelectorTestCase(
 			          "with right flow name -> false",
 			          firstConstr,
-			          List.of("true"),
-			          List.of("false")
+			          List.of(TRUE),
+			          List.of(FALSE)
 			      ),
 			      new SelectorTestCase(
 				          "with wrong flow name -> true",
 				          secondConstr,
-				          List.of("true"),
-				          List.of("true")
+				          List.of(TRUE),
+				          List.of(TRUE)
 				      )
 			  );
 	}

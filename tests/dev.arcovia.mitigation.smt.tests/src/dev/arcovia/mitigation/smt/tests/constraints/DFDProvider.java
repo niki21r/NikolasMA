@@ -10,6 +10,7 @@ import org.dataflowanalysis.dfd.datadictionary.datadictionaryFactory;
 import org.dataflowanalysis.dfd.dataflowdiagram.Flow;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
 import org.dataflowanalysis.dfd.dataflowdiagram.dataflowdiagramFactory;
+import static dev.arcovia.mitigation.smt.tests.constraints.AbstractSelectorConstraintTest.*;
 
 public class DFDProvider {
 	  private static final dataflowdiagramFactory dfdFactory = dataflowdiagramFactory.eINSTANCE;
@@ -20,15 +21,15 @@ public class DFDProvider {
 		    var dfd = dfdFactory.createDataFlowDiagram();
 
 		    LabelType dummyType = ddFactory.createLabelType();
-		    dummyType.setEntityName("dummyType");
+		    dummyType.setEntityName(LABELTYPE);
 		    dummyType.setId("type1");
 
 		    Label dummyLabel1 = ddFactory.createLabel();
-		    dummyLabel1.setEntityName("dummyLabel1");
+		    dummyLabel1.setEntityName(LABEL1);
 		    dummyLabel1.setId("label1");
 
 		    Label dummyLabel2 = ddFactory.createLabel();
-		    dummyLabel2.setEntityName("dummyLabel2");
+		    dummyLabel2.setEntityName(LABEL2);
 		    dummyLabel2.setId("label2");
 
 		    dummyType.getLabel().add(dummyLabel1);
@@ -36,14 +37,14 @@ public class DFDProvider {
 		    dd.getLabelTypes().add(dummyType);
 
 		    Node source = dfdFactory.createProcess();
-		    source.setEntityName("source");
+		    source.setEntityName(SOURCE);
 		    source.setId("node1");
 		    source.getProperties().add(dummyLabel1);
 		    dfd.getNodes().add(source);
 
 		    Pin sourceOut = ddFactory.createPin();
 		    sourceOut.setEntityName("sourceOut");
-		    sourceOut.setId("pin1");
+		    sourceOut.setId(PIN);
 
 		    SetAssignment set = ddFactory.createSetAssignment();
 		    set.setEntityName("set");
@@ -62,7 +63,7 @@ public class DFDProvider {
 		    source.setBehavior(sourceBehavior);
 
 		    Node sink = dfdFactory.createProcess();
-		    sink.setEntityName("sink");
+		    sink.setEntityName(SINK);
 		    sink.setId("node2");
 		    sink.getProperties().add(dummyLabel2);
 		    dfd.getNodes().add(sink);
@@ -80,7 +81,7 @@ public class DFDProvider {
 		    sink.setBehavior(sinkBehavior);
 
 		    Flow flow = dfdFactory.createFlow();
-		    flow.setEntityName("sourceToSink");
+		    flow.setEntityName(FLOW);
 		    flow.setId("flow1");
 		    flow.setSourcePin(sourceOut);
 		    flow.setSourceNode(source);

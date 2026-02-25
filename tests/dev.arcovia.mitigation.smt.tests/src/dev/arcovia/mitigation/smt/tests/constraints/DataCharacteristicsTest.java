@@ -20,46 +20,46 @@ public class DataCharacteristicsTest extends AbstractSelectorConstraintTest {
 		          "withLabel that exists -> sink satisfies only if label removed",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withLabel("dummyType", "dummyLabel1")
+		              .withLabel(LABELTYPE, LABEL1)
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("Pin_pin1_unset_dummyLabel1")
+		          List.of(TRUE),
+		          List.of(unset(LABEL1))
 		      ),
 		      new SelectorTestCase(
 			          "withLabel that does not exist -> sink satisfies",
 			          new ConstraintDSL()
 			              .ofData()
-			              .withLabel("dummyType", "dummyLabel3")
+			              .withLabel(LABELTYPE, LABEL3)
 			              .neverFlows()
 			              .toVertex()
 			              .create(),
-			          List.of("true"),
-			          List.of("true")
+			          List.of(TRUE),
+			          List.of(TRUE)
 			      ),
 
 		      new SelectorTestCase(
 		          "withoutLabel that exists -> sink satisfies",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withoutLabel("dummyType", "dummyLabel1")
+		              .withoutLabel(LABELTYPE, LABEL1)
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("true")
+		          List.of(TRUE),
+		          List.of(TRUE)
 		      ),
 		      new SelectorTestCase(
 		          "withoutLabel that does not exist -> labels needs to be added",
 		          new ConstraintDSL()
 		              .ofData()
-		              .withoutLabel("dummyType", "dummyLabel3")
+		              .withoutLabel(LABELTYPE, LABEL3)
 		              .neverFlows()
 		              .toVertex()
 		              .create(),
-		          List.of("true"),
-		          List.of("Pin_pin1_set_dummyLabel3")
+		          List.of(TRUE),
+		          List.of(set(LABEL3))
 		      )
 		  );
 		}
