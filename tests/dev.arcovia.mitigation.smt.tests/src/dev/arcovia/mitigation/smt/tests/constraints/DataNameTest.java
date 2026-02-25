@@ -2,12 +2,11 @@ package dev.arcovia.mitigation.smt.tests.constraints;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.dataflowanalysis.analysis.utils.StringView;
-import org.junit.jupiter.api.Test;
+
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
-import org.dataflowanalysis.analysis.dsl.constraint.ConstraintDSL;
+import org.dataflowanalysis.analysis.dsl.context.DSLContext;
 import org.dataflowanalysis.analysis.dsl.selectors.VariableNameSelector;
-import org.dataflowanalysis.analysis.dsl.context.*;
+import org.dataflowanalysis.analysis.utils.StringView;
 
 public class DataNameTest extends AbstractSelectorConstraintTest {
 

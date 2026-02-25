@@ -12,7 +12,6 @@ import java.util.Set;
 import org.dataflowanalysis.analysis.dfd.core.DFDVertex;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
-import org.dataflowanalysis.examplemodels.TuhhModels;
 import org.junit.jupiter.api.Test;
 
 import dev.arcovia.mitigation.smt.SMT;
@@ -28,8 +27,6 @@ public class ConstraintTranslationTest {
 
     @Test
     public void testTranslation() throws Exception {
-        var tuhhModels = TuhhModels.getTuhhModels();
-
         Map<Integer, List<AnalysisConstraint>> constraintMap = ConstraintMapProvider.buildConstraintMap();
         DataFlowDiagramAndDictionary dfd = Util.loadDFD("georgwittberger", "georgwittberger_0");
         List<AnalysisConstraint> constraint = constraintMap.get(7);

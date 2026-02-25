@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.AbstractAssignment;
-import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Pin;
 import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
 import org.dataflowanalysis.dfd.dataflowdiagram.Node;
@@ -34,7 +33,6 @@ public class OutPinToAssTest {
                 }
                 DataFlowDiagramAndDictionary dfdAndDD = Util.loadDFD(model, model + "_" + i);
                 DataFlowDiagram dfd = dfdAndDD.dataFlowDiagram();
-                DataDictionary dd = dfdAndDD.dataDictionary();
 
                 Map<Pin, List<AbstractAssignment>> outPinToAss = Util.outPinToAss(dfd.getNodes());
 

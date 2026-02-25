@@ -18,9 +18,7 @@ import org.dataflowanalysis.analysis.dfd.resource.DFDModelResourceProvider;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.dfd.datadictionary.Assignment;
-import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.ForwardingAssignment;
-import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
 import org.dataflowanalysis.examplemodels.TuhhModels;
 import org.junit.jupiter.api.Test;
 
@@ -51,8 +49,6 @@ public class PreprocessTest {
                     continue;
                 }
                 DataFlowDiagramAndDictionary dfdAndDD = Util.loadDFD(model, model + "_" + i);
-                DataFlowDiagram dfd = dfdAndDD.dataFlowDiagram();
-                DataDictionary dd = dfdAndDD.dataDictionary();
                 Preprocess pre = new Preprocess();
                 PreprocessingResult preprocessingResult = pre.preprocess(dfdAndDD, constraint, false);
 
