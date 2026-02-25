@@ -18,44 +18,45 @@ import dev.arcovia.mitigation.smt.util.Util;
 /**
  * Selector translation logic for Data Characteristics List Selectors
  * @author Nikolas Rank
- *
  */
 final class DataCharacteristicListHandler extends AbstractSelectorHandler<DataCharacteristicListSelector> {
 
-	@Override
-	protected BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SMT smt) {
+    @Override
+    protected BoolExpr encode(DataCharacteristicListSelector s, DFDVertex vertex, SMT smt) {
 
-		var ctx = smt.getCtx();
+        var ctx = smt.getCtx();
 
-		// Get labels for selectors
-		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), s.getDataCharacteristics());
+        // Get labels for selectors
+        Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), s.getDataCharacteristics());
 
-		List<BoolExpr> flowsMatch = new ArrayList<>();
+        List<BoolExpr> flowsMatch = new ArrayList<>();
 
-		// Evaluate all incoming flows
-		for (TFGFlow flow : smt.getVertexIncomingFlows().getOrDefault(vertex, List.of())) {
-			Map<Label, BoolExpr> flowLabelMap = smt.getFlowLabels().get(flow);
+        // Evaluate all incoming flows
+        for (TFGFlow flow : smt.getVertexIncomingFlows()
+                .getOrDefault(vertex, List.of())) {
+            Map<Label, BoolExpr> flowLabelMap = smt.getFlowLabels()
+                    .get(flow);
 
-			// Check all labels
-			List<BoolExpr> anySelectorLabelPresent = new ArrayList<>(selectorLabels.size());
-			for (Label lbl : selectorLabels) {
-				BoolExpr has = flowLabelMap.get(lbl);
-				anySelectorLabelPresent.add(has);
-			}
+            // Check all labels
+            List<BoolExpr> anySelectorLabelPresent = new ArrayList<>(selectorLabels.size());
+            for (Label lbl : selectorLabels) {
+                BoolExpr has = flowLabelMap.get(lbl);
+                anySelectorLabelPresent.add(has);
+            }
 
-			// Flow matches, if any label is present
-			BoolExpr thisFlowMatches = ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
+            // Flow matches, if any label is present
+            BoolExpr thisFlowMatches = ctx.mkOr(anySelectorLabelPresent.toArray(new BoolExpr[0]));
 
-			flowsMatch.add(thisFlowMatches);
-		}
+            flowsMatch.add(thisFlowMatches);
+        }
 
-		// Selector never matches if vertex has no incoming flows
-		if (flowsMatch.isEmpty()) {
-			return ctx.mkFalse();
-		}
-		// Selector matches if any flow matches
-		BoolExpr anyFlowMatches = ctx.mkOr(flowsMatch.toArray(new BoolExpr[0]));
-		// Maybe invert
-		return s.isInverted() ? ctx.mkNot(anyFlowMatches) : anyFlowMatches;
-	}
+        // Selector never matches if vertex has no incoming flows
+        if (flowsMatch.isEmpty()) {
+            return ctx.mkFalse();
+        }
+        // Selector matches if any flow matches
+        BoolExpr anyFlowMatches = ctx.mkOr(flowsMatch.toArray(new BoolExpr[0]));
+        // Maybe invert
+        return s.isInverted() ? ctx.mkNot(anyFlowMatches) : anyFlowMatches;
+    }
 }

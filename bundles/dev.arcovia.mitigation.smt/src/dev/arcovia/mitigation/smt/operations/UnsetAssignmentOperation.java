@@ -10,29 +10,47 @@ import org.dataflowanalysis.dfd.datadictionary.UnsetAssignment;
 /**
  * This operation creates a Unset Assignment for a specific label and pin
  * @author Nikolas Rank
- *
  */
 public final class UnsetAssignmentOperation extends AbstractPinAssignmentOperation<UnsetAssignment> {
 
-    public UnsetAssignmentOperation(Pin pin, Label label) { super(pin, label); }
+    public UnsetAssignmentOperation(Pin pin, Label label) {
+        super(pin, label);
+    }
 
-    @Override protected UnsetAssignment createAssignment() { return factory.createUnsetAssignment(); }
-    @Override protected boolean isInstance(AbstractAssignment a) { return a instanceof UnsetAssignment; }
-    @Override protected UnsetAssignment cast(AbstractAssignment a) { return (UnsetAssignment) a; }
+    @Override
+    protected UnsetAssignment createAssignment() {
+        return factory.createUnsetAssignment();
+    }
+
+    @Override
+    protected boolean isInstance(AbstractAssignment a) {
+        return a instanceof UnsetAssignment;
+    }
+
+    @Override
+    protected UnsetAssignment cast(AbstractAssignment a) {
+        return (UnsetAssignment) a;
+    }
 
     @Override
     protected void addOutputLabel(UnsetAssignment assignment, Label label) {
-        assignment.getOutputLabels().add(label);
+        assignment.getOutputLabels()
+                .add(label);
     }
 
     @Override
     protected boolean outputLabelEquals(UnsetAssignment assignment, Label label) {
-        return assignment.getOutputLabels().equals(List.of(label));
+        return assignment.getOutputLabels()
+                .equals(List.of(label));
     }
 
-    @Override protected String assignmentName() { return "Unset Assignment"; }
-    
-    @Override public String toString() {
-    	return "Unset at Pin "+pin.getId()+" with Label "+label.getEntityName();
+    @Override
+    protected String assignmentName() {
+        return "Unset Assignment";
+    }
+
+    @Override
+    public String toString() {
+        return "Unset at Pin " + pin.getId() + " with Label " + label.getEntityName();
     }
 }

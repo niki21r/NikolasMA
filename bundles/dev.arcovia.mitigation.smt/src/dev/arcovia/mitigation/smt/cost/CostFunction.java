@@ -11,7 +11,6 @@ import com.microsoft.z3.IntExpr;
 /**
  * Creates a Z3 IntExpr that represents a cost function from multiple smaller partial functions
  * @author Nikolas Rank
- *
  */
 public final class CostFunction {
 
@@ -40,35 +39,29 @@ public final class CostFunction {
      * @return Same obejct with an added term
      */
     public CostFunction add(BoolExpr cur, BoolExpr ref, int weight) {
-    	// If weight is 0, the term is irrelevant
+        // If weight is 0, the term is irrelevant
         if (weight == 0) {
             return this;
         }
 
         // The term evaluates to 1 if the two values differ, else 0.
-        IntExpr base =
-                (IntExpr) ctx.mkITE(ctx.mkXor(cur, ref),
-                                    ctx.mkInt(1),
-                                    ctx.mkInt(0));
+        IntExpr base = (IntExpr) ctx.mkITE(ctx.mkXor(cur, ref), ctx.mkInt(1), ctx.mkInt(0));
 
-        // If a relevant weight has been provided, multiply by it here. 
-        IntExpr weighted =
-                (weight == 1)
-                        ? base
-                        : (IntExpr) ctx.mkMul(ctx.mkInt(weight), base);
+        // If a relevant weight has been provided, multiply by it here.
+        IntExpr weighted = (weight == 1) ? base : (IntExpr) ctx.mkMul(ctx.mkInt(weight), base);
 
         terms.add(weighted);
         return this;
     }
-    
+
     /**
      * Allows for manual addition of Z3 Expressions
      * @param term Term that should be added
      * @return The object that now contains an additional term
      */
     public CostFunction addTerm(IntExpr term) {
-    	terms.add(term);
-    	return this;
+        terms.add(term);
+        return this;
     }
 
     /**

@@ -16,36 +16,35 @@ import dev.arcovia.mitigation.smt.util.Util;
 /**
  * Selector translation logic for VertexTypeSelectors
  * @author Nikolas Rank
- *
  */
 final class VertexTypeHandler extends AbstractSelectorHandler<VertexTypeSelector> {
 
-	@Override
-	protected BoolExpr encode(VertexTypeSelector s, DFDVertex vertex, SMT smt) {
-		var ctx = smt.getCtx();
+    @Override
+    protected BoolExpr encode(VertexTypeSelector s, DFDVertex vertex, SMT smt) {
+        var ctx = smt.getCtx();
 
-		DFDVertexType selectorType = (DFDVertexType) s.getVertexType();
+        DFDVertexType selectorType = (DFDVertexType) s.getVertexType();
 
-		// Can be statically evaluated at encoding time because types are not modifiable
-		BoolExpr matches;
-		if (selectorType.equals(Util.vertexToType(vertex))) {
-			matches = ctx.mkTrue();
-		} else {
-			matches = ctx.mkFalse();
-		}
-		// Maybe invert
-		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
+        // Can be statically evaluated at encoding time because types are not modifiable
+        BoolExpr matches;
+        if (selectorType.equals(Util.vertexToType(vertex))) {
+            matches = ctx.mkTrue();
+        } else {
+            matches = ctx.mkFalse();
+        }
+        // Maybe invert
+        BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
 
-		if (s.isRecursive()) {
-			List<BoolExpr> anyMatches = new ArrayList<BoolExpr>();
-			anyMatches.add(result);
-			for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
-				DFDVertex prev = (DFDVertex) prevAbstract;
-				anyMatches.add(encode(s, prev, smt));
-			}
-			return ctx.mkOr(anyMatches.toArray(new BoolExpr[0]));
-		} else {
-			return result;
-		}
-	}
+        if (s.isRecursive()) {
+            List<BoolExpr> anyMatches = new ArrayList<BoolExpr>();
+            anyMatches.add(result);
+            for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
+                DFDVertex prev = (DFDVertex) prevAbstract;
+                anyMatches.add(encode(s, prev, smt));
+            }
+            return ctx.mkOr(anyMatches.toArray(new BoolExpr[0]));
+        } else {
+            return result;
+        }
+    }
 }

@@ -18,41 +18,40 @@ import dev.arcovia.mitigation.smt.util.Util;
 /**
  * Selector translation logic for VertexCharacteristicsSelector
  * @author Nikolas Rank
- *
  */
 final class VertexCharacteristicsHandler extends AbstractSelectorHandler<VertexCharacteristicsSelector> {
-	@Override
-	protected BoolExpr encode(VertexCharacteristicsSelector s, DFDVertex vertex, SMT smt) {
+    @Override
+    protected BoolExpr encode(VertexCharacteristicsSelector s, DFDVertex vertex, SMT smt) {
 
-		var ctx = smt.getCtx();
+        var ctx = smt.getCtx();
 
-		//Set only contains one label
-		Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(),
-				List.of(s.getVertexCharacteristics()));
+        // Set only contains one label
+        Set<Label> selectorLabels = Util.getLabelsForCharacteristics(smt.getDD(), List.of(s.getVertexCharacteristics()));
 
-		// Get labels for node
-		Map<Label, BoolExpr> present = smt.getNodeLabels().get(vertex.getReferencedElement());
+        // Get labels for node
+        Map<Label, BoolExpr> present = smt.getNodeLabels()
+                .get(vertex.getReferencedElement());
 
-		List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
-		for (Label lbl : selectorLabels) {
-			BoolExpr has = present.get(lbl);
-			labelMatches.add(has);
-		}
+        List<BoolExpr> labelMatches = new ArrayList<>(selectorLabels.size());
+        for (Label lbl : selectorLabels) {
+            BoolExpr has = present.get(lbl);
+            labelMatches.add(has);
+        }
 
-		BoolExpr matches = ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
+        BoolExpr matches = ctx.mkOr(labelMatches.toArray(new BoolExpr[0]));
 
-		BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
+        BoolExpr result = s.isInverted() ? ctx.mkNot(matches) : matches;
 
-		if (s.isRecursive()) {
-			List<BoolExpr> anyMatches = new ArrayList<BoolExpr>();
-			anyMatches.add(result);
-			for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
-				DFDVertex prev = (DFDVertex) prevAbstract;
-				anyMatches.add(encode(s, prev, smt));
-			}
-			return ctx.mkOr(anyMatches.toArray(new BoolExpr[0]));
-		} else {
-			return result;
-		}
-	}
+        if (s.isRecursive()) {
+            List<BoolExpr> anyMatches = new ArrayList<BoolExpr>();
+            anyMatches.add(result);
+            for (AbstractVertex<?> prevAbstract : vertex.getPreviousElements()) {
+                DFDVertex prev = (DFDVertex) prevAbstract;
+                anyMatches.add(encode(s, prev, smt));
+            }
+            return ctx.mkOr(anyMatches.toArray(new BoolExpr[0]));
+        } else {
+            return result;
+        }
+    }
 }
