@@ -90,10 +90,22 @@ public class Util {
 				Paths.get(location, model, (name + ".datadictionary")).toString(), Activator.class);
 	}
 
+	/**
+	 * Returns the Type of the Node that this Vertex references
+	 * 
+	 * @param vertex
+	 * @return Type of the Vertex
+	 */
 	public static DFDVertexType vertexToType(DFDVertex vertex) {
 		return nodeToType(vertex.getReferencedElement());
 	}
 
+	/**
+	 * Returns the Vertex Type of this Node
+	 * 
+	 * @param node
+	 * @return Type of the Node
+	 */
 	public static DFDVertexType nodeToType(Node n) {
 		if (n instanceof External) {
 			return DFDVertexType.EXTERNAL;
@@ -126,8 +138,8 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant Node labels of a datadictionary, i.e. those appearing in negated
-	 * vertex selectors
+	 * Finds relevant Node labels of a datadictionary, i.e. those appearing in
+	 * negated vertex selectors
 	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
@@ -154,7 +166,9 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in negated data selectors	 * 
+	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in
+	 * negated data selectors *
+	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
 	 * @return List of relevant Data labels to add
@@ -166,7 +180,8 @@ public class Util {
 	}
 
 	/**
-	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in non-negated data selectors
+	 * Finds relevant data labels of a Datadictionary, i.e. those appearing in
+	 * non-negated data selectors
 	 * 
 	 * @param dd          Datadictionary
 	 * @param constraints constraints
@@ -179,10 +194,12 @@ public class Util {
 	}
 
 	/**
-	 * Given a list of analysis constraints, extracts vertex characteristics that are either negated or non-negated
+	 * Given a list of analysis constraints, extracts vertex characteristics that
+	 * are either negated or non-negated
 	 * 
 	 * @param constraints Incoming constraints
-	 * @param add Whether labels that need to be added should be found. This means that labels from negated selectors are returned
+	 * @param add         Whether labels that need to be added should be found. This
+	 *                    means that labels from negated selectors are returned
 	 * @return List of requested vertex characteristics in constraints
 	 */
 	private static List<CharacteristicsSelectorData> getAnalysisNodeCharacteristics(
@@ -206,10 +223,12 @@ public class Util {
 	}
 
 	/**
-	 * Given a list of analysis constraints, extracts data characteristics that are either negated or non-negated
+	 * Given a list of analysis constraints, extracts data characteristics that are
+	 * either negated or non-negated
 	 * 
 	 * @param constraints Incoming constraints
-	 * @param add Whether labels that need to be added should be found. This means that labels from negated selectors are returned
+	 * @param add         Whether labels that need to be added should be found. This
+	 *                    means that labels from negated selectors are returned
 	 * @return List of data characteristics in constraints
 	 */
 	private static List<CharacteristicsSelectorData> getAnalysisDataCharacteristics(
@@ -234,16 +253,18 @@ public class Util {
 
 	/**
 	 * Checks if a list of constraints contains a DataNameSelector
-	 * @param constraints 
+	 * 
+	 * @param constraints
 	 */
 	public static boolean containsFlowNameSelector(List<AnalysisConstraint> constraints) {
 		return constraints.stream().flatMap(x -> x.getDataSourceSelectors().getSelectors().stream())
 				.anyMatch(VariableNameSelector.class::isInstance);
 	}
-	
+
 	/**
 	 * Checks if a list of constraints contains a VertexNameSelector
-	 * @param constraints 
+	 * 
+	 * @param constraints
 	 */
 	public static boolean containsVertexNameSelector(List<AnalysisConstraint> constraints) {
 		return constraints.stream().flatMap(x -> x.getVertexDestinationSelectors().getSelectors().stream())
@@ -252,6 +273,7 @@ public class Util {
 
 	/**
 	 * Checks if a list of constraints contains a Vertex Type Selector
+	 * 
 	 * @param constraints
 	 */
 	public static boolean containsVertexTypeSelector(List<AnalysisConstraint> constraints) {
@@ -275,10 +297,12 @@ public class Util {
 		all.addAll(getAnalysisNodeCharacteristics(constraints, true));
 		return all;
 	}
-	
+
 	/**
-	 * Transforms a map of string representations of labels to their concrete obejcts
-	 * @param dd that the labels will be searched for
+	 * Transforms a map of string representations of labels to their concrete
+	 * obejcts
+	 * 
+	 * @param dd         that the labels will be searched for
 	 * @param labelCosts Input map with strings
 	 * @return map with label objects
 	 */
@@ -313,8 +337,9 @@ public class Util {
 
 	/**
 	 * Finds a label by name
-	 * @param dd that will be searched
-	 * @param typeName of the label type
+	 * 
+	 * @param dd        that will be searched
+	 * @param typeName  of the label type
 	 * @param labelName of the label
 	 * @return The label object
 	 */
@@ -398,6 +423,7 @@ public class Util {
 
 	/**
 	 * Reduces a Assignment term to its LabelReferences and discards all other terms
+	 * 
 	 * @param term Input term
 	 * @return All LabelReferences in this Term
 	 */

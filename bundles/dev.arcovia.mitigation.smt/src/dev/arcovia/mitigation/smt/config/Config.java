@@ -2,6 +2,7 @@ package dev.arcovia.mitigation.smt.config;
 
 /**
  * Contains an input configuration for solving
+ * 
  * @author Nikolas Rank
  *
  */
@@ -32,40 +33,75 @@ public class Config {
 		this.onlyViolatingTFGs = onlyViolatingTFGs;
 	}
 
+	/**
+	 * 
+	 * @return Whether the expression tree size will be returned
+	 */
 	public boolean isFindExpressionTreeSize() {
 		return findExpressionTreeSize;
 	}
 
+	/**
+	 * 
+	 * @return Whether only constraint-repairing
+	 */
 	public boolean isOnlyRelevantModifications() {
 		return onlyRelevantModifications;
 	}
 
+	/**
+	 * 
+	 * @return Whether node labels should be added
+	 */
 	public boolean isAddNodeLabels() {
 		return addNodeLabels;
 	}
 
+	/**
+	 * 
+	 * @return Whether node labels should be removed
+	 */
 	public boolean isRemoveNodeLabels() {
 		return removeNodeLabels;
 	}
 
+	/**
+	 * 
+	 * @return Whether data labels should be added
+	 */
 	public boolean isAddDataLabels() {
 		return addDataLabels;
 	}
 
+	/**
+	 * 
+	 * @return Whether data labels should be removed
+	 */
 	public boolean isRemoveDataLabels() {
 		return removeDataLabels;
 	}
 
+	/**
+	 * 
+	 * @return The chosen cost config
+	 */
 	public CostConfig getCostConfig() {
 		return costConfig;
 	}
 
+	/**
+	 * 
+	 * @return Whether the result should be checked for violations by DFA
+	 */
 	public boolean isCheckForViolationsAfter() {
 		return checkForViolationsAfter;
 	}
 
+	/**
+	 * @return Whether only violating TFGs should be considered.
+	 */
 	public boolean isOnlyViolatingTFGs() {
 		return onlyViolatingTFGs;
 	}
-	
+
 }

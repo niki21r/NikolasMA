@@ -11,91 +11,109 @@ import org.dataflowanalysis.dfd.datadictionary.Pin;
 
 /**
  * Modifies a Pin Assignment for a given Pin and Label
+ * 
  * @author Nikolas Rank
  *
  * @param <T> The type of assignment that should be used for the modification
  */
 public sealed abstract class AbstractPinAssignmentOperation<T extends AbstractAssignment>
-        extends DataDictionaryOperation
-        permits SetAssignmentOperation, UnsetAssignmentOperation {
+		extends DataDictionaryOperation permits SetAssignmentOperation, UnsetAssignmentOperation {
 
-    protected final Pin pin;
-    protected final Label label;
+	protected final Pin pin;
+	protected final Label label;
 
-    protected AbstractPinAssignmentOperation(Pin pin, Label label) {
-        this.pin = pin;
-        this.label = label;
-    }
+	protected AbstractPinAssignmentOperation(Pin pin, Label label) {
+		this.pin = pin;
+		this.label = label;
+	}
 
-    /**
-     * Creates an assignment of the specified type
-     * @return Newly created assignments
-     */
-    protected abstract T createAssignment();
-    // These utility functions are used for handling assignment classes
-    protected abstract boolean isInstance(AbstractAssignment a);
-    protected abstract T cast(AbstractAssignment a);
+	/**
+	 * Creates an assignment of the specified type
+	 * 
+	 * @return Newly created assignments
+	 */
+	protected abstract T createAssignment();
 
-    // Adds the output label to the specified assignment
-    protected abstract void addOutputLabel(T assignment, Label labels);
+	/**
+	 * Checks whether the input is of Type T
+	 * 
+	 * @param assignment
+	 * @return Indicating boolean
+	 */
+	protected abstract boolean isInstance(AbstractAssignment a);
 
-    /**
-     * Checks if the specified assignment has exactly the specified output label
-     * @param assignment 
-     * @param labels
-     * @return Whetehr it has exactly the specified label
-     */
-    protected abstract boolean outputLabelEquals(T assignment, Label labels);
+	/**
+	 * Casts this assignment to type T
+	 * 
+	 * @param assignment
+	 * @return
+	 */
+	protected abstract T cast(AbstractAssignment a);
 
-    protected abstract String assignmentName();
+	/**
+	 * Adds the output label to the Assignment
+	 * 
+	 * @param assignment
+	 * @param label
+	 */
+	protected abstract void addOutputLabel(T assignment, Label label);
 
-    @Override
-    public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
-        T assignment = createAssignment();
-        assignment.setOutputPin(pin);
-        assignment.setId(String.valueOf(random.nextInt()));
-        addOutputLabel(assignment, label);
+	/**
+	 * Checks if the specified assignment has exactly the specified output label
+	 * 
+	 * @param assignment
+	 * @param label
+	 * @return Whether it has exactly the specified label
+	 */
+	protected abstract boolean outputLabelEquals(T assignment, Label label);
 
-        // Finds assignments for this operation's pin
-        Optional<List<AbstractAssignment>> assignments = dfd.dataDictionary().getBehavior().stream()
-                .filter(b -> b.getOutPin().contains(pin))
-                .map(Behavior::getAssignment)
-                .findAny();
+	/**
+	 * Provides a String representation of this Assignment
+	 * 
+	 * @return String
+	 */
+	protected abstract String assignmentName();
 
-        if (assignments.isEmpty()) {
-            logger.debug("Couldnt't find Node behavior for pin " + pin.getId());
-        } else {
-            assignments.get().add(assignment);
-        }
-        return dfd;
-    }
+	@Override
+	public DataFlowDiagramAndDictionary doOperation(DataFlowDiagramAndDictionary dfd) {
+		T assignment = createAssignment();
+		assignment.setOutputPin(pin);
+		assignment.setId(String.valueOf(random.nextInt()));
+		addOutputLabel(assignment, label);
 
-    @Override
-    public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
-        Optional<Behavior> behavior = dfd.dataDictionary().getBehavior().stream()
-                .filter(b -> b.getOutPin().contains(pin))
-                .findFirst();
+		// Finds assignments for this operation's pin
+		Optional<List<AbstractAssignment>> assignments = dfd.dataDictionary().getBehavior().stream()
+				.filter(b -> b.getOutPin().contains(pin)).map(Behavior::getAssignment).findAny();
 
-        if (behavior.isEmpty()) {
-            logger.debug("Couldn't find matching behavior for " + pin);
-            return dfd;
-        }
+		if (assignments.isEmpty()) {
+			logger.debug("Couldnt't find Node behavior for pin " + pin.getId());
+		} else {
+			assignments.get().add(assignment);
+		}
+		return dfd;
+	}
 
-        // Find the assignment that was added earlier. This could remove the wrong assignment if an identical one exists. 
-        Optional<T> found = behavior.get().getAssignment().stream()
-                .filter(a -> a.getOutputPin().equals(pin))
-                .filter(this::isInstance)
-                .map(this::cast)
-                .filter(a -> outputLabelEquals(a, label))
-                .findAny();
+	@Override
+	public DataFlowDiagramAndDictionary undoOperation(DataFlowDiagramAndDictionary dfd) {
+		Optional<Behavior> behavior = dfd.dataDictionary().getBehavior().stream()
+				.filter(b -> b.getOutPin().contains(pin)).findFirst();
 
-        if (found.isEmpty()) {
-            logger.debug("Couldn't find matching " + assignmentName()
-                    + " for pin " + pin + " with Labels " + label);
-        } else {
-            behavior.get().getAssignment().removeIf(a -> a.equals(found.get()));
-        }
+		if (behavior.isEmpty()) {
+			logger.debug("Couldn't find matching behavior for " + pin);
+			return dfd;
+		}
 
-        return dfd; // your original returned null; returning dfd is usually intended
-    }
+		// Find the assignment that was added earlier. This could remove the wrong
+		// assignment if an identical one exists.
+		Optional<T> found = behavior.get().getAssignment().stream().filter(a -> a.getOutputPin().equals(pin))
+				.filter(this::isInstance).map(this::cast).filter(a -> outputLabelEquals(a, label)).findAny();
+
+		if (found.isEmpty()) {
+			logger.debug("Couldn't find matching " + assignmentName() + " for pin " + pin + " with Labels " + label);
+		} else {
+			behavior.get().getAssignment().removeIf(a -> a.equals(found.get()));
+		}
+
+		return dfd; // your original returned null; returning dfd is usually intended
+	}
 }

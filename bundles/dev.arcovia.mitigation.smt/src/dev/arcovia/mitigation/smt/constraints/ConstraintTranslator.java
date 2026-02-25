@@ -14,6 +14,7 @@ import dev.arcovia.mitigation.smt.SMT;
 
 /**
  * This class translates a DSL constraint into a Z3 BoolExpr
+ * 
  * @author Nikolas Rank
  *
  */
@@ -23,14 +24,22 @@ public class ConstraintTranslator {
 	// SMT object that requested translation
 	private final SMT smt;
 
+	/**
+	 * Creates a new constraint translator
+	 * 
+	 * @param smt used to access relevant encoding objects in the selector matching
+	 *            logic.
+	 */
 	public ConstraintTranslator(SMT smt) {
 		this.selectorTranslator = new DefaultSelectorTranslator(smt);
 		this.smt = smt;
 	}
-	
+
 	/**
-	 * Creates a Boolean expression, that encodes that the given Vertex DOES NOT match the given constraint.
-	 * In general a constraint matches, if all selectors match.
+	 * Creates a Boolean expression, that encodes that the given Vertex DOES NOT
+	 * match the given constraint. In general a constraint matches, if all selectors
+	 * match.
+	 * 
 	 * @param constr input constraint
 	 * @param vertex input vertex
 	 * @return Created expression
@@ -46,8 +55,7 @@ public class ConstraintTranslator {
 		// Vertex Destination Selectors
 		List<BoolExpr> allDestinationSelectors = new ArrayList<>();
 		for (AbstractSelector dstSelector : vertexDestination) {
-			allDestinationSelectors
-					.add(selectorTranslator.toBool(dstSelector, vertex));
+			allDestinationSelectors.add(selectorTranslator.toBool(dstSelector, vertex));
 		}
 		// This evaluates to true, if no destination selectors are present
 		BoolExpr allDestinationSatisfied = ctx.mkAnd(allDestinationSelectors.toArray(new BoolExpr[0]));
@@ -60,7 +68,7 @@ public class ConstraintTranslator {
 		// Evaluates to true, if no data selectors are present
 		BoolExpr allDataSourceSatisfied = ctx.mkAnd(allDataSource.toArray(new BoolExpr[0]));
 
-		// Vertex Source Selectors. 
+		// Vertex Source Selectors.
 		List<BoolExpr> allVertexSource = new ArrayList<>();
 		for (AbstractSelector source : vertexSource) {
 			allVertexSource.add(selectorTranslator.toBool(source, vertex));
@@ -68,7 +76,7 @@ public class ConstraintTranslator {
 		// Evaluates to true, if no vertex source selectors are present
 		BoolExpr allVertexSourceSatisfied = ctx.mkAnd(allVertexSource.toArray(new BoolExpr[0]));
 
-		// Constraint is satisfied if all selectors are satisfied. 
+		// Constraint is satisfied if all selectors are satisfied.
 		BoolExpr allSatisfied = ctx.mkAnd(allDestinationSatisfied, allDataSourceSatisfied, allVertexSourceSatisfied);
 		// But all selectors should not be satisfied
 		BoolExpr notAllSatisfied = ctx.mkNot(allSatisfied);
