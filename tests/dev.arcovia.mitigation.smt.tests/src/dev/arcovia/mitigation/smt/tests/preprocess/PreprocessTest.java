@@ -80,28 +80,28 @@ public class PreprocessTest {
 				for (Entry<DFDVertex, List<TFGFlow>> entry : incomingFlowMap.entrySet()) {
 					for (TFGFlow flow : entry.getValue()) {
 						// Assert each flow actually flows to correct vertex
-						assertEquals(flow.dstVertex, entry.getKey());
+						assertEquals(flow.getDstVertex(), entry.getKey());
 						// Destination pin of flow is present at node
-						assertTrue(entry.getKey().getPinFlowMap().keySet().contains(flow.dstPin));
+						assertTrue(entry.getKey().getPinFlowMap().keySet().contains(flow.getDstPin()));
 						// Flow actually flows from preceeding vertex
-						assertTrue(entry.getKey().getPreviousElements().contains(flow.srcVertex));
+						assertTrue(entry.getKey().getPreviousElements().contains(flow.getSrcVertex()));
 						// Source vertex of flow actually contains source pin of flows
 						assertTrue(
-								flow.srcVertex.getReferencedElement().getBehavior().getOutPin().contains(flow.srcPin));
-						for (Entry<Assignment, List<TFGFlow>> assigns : flow.thisFlowEvaluatesOn.entrySet()) {
+								flow.getSrcVertex().getReferencedElement().getBehavior().getOutPin().contains(flow.getSrcPin()));
+						for (Entry<Assignment, List<TFGFlow>> assigns : flow.getThisFlowEvaluatesOn().entrySet()) {
 							// Source pin of flow actually contains expected assignment
-							assertEquals(assigns.getKey().getOutputPin(), flow.srcPin);
+							assertEquals(assigns.getKey().getOutputPin(), flow.getSrcPin());
 							for (TFGFlow prev : assigns.getValue()) {
 								// Evaluated flow actually flows to vertex of our node
-								assertEquals(prev.dstVertex, flow.srcVertex);
+								assertEquals(prev.getDstVertex(), flow.getSrcVertex());
 							}
 						}
-						for (Entry<ForwardingAssignment, List<TFGFlow>> forwards : flow.thisFlowForwards.entrySet()) {
+						for (Entry<ForwardingAssignment, List<TFGFlow>> forwards : flow.getThisFlowForwards().entrySet()) {
 							// Source pin of flow actually contains expected forward
-							assertEquals(forwards.getKey().getOutputPin(), flow.srcPin);
+							assertEquals(forwards.getKey().getOutputPin(), flow.getSrcPin());
 							for (TFGFlow prev : forwards.getValue()) {
 								// Forwarded flow actually flows to vertex of our node
-								assertEquals(prev.dstVertex, flow.srcVertex);
+								assertEquals(prev.getDstVertex(), flow.getSrcVertex());
 							}
 						}
 

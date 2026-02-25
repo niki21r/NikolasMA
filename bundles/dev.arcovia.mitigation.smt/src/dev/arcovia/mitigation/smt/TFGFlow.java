@@ -19,20 +19,19 @@ import org.dataflowanalysis.dfd.dataflowdiagram.Flow;
  */
 public class TFGFlow {
 
-	// TFG this flow resides in
-	public Pin srcPin;
-	public DFDVertex srcVertex;
-	public Pin dstPin;
-	public DFDVertex dstVertex; 
+	private final Pin srcPin;
+	private final DFDVertex srcVertex;
+	private final Pin dstPin;
+	private final DFDVertex dstVertex; 
 	// DFD Flow that this TFGFlow flows along
-	public Flow flow;
+	private final Flow flow;
 	// List of incoming TFG Flows to the same vertex that need to be forwarded, grouped by Assignment
-	public Map<ForwardingAssignment, List<TFGFlow>> thisFlowForwards;
+	private final Map<ForwardingAssignment, List<TFGFlow>> thisFlowForwards;
 	// List of incoming TFG Flows to the same vertex that each Assignment need sto evaluate on
-	public Map<Assignment, List<TFGFlow>> thisFlowEvaluatesOn;
+	private final Map<Assignment, List<TFGFlow>> thisFlowEvaluatesOn;
 	
 	private static int counter = 0;
-	public int id;
+	private final int id;
 	
 	public TFGFlow(Pin srcP, DFDVertex srcVertex, Pin dstP, DFDVertex dstVertex, Flow flow) {
 		this.srcPin = srcP;
@@ -68,5 +67,45 @@ public class TFGFlow {
 	@Override
 	public String toString() {
 		return "TFGFlow [flow=" + flow.getEntityName() + " sourceNode "+srcVertex.getName()+" dstNode "+dstVertex.getName()+", thisFlowForwards=" + " ,id=" + id + "]";
+	}
+
+
+	public Pin getSrcPin() {
+		return srcPin;
+	}
+
+
+	public DFDVertex getSrcVertex() {
+		return srcVertex;
+	}
+
+
+	public Pin getDstPin() {
+		return dstPin;
+	}
+
+
+	public DFDVertex getDstVertex() {
+		return dstVertex;
+	}
+
+
+	public Flow getFlow() {
+		return flow;
+	}
+
+
+	public Map<ForwardingAssignment, List<TFGFlow>> getThisFlowForwards() {
+		return thisFlowForwards;
+	}
+
+
+	public Map<Assignment, List<TFGFlow>> getThisFlowEvaluatesOn() {
+		return thisFlowEvaluatesOn;
+	}
+
+
+	public int getId() {
+		return id;
 	}
 }

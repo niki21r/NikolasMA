@@ -218,7 +218,7 @@ public class Preprocess {
 				// and on which flows assign statements have to be evaluated.
 				// Find all flows that leave this vertex because they may forward or Assign. 
 				// They exist because they were already created when handling the succeeding vertex
-				List<TFGFlow> thisVertexOutgoingFlows = allTFGFlows.stream().filter(x -> x.srcVertex.equals(vertex))
+				List<TFGFlow> thisVertexOutgoingFlows = allTFGFlows.stream().filter(x -> x.getSrcVertex().equals(vertex))
 						.toList();
 				// Also find all incoming flows to connect them to the outgoing ones
 				List<TFGFlow> allTFGFlowsToThisVertex = allTFGFlowsToVertex.getOrDefault(vertex,
@@ -226,18 +226,18 @@ public class Preprocess {
 				// For every outgoing flow
 				for (TFGFlow tfgFlow : thisVertexOutgoingFlows) {
 					// For every assignment of its source pin
-					List<AbstractAssignment> thisPinAssigns = outPinToAss.get(tfgFlow.srcPin);
+					List<AbstractAssignment> thisPinAssigns = outPinToAss.get(tfgFlow.getSrcPin());
 					for (AbstractAssignment assign : thisPinAssigns) {
 						// A forward or Assign assignment forwards exactly those flows that flow to a input pin that is referenced
 						// by the assignment within the same tfg
 						if (assign instanceof ForwardingAssignment cast) {
 							List<TFGFlow> thisFlowForwards = allTFGFlowsToThisVertex.stream()
-									.filter(x -> cast.getInputPins().contains(x.dstPin)).toList();
-							tfgFlow.thisFlowForwards.put(cast, thisFlowForwards);
+									.filter(x -> cast.getInputPins().contains(x.getDstPin())).toList();
+							tfgFlow.getThisFlowForwards().put(cast, thisFlowForwards);
 						} else if (assign instanceof Assignment cast) {
 							List<TFGFlow> thisFlowEvaluatesOn = allTFGFlowsToThisVertex.stream()
-									.filter(x -> cast.getInputPins().contains(x.dstPin)).toList();
-							tfgFlow.thisFlowEvaluatesOn.put(cast, thisFlowEvaluatesOn);
+									.filter(x -> cast.getInputPins().contains(x.getDstPin())).toList();
+							tfgFlow.getThisFlowEvaluatesOn().put(cast, thisFlowEvaluatesOn);
 						}
 					}
 				}

@@ -327,11 +327,11 @@ public class SMT {
 		} else {
 			// Ensure that the expressions for flows that this one depends on have already been created. 
 			// For forwarding assignments
-			flow.thisFlowForwards.values().forEach(x -> x.forEach(y -> createDataFlowExpression(y, outPinToAss)));
+			flow.getThisFlowForwards().values().forEach(x -> x.forEach(y -> createDataFlowExpression(y, outPinToAss)));
 			// For Assign Assignments
-			flow.thisFlowEvaluatesOn.values().forEach(x -> x.forEach(y -> createDataFlowExpression(y, outPinToAss)));
+			flow.getThisFlowEvaluatesOn().values().forEach(x -> x.forEach(y -> createDataFlowExpression(y, outPinToAss)));
 			flowLabels.put(flow, new HashMap<>());
-			Pin pin = flow.srcPin;
+			Pin pin = flow.getSrcPin();
 			List<AbstractAssignment> assignments = outPinToAss.get(pin);
 			// The expression have to be defined for all relevant labels, even if not all can be added or removed.
 			// This is important so the constraints can later be created on these expressions
@@ -354,7 +354,7 @@ public class SMT {
 						labelExpr = ctx.mkFalse();
 					} else if (assignment instanceof ForwardingAssignment cast) {
 						// Forward assignments are evaluated using the preceeding flows (may be emptry). 
-						List<TFGFlow> forward = flow.thisFlowForwards.getOrDefault(cast, new ArrayList<>());
+						List<TFGFlow> forward = flow.getThisFlowForwards().getOrDefault(cast, new ArrayList<>());
 						for (TFGFlow pre : forward) {
 							//Fetch label expression for previous flow
 							BoolExpr preLabel = flowLabels.get(pre).get(label);
@@ -364,7 +364,7 @@ public class SMT {
 					// If an Assignment could influence this label
 					} else if (assignment instanceof Assignment cast && cast.getOutputLabels().contains(label)) {
 						// Find relevant flows that the term needs to be evaluated on.
-						List<TFGFlow> evaluateOn = flow.thisFlowEvaluatesOn.getOrDefault(cast, new ArrayList<>());
+						List<TFGFlow> evaluateOn = flow.getThisFlowEvaluatesOn().getOrDefault(cast, new ArrayList<>());
 						// The label is propagated if the term evaluates to true, else it is not propagated, therefore earlier
 						// definitions can be overwritten. 
 						labelExpr = createTerm(cast.getTerm(), evaluateOn);

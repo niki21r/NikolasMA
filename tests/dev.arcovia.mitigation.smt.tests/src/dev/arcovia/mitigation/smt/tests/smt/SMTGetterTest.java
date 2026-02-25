@@ -90,9 +90,9 @@ public class SMTGetterTest {
 				Map<DFDVertex, List<TFGFlow>> vertexIncomingFlows = smt.getVertexIncomingFlows();
 				for (Entry<DFDVertex, List<TFGFlow>> entry : vertexIncomingFlows.entrySet()) {
 					for (TFGFlow flow : entry.getValue()) {
-						assertEquals(entry.getKey(), flow.dstVertex);
+						assertEquals(entry.getKey(), flow.getDstVertex());
 						assertTrue(
-								entry.getKey().getReferencedElement().getBehavior().getInPin().contains(flow.dstPin));
+								entry.getKey().getReferencedElement().getBehavior().getInPin().contains(flow.getDstPin()));
 					}
 				}
 			}

@@ -27,7 +27,7 @@ final class DataNameHandler extends AbstractSelectorHandler<VariableNameSelector
 		List<BoolExpr> flowsMatch = new ArrayList<>();
 		for (TFGFlow flow : smt.getVertexIncomingFlows().getOrDefault(vertex, List.of())) {
 			// Because flow names are not modifiable, we can statically evaluate this at encoding time
-			if (flow.flow.getEntityName().equals(selectorName)) {
+			if (flow.getFlow().getEntityName().equals(selectorName)) {
 				flowsMatch.add(ctx.mkTrue());
 			} else {
 				flowsMatch.add(ctx.mkFalse());
