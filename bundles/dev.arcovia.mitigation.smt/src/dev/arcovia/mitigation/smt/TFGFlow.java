@@ -14,7 +14,7 @@ import org.dataflowanalysis.dfd.dataflowdiagram.Flow;
 
 /**
  * @author Nikolas Rank 
- * Represents an instance of a data flow of a specific Transpose Flow Graph
+ * Represents an instance of a flow of a specific Transpose Flow Graph
  *
  */
 public class TFGFlow {
@@ -27,7 +27,7 @@ public class TFGFlow {
 	private final Flow flow;
 	// List of incoming TFG Flows to the same vertex that need to be forwarded, grouped by Assignment
 	private final Map<ForwardingAssignment, List<TFGFlow>> thisFlowForwards;
-	// List of incoming TFG Flows to the same vertex that each Assignment need sto evaluate on
+	// List of incoming TFG Flows to the same vertex that each Assignment needs to evaluate on
 	private final Map<Assignment, List<TFGFlow>> thisFlowEvaluatesOn;
 	
 	private static int counter = 0;
@@ -66,7 +66,7 @@ public class TFGFlow {
 
 	@Override
 	public String toString() {
-		return "TFGFlow [flow=" + flow.getEntityName() + " sourceNode "+srcVertex.getName()+" dstNode "+dstVertex.getName()+", thisFlowForwards=" + " ,id=" + id + "]";
+		return "TFGFlow [flow=" + flow.getEntityName() + " sourceNode "+srcVertex.getName()+" dstNode "+dstVertex.getName()+",id=" + id + "]";
 	}
 
 

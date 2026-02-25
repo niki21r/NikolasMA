@@ -36,7 +36,7 @@ public class DFDProvider {
 		    dummyType.getLabel().add(dummyLabel2);
 		    dd.getLabelTypes().add(dummyType);
 
-		    Node source = dfdFactory.createProcess();
+		    Node source = dfdFactory.createExternal();
 		    source.setEntityName(SOURCE);
 		    source.setId("node1");
 		    source.getProperties().add(dummyLabel1);
@@ -62,7 +62,7 @@ public class DFDProvider {
 		    dd.getBehavior().add(sourceBehavior);
 		    source.setBehavior(sourceBehavior);
 
-		    Node sink = dfdFactory.createProcess();
+		    Node sink = dfdFactory.createStore();
 		    sink.setEntityName(SINK);
 		    sink.setId("node2");
 		    sink.getProperties().add(dummyLabel2);

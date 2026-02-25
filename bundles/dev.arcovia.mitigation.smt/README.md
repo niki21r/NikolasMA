@@ -287,7 +287,7 @@ We explain a few points about the java binding that we found unintuitive or wort
 
    before creating a context. The number can be freely chosen, however we found that 2 offers a good verbosity level for development and insights. If this is configured the solver periodically prints solving stats to stdout during the solving process. These can give a insight into its internal clause storage, solving steps such as simplifications as well as its cost bounds for optimization. However the output of these values is poorly documented.
 
-   This issue provides some partial insight:  
+   This issue provides some partial insight: 
    https://github.com/Z3Prover/z3/issues/1787
 
 11. **Obtaining multiple solutions**
@@ -296,7 +296,7 @@ We explain a few points about the java binding that we found unintuitive or wort
 
 12. **In-Depth Guide**
 
-   An in-depth guide/tutorial on programming Z3 and its internal workings is available here:  
+   An in-depth guide/tutorial on programming Z3 and its internal workings is available here: 
    https://z3prover.github.io/papers/z3internals.html
 
 13. **Going beyond**

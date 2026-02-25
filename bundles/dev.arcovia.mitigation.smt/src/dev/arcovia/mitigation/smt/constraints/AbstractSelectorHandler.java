@@ -18,7 +18,6 @@ abstract class AbstractSelectorHandler<T extends AbstractSelector> {
 	 * Encodes the selector for a Vertex into a BoolExpr 
 	 * @param selector DSL Selector
 	 * @param vertex The vertex that this selector will be encoded for
-	 * @param role may be VertexDestination, VertexSource or DataSource
 	 * @param smt SMT object for access to required Encoding objects
 	 * @return BoolExpr that encodes, whether the specified vertex matches the selector
 	 */

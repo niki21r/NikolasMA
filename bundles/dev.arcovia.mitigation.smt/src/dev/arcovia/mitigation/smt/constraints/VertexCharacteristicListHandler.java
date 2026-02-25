@@ -23,9 +23,6 @@ import dev.arcovia.mitigation.smt.util.Util;
 
 final class VertexCharacteristicListHandler extends AbstractSelectorHandler<VertexCharacteristicsListSelector> {
 
-	/**
-	 * Chooses correct encoding style based Selector Role.
-	 */
 	@Override
 	protected BoolExpr encode(VertexCharacteristicsListSelector s, DFDVertex vertex, SMT smt) {
 		var ctx = smt.getCtx();

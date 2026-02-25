@@ -5,127 +5,82 @@ import java.util.stream.Stream;
 
 import org.dataflowanalysis.analysis.dsl.constraint.ConstraintDSL;
 
-public class VertexCharacteristicsListTest extends AbstractSelectorConstraintTest{
+public class VertexCharacteristicsListTest extends AbstractSelectorConstraintTest {
 
 	@Override
 	protected Stream<SelectorTestCase> cases() {
-		return vertexCharacteristicsListCases();
+		return Stream.concat(vertexCharacteristicsListDestinationCases(), vertexCharacteristicsListSourceCases());
 	}
-	
-	static Stream<SelectorTestCase> vertexCharacteristicsListCases() {
-		  return Stream.of( 
-				 new SelectorTestCase(
-		          "Source needs to remove label",
-		          new ConstraintDSL()
-		              .fromNode()
-		              .withCharacteristic("dummyType", List.of("dummyLabel1"))
-		              .neverFlows()
-		              .toVertex()
-		              .create(),
-		          List.of("(not source_label_dummyLabel1)"),
-		          List.of("true")
-		      ),
-				 new SelectorTestCase(
-				          "Sink needs to remove label",
-				          new ConstraintDSL()
-				              .fromNode()
-				              .withCharacteristic("dummyType", List.of("dummyLabel2"))
-				              .neverFlows()
-				              .toVertex()
-				              .create(),
-				          List.of("true"),
-							List.of("(not sink_label_dummyLabel2)")
-				      ),
-				 new SelectorTestCase(
-							"Sink needs to remove label 2",
-				          new ConstraintDSL()
-				              .fromNode()
-									.withCharacteristic("dummyType", List.of("dummyLabel3", "dummyLabel2"))
-				              .neverFlows()
-				              .toVertex()
-				              .create(),
-				          List.of("true"),
-							List.of("(not sink_label_dummyLabel2)")
-					),
-					new SelectorTestCase("Both need ot remove their label",
-							new ConstraintDSL().fromNode()
-									.withCharacteristic("dummyType", List.of("dummyLabel1", "dummyLabel2")).neverFlows()
-									.toVertex().create(),
-							List.of("(not source_label_dummyLabel1)"),
-							List.of("(not sink_label_dummyLabel2)")
-					),
-					new SelectorTestCase("Empty list always satisfied for normal selector",
-							new ConstraintDSL().fromNode()
-									.withCharacteristic("dummyType", List.of()).neverFlows()
-									.toVertex().create(),
-							List.of("true"), List.of("true")),
-					new SelectorTestCase("Both need to add the label",
-							new ConstraintDSL().fromNode().withoutCharacteristic("dummyType", List.of("dummyLabel3"))
-									.neverFlows().toVertex().create(),
-							List.of("source_label_dummyLabel3"),
-							List.of("sink_label_dummyLabel3")),
-					new SelectorTestCase("Empty list never satisfied for inverted",
-							new ConstraintDSL().fromNode()
-									.withoutCharacteristic("dummyType", List.of()).neverFlows()
-									.toVertex().create(),
-							List.of("false"), List.of("false")),
-					 new SelectorTestCase(
-					          "Source needs to remove label",
-					          new ConstraintDSL()
-					              .fromNode()
-					              .neverFlows()
-					              .toVertex()
-					              .withCharacteristic("dummyType", List.of("dummyLabel1"))
-					              .create(),
-					          List.of("(not source_label_dummyLabel1)"),
-					          List.of("true")
-					      ),
-							 new SelectorTestCase(
-							          "Sink needs to remove label",
-							          new ConstraintDSL()
-							              .fromNode()
-							              .neverFlows()
-							              .toVertex()
-							              .withCharacteristic("dummyType", List.of("dummyLabel2"))
-							              .create(),
-							          List.of("true"),
-										List.of("(not sink_label_dummyLabel2)")
-							      ),
-							 new SelectorTestCase(
-										"Sink needs to remove label 2",
-							          new ConstraintDSL()
-							              .fromNode()
-							              .neverFlows()
-							              .toVertex()
-											.withCharacteristic("dummyType", List.of("dummyLabel3", "dummyLabel2"))
-							              .create(),
-							          List.of("true"),
-										List.of("(not sink_label_dummyLabel2)")
-								),
-								new SelectorTestCase("Both need ot remove their label",
-										new ConstraintDSL().fromNode()
-												.neverFlows()
-												.toVertex()
-												.withCharacteristic("dummyType", List.of("dummyLabel1", "dummyLabel2")).create(),
-										List.of("(not source_label_dummyLabel1)"),
-										List.of("(not sink_label_dummyLabel2)")
-								),
-								new SelectorTestCase("Empty list always satisfied for normal selector",
-										new ConstraintDSL().fromNode()
-												.neverFlows()
-												.toVertex().withCharacteristic("dummyType", List.of()).create(),
-										List.of("true"), List.of("true")),
-								new SelectorTestCase("Both need to add the label",
-										new ConstraintDSL().fromNode()
-												.neverFlows().toVertex().withoutCharacteristic("dummyType", List.of("dummyLabel3")).create(),
-										List.of("source_label_dummyLabel3"),
-										List.of("sink_label_dummyLabel3")),
-								new SelectorTestCase("Empty list never satisfied for inverted",
-										new ConstraintDSL().fromNode()
-											.neverFlows()
-												.toVertex().withoutCharacteristic("dummyType", List.of()).create(),
-										List.of("false"), List.of("false"))
 
-		   );
-		}
+	static Stream<SelectorTestCase> vertexCharacteristicsListDestinationCases() {
+		return Stream.of(
+				new SelectorTestCase("Source Label",
+						new ConstraintDSL().fromNode().neverFlows().toVertex()
+								.withCharacteristic(LABELTYPE, List.of(LABEL1)).create(),
+						List.of("(not " + nodeLabel(SOURCE, LABEL1) + ")"), List.of(TRUE)),
+				new SelectorTestCase("Sink needs to remove label",
+						new ConstraintDSL().fromNode().neverFlows().toVertex()
+								.withCharacteristic(LABELTYPE, List.of(LABEL2)).create(),
+						List.of(TRUE), List.of("(not " + nodeLabel(SINK, LABEL2) + ")")),
+				new SelectorTestCase("Sink needs to remove label 2",
+						new ConstraintDSL().fromNode().neverFlows().toVertex()
+								.withCharacteristic(LABELTYPE, List.of(LABEL3, LABEL2)).create(),
+						List.of(TRUE), List.of("(not " + nodeLabel(SINK, LABEL2) + ")")),
+				new SelectorTestCase("Both need to remove their label",
+						new ConstraintDSL().fromNode().neverFlows().toVertex()
+								.withCharacteristic(LABELTYPE, List.of(LABEL1, LABEL2)).create(),
+						List.of("(not " + nodeLabel(SOURCE, LABEL1) + ")"),
+						List.of("(not " + nodeLabel(SINK, LABEL2) + ")")),
+				new SelectorTestCase("Empty list always satisfied for normal selector",
+						new ConstraintDSL().fromNode().neverFlows().toVertex().withCharacteristic(LABELTYPE, List.of())
+								.create(),
+						List.of(TRUE), List.of(TRUE)),
+				new SelectorTestCase("Both need to add the label",
+						new ConstraintDSL().fromNode().neverFlows().toVertex()
+								.withoutCharacteristic(LABELTYPE, List.of(LABEL3)).create(),
+						List.of(nodeLabel(SOURCE, LABEL3)), List.of(nodeLabel(SINK, LABEL3))),
+				new SelectorTestCase(
+						"Empty list never satisfied for inverted", new ConstraintDSL().fromNode().neverFlows()
+								.toVertex().withoutCharacteristic(LABELTYPE, List.of()).create(),
+						List.of(FALSE), List.of(FALSE)));
+	}
+
+	static Stream<SelectorTestCase> vertexCharacteristicsListSourceCases() {
+		return Stream.of(
+				new SelectorTestCase("Source needs to remove label",
+						new ConstraintDSL().fromNode().withCharacteristic(LABELTYPE, List.of(LABEL1)).neverFlows()
+								.toVertex().create(),
+						List.of("(not " + nodeLabel(SOURCE, LABEL1) + ")"),
+						List.of("(not " + nodeLabel(SOURCE, LABEL1) + ")")),
+				new SelectorTestCase("Sink needs to remove label",
+						new ConstraintDSL().fromNode().withCharacteristic(LABELTYPE, List.of(LABEL2)).neverFlows()
+								.toVertex().create(),
+						List.of(TRUE), List.of("(not " + nodeLabel(SINK, LABEL2) + ")")),
+				new SelectorTestCase("Sink needs to remove label 2",
+						new ConstraintDSL().fromNode().withCharacteristic(LABELTYPE, List.of(LABEL3, LABEL2))
+								.neverFlows().toVertex().create(),
+						List.of(TRUE), List.of("(not " + nodeLabel(SINK, LABEL2) + ")")),
+				new SelectorTestCase("Both need to remove their label", new ConstraintDSL().fromNode()
+						.withCharacteristic(LABELTYPE, List.of(LABEL1, LABEL2)).neverFlows().toVertex().create(),
+						List.of("(not " + nodeLabel(SOURCE, LABEL1) + ")"),
+						List.of("(not (or " + nodeLabel(SINK, LABEL2) + " " + nodeLabel(SOURCE, LABEL1) + "))",
+								"(not (or " + nodeLabel(SOURCE, LABEL1) + " " + nodeLabel(SINK, LABEL2) + "))")),
+				new SelectorTestCase("Empty list always satisfied for normal selector",
+						new ConstraintDSL().fromNode().withCharacteristic(LABELTYPE, List.of()).neverFlows().toVertex()
+								.create(),
+						List.of(TRUE), List.of(TRUE)),
+				new SelectorTestCase(
+						"Both need to add the label", new ConstraintDSL().fromNode()
+								.withoutCharacteristic(LABELTYPE, List.of(LABEL3)).neverFlows().toVertex().create(),
+						List.of(nodeLabel(SOURCE, LABEL3)),
+						List.of("(not (or (not " + nodeLabel(SINK, LABEL3) + ") (not " + nodeLabel(SOURCE, LABEL3)
+								+ ")))",
+								"(not (or (not " + nodeLabel(SOURCE, LABEL3) + ") (not " + nodeLabel(SINK, LABEL3)
+										+ ")))")),
+				new SelectorTestCase(
+						"Empty list never satisfied for inverted", new ConstraintDSL().fromNode()
+								.withoutCharacteristic(LABELTYPE, List.of()).neverFlows().toVertex().create(),
+						List.of(FALSE), List.of(FALSE)));
+	}
+
 }
