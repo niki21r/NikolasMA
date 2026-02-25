@@ -24,7 +24,7 @@ Make
 2.1 Clone the Z3 Prover repository
     `git clone git@github.com:Z3Prover/z3.git`
 
-2.2 Install the Z3 Prover (github.com/Z3Prover/z3) on your machine according to ther installation instruction.
+2.2 Install the Z3 Prover (github.com/Z3Prover/z3) on your machine according to ther installation instruction. Ensure that you create the Java Bindings.
     We developed this project with Z3 version 4.15.5 - 64 bit 
 
 2.3 Return to the base folder
