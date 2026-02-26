@@ -216,7 +216,7 @@ Click **Finish**.
 Locate:
 
 ```
-dev.arcovia.mitigation.smt.tests/src/dev.arcovia.mitigation.smt.tests/src/dev/arcovia/mitigation/smt/tests/RuntimeComparisonTest.java
+dev.arcovia.mitigation.smt.tests/src/dev/arcovia/mitigation/smt/tests/evaluation/RuntimeComparisonTest.java
 ```
 
 Right-click → **Run As → JUnit Test**
