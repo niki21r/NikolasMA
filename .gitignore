@@ -76,7 +76,6 @@ tests/dev.arcovia.mitigation.sat.tests/efficencyTest/*.json
 !*literalMapping.json
 
 # Test result artifacts
-/tests/dev.arcovia.mitigation.smt.tests/testresults/**/*.png
 /tests/dev.arcovia.mitigation.smt.tests/testresults/**/*.cnf
 
 
