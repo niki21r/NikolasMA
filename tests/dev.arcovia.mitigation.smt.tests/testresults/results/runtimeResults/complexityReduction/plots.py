@@ -35,7 +35,7 @@ def plot_complexity_reduction(data, out_png: Path):
 
 def main():
     input_json = Path("data.json")
-    out_png = Path("plots.png")  
+    out_png = Path("plots.pdf")  
 
     data = load_data(input_json)
     plot_complexity_reduction(data, out_png)

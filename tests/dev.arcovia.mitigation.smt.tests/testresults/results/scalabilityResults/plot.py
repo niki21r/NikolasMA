@@ -27,7 +27,7 @@ from matplotlib.ticker import FuncFormatter, LogLocator
 
 SMT_FILE_NAME = "smtData.json"
 SAT_FILE_NAME = "satData.json"
-OUT_FILE_NAME = "plot.png"
+OUT_FILE_NAME = "plot.pdf"
 
 
 def _require_int(obj: Dict[str, Any], key: str) -> int:

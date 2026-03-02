@@ -98,7 +98,7 @@ def make_modification_png(input_json: Path, output_png: Path):
 
 if __name__ == "__main__":
     input_json = Path("data.json")
-    output_png = Path("modifications.png")
+    output_png = Path("modifications.pdf")
 
     make_modification_png(input_json, output_png)
     print(f"Wrote: {output_png.resolve()}")
