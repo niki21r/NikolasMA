@@ -128,7 +128,7 @@ def make_cost_png(input_json: Path, output_png: Path):
 
 if __name__ == "__main__":
     input_json = Path("data.json")
-    output_png = Path("plot.png")
+    output_png = Path("plot.pdf")
     make_cost_png(input_json, output_png)
     print(f"Wrote: {output_png.resolve()}")
 

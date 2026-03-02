@@ -31,7 +31,7 @@ def make_dag_memory_png(input_json: Path, output_png: Path):
 
 if __name__ == "__main__":
     input_json = Path("data.json")
-    output_png = Path("dag_vs_memory.png")
+    output_png = Path("dag_vs_memory.pdf")
 
     make_dag_memory_png(input_json, output_png)
     print(f"Wrote: {output_png.resolve()}")

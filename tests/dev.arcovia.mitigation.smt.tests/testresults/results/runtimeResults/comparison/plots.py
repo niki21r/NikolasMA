@@ -77,7 +77,7 @@ def main():
 
     data = load_data(input_json)
 
-    plot_sat_vs_smt(data, out_dir / "sat_vs_smt.png")
+    plot_sat_vs_smt(data, out_dir / "sat_vs_smt.pdf")
     plot_offset_vs_dag(data, out_dir / "offset_vs_dag.png")
     plot_offset_vs_clause(data, out_dir / "offset_vs_clause.png")
 
