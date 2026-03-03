@@ -1,79 +1,80 @@
 import json
 import math
-from math import erf, sqrt
+from scipy.stats import wilcoxon, rankdata, norm
 
-# ---- Load JSON ----
-with open("data.json", "r") as f:
-    data = json.load(f)
+file = open("data.json", "r")
+data = json.load(file)
+file.close()
 
-smt = [entry["smtCost"] for entry in data]
-sat = [entry["satCost"] for entry in data]
+smt = []
+sat = []
 
-diff_all = [s - t for s, t in zip(smt, sat)]
+for entry in data:
+    smt.append(entry["smtCost"])
+    sat.append(entry["satCost"])
 
-# Remove zero differences
-diff = [d for d in diff_all if d != 0]
-n = len(diff)
+diff_all = []
+for i in range(len(smt)):
+    diff_all.append(smt[i] - sat[i])
 
-print(f"Total pairs: {len(diff_all)}")
-print(f"Zero-difference pairs removed: {len(diff_all) - n}")
-print(f"Non-zero pairs used in test: {n}")
+identical = 0
+for d in diff_all:
+    if d == 0:
+        identical += 1
 
-pos = sum(1 for d in diff if d > 0)
-neg = sum(1 for d in diff if d < 0)
-print(f"Non-zero diffs: {neg} negative (SMT<SAT), {pos} positive (SMT>SAT)")
+differing = len(diff_all) - identical
 
-# ---- Rank absolute differences (with average ranks for ties) ----
-abs_diff = list(map(abs, diff))
-sorted_idx = sorted(range(n), key=lambda i: abs_diff[i])
+sum_total_difference = 0
+for d in diff_all:
+    sum_total_difference += d
 
-ranks = [0.0] * n
-rank = 1
-i = 0
-while i < n:
-    j = i
-    while j + 1 < n and abs_diff[sorted_idx[j]] == abs_diff[sorted_idx[j + 1]]:
-        j += 1
+diff = []
+for d in diff_all:
+    if d != 0:
+        diff.append(d)
 
-    avg_rank = (rank + (rank + (j - i))) / 2.0
-    for k in range(i, j + 1):
-        ranks[sorted_idx[k]] = avg_rank
+N = len(diff)
 
-    rank += (j - i + 1)
-    i = j + 1
+abs_diff = []
+for d in diff:
+    abs_diff.append(abs(d))
 
-W_plus = sum(r for r, d in zip(ranks, diff) if d > 0)
-W_minus = sum(r for r, d in zip(ranks, diff) if d < 0)
+ranks = rankdata(abs_diff, method="average")
 
-# Common reporting choice:
-W = min(W_plus, W_minus)
+W_plus = 0.0
+W_minus = 0.0
 
-# ---- Normal approximation for Z (no tie correction) ----
-mean_W = n * (n + 1) / 4.0
-sd_W = math.sqrt(n * (n + 1) * (2 * n + 1) / 24.0)
+for i in range(N):
+    if diff[i] > 0:
+        W_plus += ranks[i]
+    elif diff[i] < 0:
+        W_minus += ranks[i]
 
-Z = (W - mean_W) / sd_W
+W = W_plus
+if W_minus < W:
+    W = W_minus
 
-# One-sided p-value for alternative "less" (SMT < SAT) corresponds to Z being small/negative
-# p = Phi(Z)
-p_value = 0.5 * (1.0 + erf(Z / sqrt(2.0)))
+result = wilcoxon(
+    smt,
+    sat,
+    alternative="less",
+    zero_method="wilcox",
+    correction=False,
+    mode="auto"
+)
 
-r = abs(Z) / math.sqrt(n)
-# ---- Additional descriptive statistics ----
-total_difference = sum(diff_all)
-total_absolute_difference = sum(abs(d) for d in diff_all)
+z = norm.ppf(result.pvalue)
 
-mean_difference = total_difference / len(diff_all)
+if N > 0:
+    R = abs(z) / math.sqrt(N)
+else:
+    R = 0
 
-print("\n--- Descriptive Difference Statistics ---")
-print(f"Total raw difference (sum SMT - SAT): {total_difference}")
-print(f"Total absolute difference: {total_absolute_difference}")
-print(f"Mean difference: {mean_difference:.4f}")
-
-print("\n--- Results ---")
-print(f"W+ (sum ranks where SMT>SAT): {W_plus:.3f}")
-print(f"W- (sum ranks where SMT<SAT): {W_minus:.3f}")
-print(f"W  (min(W+,W-)): {W:.3f}")
-print(f"Z value: {Z:.4f}")
-print(f"One-sided p-value: {p_value:.12f}")  # fixed decimal
-print(f"Effect size r: {r:.4f}")
+print("Amount of Identical Values:", identical)
+print("Amount of differing values:", differing)
+print("Sum of the total difference (sum SMT - sum SAT):", sum_total_difference)
+print(f"W: {result.statistic}")
+print(f"p-value: {result.pvalue:.12f}")
+print("R:", R)
+print("N:", N)
+print(f"Wilcoxon scipy result: {result}")
