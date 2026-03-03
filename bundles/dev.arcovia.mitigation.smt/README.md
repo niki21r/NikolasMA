@@ -76,7 +76,7 @@ cd ../../
 ```bash
 git clone git@github.com:niki21r/NikolasMA.git
 cd NikolasMA/
-git checkout 4319cb0
+git checkout 2f698ff
 ```
 
 Optional: If the later test (Step 3.8) fails (for example due to linkage error),
