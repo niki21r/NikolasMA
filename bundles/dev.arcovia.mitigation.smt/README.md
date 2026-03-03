@@ -7,16 +7,23 @@ It relies on the Z3 SMT Solver.
 
 # Installation
 
-Installation and setup steps are described in detail below, with exemplary commands for Ubuntu.
+Installation and setup steps are described in detail below, with exemplary commands for Linux Mint 22.2 with kernel version 6.14.0-37-generic
 
 ## Prerequisites
+The following programms are required. We also provide the concrete versions we used for development.
 
 - Java 17  
+openjdk 17.0.17 2025-10-21
+OpenJDK Runtime Environment (build 17.0.17+10-Ubuntu-124.04)
+OpenJDK 64-Bit Server VM (build 17.0.17+10-Ubuntu-124.04, mixed mode, sharing)
 - C++ 20 or higher  
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
 - Git  
+git version 2.43.0
 - Python  
+Python 3.12.3
 - Make  
-
+GNU Make 4.3
 ---
 
 ## 1. Create a Working Directory
@@ -71,6 +78,14 @@ git clone git@github.com:niki21r/NikolasMA.git
 cd NikolasMA/
 git checkout 4319cb0
 ```
+
+Optional: If the later test (Step 3.8) fails (for example due to linkage error),
+you may have to overwrite our supplied `com.microsoft.z3.jar` with your own build version. 
+The provided jar has the version `Manifest-Version: 1.0
+Created-By: 4.3.2 (Microsoft Research LTD.)`. If you correctly build Z3 with the java bindings this jar is usually located in 
+`z3/build/com.microsoft.z3.jar`.
+Our implementation excepts this jar at `NikolasMA/bundles/dev.arcovia.mitigation.smt/lib/com.microsoft.z3.jar`.
+Its inclusion in the classpath of the java program is defined in the Manifest file at `NikolasMA/bundles/dev.arcovia.mitigation.smt/META-INF/MANIFEST.MF`
 
 ---
 
@@ -242,8 +257,8 @@ NikolasMA/tests/dev.arcovia.mitigation.smt.tests/testresults/results
 ```
 
 Python scripts are provided to reproduce the plots.  
-They rely on matplotlib.
-
+They rely on matplotlib and scipy.
+We used pip pip 24.0, 
 Example virtual environment setup:
 
 ```bash
@@ -251,11 +266,33 @@ cd NikolasMA/tests/dev.arcovia.mitigation.smt.tests/testresults/results/
 python3 -m venv venv
 source venv/bin/activate
 pip install matplotlib
+pip install scipy
+```
+
+Full list of (transitive) dependencies and their versions for python packages
+```bash
+Package         Version
+--------------- -----------
+contourpy       1.3.3
+cycler          0.12.1
+fonttools       4.61.1
+kiwisolver      1.4.9
+matplotlib      3.10.8
+numpy           2.4.2
+packaging       26.0
+pillow          12.1.1
+pip             24.0
+pyparsing       3.3.2
+python-dateutil 2.9.0.post0
+scipy           1.17.1
+six             1.17.0
 ```
 
 ---
 
 # Script Overview
+
+Example commands assume working directory as `NikolasMA/tests/dev.arcovia.mitigation.smt.tests/testresults/results`
 
 ## 1. Violations
 
@@ -267,7 +304,7 @@ python make_violations_png.py
 ```
 
 - Requires: `data.json`
-- Outputs: `violations.png`
+- Outputs: `violations.pdf`
 
 ---
 
@@ -275,17 +312,21 @@ python make_violations_png.py
 
 ### 2.1 Runtime to Expression Tree Size
 
+Plots runtime in relation to expression tree size of Z3 Assertions
+
 ```bash
 cd runtimeResults/100runs/
 python plot.py
 ```
 
 - Requires: `data.json`
-- Outputs: `dag_vs_runtime.png`
+- Outputs: `dag_vs_runtime.pdf`
 
 ---
 
 ### 2.2 Runtime Effect of Complexity Reduction
+
+Plots comparison of implementation with disabled complexity reduction to default
 
 ```bash
 cd runtimeResults/complexityReduction/
@@ -293,7 +334,7 @@ python plots.py
 ```
 
 - Requires: `data.json`
-- Outputs: `plots.png`
+- Outputs: `plots.pdf`
 
 ---
 
@@ -308,11 +349,13 @@ python plots.py
 
 - Requires: `data.json`
 - Outputs three plots in `runtimeResults/comparison/plots`
-- `sat_vs_smt.png` is used for the thesis
+- `sat_vs_smt.pdf` is used for the thesis
 
 ---
 
 ## 3. Memory Results
+
+Plots peak memory consumption in relation to expression tree size of Z3 Assertions
 
 ```bash
 cd memoryResults/freshJvm100runs/
@@ -320,7 +363,7 @@ python plot.py
 ```
 
 - Requires: `data.json`
-- Outputs: `dag_vs_memory.png`
+- Outputs: `dag_vs_memory.pdf`
 
 ---
 
@@ -328,13 +371,15 @@ python plot.py
 
 ### 4.1 Our Approach in Isolation
 
+Plots the amount of modifications required to repair all confidentiality violations
+
 ```bash
 cd modificationResults/
 python make_modifications_png.py
 ```
 
 - Requires: `data.json`
-- Outputs: `modifications.png`
+- Outputs: `modifications.pdf`
 
 ---
 
@@ -346,7 +391,7 @@ python plot.py
 ```
 
 - Requires: `data.json`
-- Outputs: `plot.png`
+- Outputs: `plot.pdf`
 
 Additional statistics:
 
@@ -364,7 +409,7 @@ python plot.py
 ```
 
 - Requires: `data.json`
-- Outputs: `plot.png`
+- Outputs: `plot.pdf`
 
 ---
 
@@ -406,4 +451,4 @@ Example:
 python plot.py labels/10Runs60Minutes/ "Amount of newly introduced dummy labels"
 ```
 
-The resulting plot is stored as `plot.png` in the respective folder.
+The resulting plot is stored as `plot.pdf` in the respective folder.
